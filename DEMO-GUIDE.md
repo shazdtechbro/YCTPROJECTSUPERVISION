@@ -43,7 +43,7 @@ second — no refresh.
 2. Left nav → **Projects** → click **New project** (top right).
 3. Fill in:
    - **Student email:** `sannishazily@gmail.com`
-   - **Title:** e.g. *Automated timetable generator for ND programmes*
+   - **Title:** e.g. *Automated timetable generator for HND programmes*
    - **Abstract:** any 2–3 sentences (min 20 characters)
    - **Defense date:** pick a date **about 3 weeks from today** (this
      matters for Part 4)
