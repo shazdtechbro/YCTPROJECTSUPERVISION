@@ -1,0 +1,33 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Send authenticated database ping
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_ANON_KEY"
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --request POST --url "${SUPABASE_URL%/}/rest/v1/rpc/keepalive_ping" --header "apikey: ${SUPABASE_ANON_KEY}" --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" --header "Content-Type: application/json" --data '{}')"
+          if [ "$status" != "200" ]; then
+            echo "Supabase ping returned HTTP $status" >&2
+            exit 1
+          fi
+          echo "Supabase database ping succeeded."
