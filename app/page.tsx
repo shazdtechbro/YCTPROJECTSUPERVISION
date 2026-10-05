@@ -22,15 +22,17 @@ export default async function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center border-2 border-border bg-foreground text-background shadow-brutal-sm">
-            <span className="text-sm font-black">P</span>
-          </div>
-          <span className="text-sm font-black uppercase tracking-tight">
-            Project&nbsp;Supervision
+      <header className="mx-auto flex max-w-6xl items-center justify-between border-b border-border px-5 py-4">
+        <Link href="/" className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <img
+            src="https://yabatech.edu.ng/img/logss.png"
+            alt="Yaba College of Technology"
+            className="h-10 w-auto object-contain"
+          />
+          <span className="border-l-2 border-accent pl-3 text-xs font-black uppercase leading-tight tracking-wide">
+            Project<br />Supervision
           </span>
-        </div>
+        </Link>
         <nav className="flex items-center gap-2">
           {!user && (
             <Link
@@ -52,7 +54,7 @@ export default async function LandingPage() {
 
       {/* hero */}
       <section className="mx-auto max-w-6xl px-5 pb-8 pt-10 sm:pt-20">
-        <span className="inline-block -rotate-1 border-2 border-border bg-[hsl(var(--status-behind))] px-2 py-0.5 text-2xs font-black uppercase tracking-wide text-black shadow-brutal-sm">
+        <span className="inline-block -rotate-1 border-2 border-border bg-accent px-2 py-0.5 text-2xs font-black uppercase tracking-wide text-accent-foreground shadow-brutal-sm">
           YABATECH HND · Final-year projects
         </span>
         <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
@@ -211,7 +213,7 @@ export default async function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-5 py-6 text-2xs text-muted-foreground sm:flex-row sm:items-center">
           <span>
             Digital Project Supervision &amp; Progress Tracking System · YABATECH
-            ND
+            HND
           </span>
           <span className="flex gap-4">
             <Link href="/login" className="hover:text-foreground">
