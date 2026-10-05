@@ -48,7 +48,7 @@ export function AppShell({
         </div>
         <SidebarNav items={nav} />
         <div className="mt-auto px-4 py-3 text-2xs text-muted-foreground">
-          YABATECH ND · {user.department}
+          YABATECH HND · {user.department}
         </div>
       </aside>
 
