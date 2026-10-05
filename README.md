@@ -1,6 +1,6 @@
 # Digital Project Supervision & Progress Tracking System
 
-YABATECH ND project. Supervisors run final-year projects, students submit work and
+YABATECH HND project. Supervisors run final-year projects, students submit work and
 track milestones, the HOD sees the whole department.
 
 **Stack:** Next.js 14 (App Router) · TypeScript (strict) · Tailwind + shadcn/ui ·
