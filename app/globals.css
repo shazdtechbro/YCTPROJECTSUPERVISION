@@ -3,77 +3,64 @@
 @tailwind utilities;
 
 /*
- * Design language — minimalist neo-brutalism. Pure black & white, 2px black
- * borders, hard offset shadows (no blur), flat fills, bold type. The three
- * status colours (green / amber / red) are the only hues, used as flat chips.
+ * YABATECH identity: forest green, clean ivory, and warm gold. Shared tokens
+ * keep the same palette across dashboards, forms, navigation, and feedback.
  */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --surface: 0 0% 97%;
-    --foreground: 0 0% 0%;
-
+    --background: 54 42% 98%;
+    --surface: 138 34% 95%;
+    --foreground: 153 76% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 153 76% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-
-    --primary: 0 0% 0%;
+    --popover-foreground: 153 76% 14%;
+    --primary: 148 77% 25%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 35%;
-    --accent: 0 0% 90%;
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 84% 55%;
+    --secondary: 139 32% 89%;
+    --secondary-foreground: 153 72% 17%;
+    --muted: 138 27% 93%;
+    --muted-foreground: 153 20% 36%;
+    --accent: 47 100% 86%;
+    --accent-foreground: 153 76% 14%;
+    --destructive: 0 76% 49%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 0%;
-    --input: 0 0% 0%;
-    --ring: 0 0% 0%;
-
-    --radius: 0.4rem;
-
-    --status-on-track: 145 63% 42%;
-    --status-behind: 40 96% 50%;
-    --status-stalled: 0 84% 55%;
-
+    --border: 150 48% 29%;
+    --input: 145 26% 76%;
+    --ring: 46 96% 48%;
+    --shadow-color: 153 76% 14%;
+    --radius: 0.6rem;
+    --status-on-track: 145 63% 36%;
+    --status-behind: 43 96% 48%;
+    --status-stalled: 0 76% 49%;
     --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
   :root.dark {
-    --background: 0 0% 7%;
-    --surface: 0 0% 11%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 16%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 0%;
-
-    --border: 0 0% 100%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 100%;
-
-    --status-on-track: 145 55% 50%;
-    --status-behind: 40 96% 55%;
-    --status-stalled: 0 84% 62%;
+    --background: 157 38% 7%;
+    --surface: 157 32% 11%;
+    --foreground: 52 42% 95%;
+    --card: 157 30% 10%;
+    --card-foreground: 52 42% 95%;
+    --popover: 157 30% 10%;
+    --popover-foreground: 52 42% 95%;
+    --primary: 47 96% 57%;
+    --primary-foreground: 153 76% 12%;
+    --secondary: 157 25% 19%;
+    --secondary-foreground: 52 42% 93%;
+    --muted: 157 22% 17%;
+    --muted-foreground: 145 18% 69%;
+    --accent: 153 38% 22%;
+    --accent-foreground: 47 100% 78%;
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 153 22% 31%;
+    --input: 153 20% 37%;
+    --ring: 47 96% 57%;
+    --shadow-color: 47 96% 57%;
+    --status-on-track: 145 58% 49%;
+    --status-behind: 43 96% 56%;
+    --status-stalled: 0 72% 62%;
   }
 }
 
@@ -97,31 +84,27 @@
     font-variant-numeric: tabular-nums;
   }
   ::selection {
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
   }
 }
 
 @layer components {
-  /* Hard offset shadow — the signature neo-brutalist move. */
   .shadow-brutal {
-    box-shadow: 3px 3px 0 0 hsl(var(--foreground));
+    box-shadow: 3px 3px 0 0 hsl(var(--shadow-color));
   }
   .shadow-brutal-sm {
-    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
+    box-shadow: 2px 2px 0 0 hsl(var(--shadow-color));
   }
   .shadow-brutal-lg {
-    box-shadow: 5px 5px 0 0 hsl(var(--foreground));
+    box-shadow: 5px 5px 0 0 hsl(var(--shadow-color));
   }
-  /* Pressable: shadow collapses and the element nudges into it. */
   .press {
-    transition:
-      transform 80ms ease,
-      box-shadow 80ms ease;
+    transition: transform 100ms ease, box-shadow 100ms ease;
   }
   .press:active {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 0 hsl(var(--foreground));
+    box-shadow: 1px 1px 0 0 hsl(var(--shadow-color));
   }
 }
 
