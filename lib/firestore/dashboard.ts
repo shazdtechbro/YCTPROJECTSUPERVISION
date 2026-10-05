@@ -43,7 +43,8 @@ export async function getDepartmentDashboardStats(
     collection(getDb(), paths.dashboardStats).withConverter(
       dashboardStatsConverter
     ),
-    where("department", "==", department)
+    where("department", "==", department),
+    limit(100)
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => d.data());
