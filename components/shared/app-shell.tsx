@@ -14,11 +14,13 @@ import { NotificationBell } from "./notification-bell";
 
 function Brand() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex h-6 w-6 items-center justify-center border-2 border-border bg-foreground text-background">
-        <span className="text-xs font-black">P</span>
-      </div>
-      <span className="text-sm font-black uppercase tracking-tight">
+    <div className="flex min-w-0 items-center gap-2.5">
+      <img
+        src="https://yabatech.edu.ng/img/logss.png"
+        alt="Yaba College of Technology"
+        className="h-8 w-auto shrink-0 object-contain"
+      />
+      <span className="max-w-[7rem] border-l-2 border-accent pl-2.5 text-xs font-black uppercase leading-tight tracking-wide">
         Project Supervision
       </span>
     </div>
