@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · Project Supervision",
   },
   description:
-    "YABATECH ND — supervise final-year projects, track milestones, review submissions.",
+    "YABATECH HND — supervise final-year projects, track milestones, review submissions.",
 };
 
 export default function RootLayout({
