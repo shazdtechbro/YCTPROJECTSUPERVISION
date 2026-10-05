@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const siteTitle = "YABATECH Project Supervision System";
 const siteDescription = "A YABATECH HND workspace for students, supervisors and the HOD to track project milestones, review submissions and exchange feedback.";
 const socialPreview = {
-  url: "/og-preview.png",
+  url: "/yabatech-og-preview.png",
   width: 1200,
   height: 630,
   alt: "YABATECH HND Project Supervision System",
