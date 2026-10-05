@@ -10,8 +10,8 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 const SESSION_COOKIE = "__session";
 const AUTH_PAGES = ["/login", "/signup"];
-/** Reachable without a session. */
-const PUBLIC = ["/", "/login", "/signup", "/opengraph-image", "/og-preview.png"];
+/** Reachable without a session, including the social preview image. */
+const PUBLIC = ["/", "/login", "/signup", "/opengraph-image", "/yabatech-og-preview.png"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -19,21 +19,18 @@ export function middleware(req: NextRequest) {
   const isPublic = PUBLIC.some(
     (p) => pathname === p || (p !== "/" && pathname.startsWith(p + "/")),
   );
-
   if (!hasSession && !isPublic) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
-
   if (hasSession && AUTH_PAGES.includes(pathname)) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     url.search = "";
     return NextResponse.redirect(url);
   }
-
   return NextResponse.next();
 }
 
