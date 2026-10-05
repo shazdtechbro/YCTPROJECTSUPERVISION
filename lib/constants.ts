@@ -1,6 +1,6 @@
 import type { Role } from "@/lib/types";
 
-/** Fixed department list (YABATECH ND). Used for signup + filtering. */
+/** Fixed department list (YABATECH HND). Used for signup + filtering. */
 export const DEPARTMENTS = [
   "Computer Science",
   "Computer Engineering",
