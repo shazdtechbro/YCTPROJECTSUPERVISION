@@ -116,12 +116,12 @@ function LoginForm() {
       </Button>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        No account?{" "}
+        You don’t have an account?{" "}
         <Link
           href="/signup"
           className="font-bold text-foreground underline underline-offset-4"
         >
-          Create one
+          Create an account
         </Link>
       </p>
     </div>
