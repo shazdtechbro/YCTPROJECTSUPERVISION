@@ -11,7 +11,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const SESSION_COOKIE = "__session";
 const AUTH_PAGES = ["/login", "/signup"];
 /** Reachable without a session. */
-const PUBLIC = ["/", "/login", "/signup"];
+const PUBLIC = ["/", "/login", "/signup", "/opengraph-image"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
