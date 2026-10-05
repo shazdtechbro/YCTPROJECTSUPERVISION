@@ -53,7 +53,7 @@ export default async function LandingPage() {
       {/* hero */}
       <section className="mx-auto max-w-6xl px-5 pb-8 pt-10 sm:pt-20">
         <span className="inline-block -rotate-1 border-2 border-border bg-[hsl(var(--status-behind))] px-2 py-0.5 text-2xs font-black uppercase tracking-wide text-black shadow-brutal-sm">
-          YABATECH ND · Final-year projects
+          YABATECH HND · Final-year projects
         </span>
         <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
           Supervise projects without the
