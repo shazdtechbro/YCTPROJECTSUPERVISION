@@ -8,12 +8,14 @@ export default function AuthLayout({
   return (
     <div className="flex min-h-screen flex-col bg-surface">
       <header className="mx-auto flex w-full max-w-md items-center justify-between px-6 pt-10">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center border-2 border-border bg-foreground text-background shadow-brutal-sm">
-            <span className="text-xs font-black">P</span>
-          </div>
-          <span className="text-sm font-black uppercase tracking-tight">
-            Project Supervision
+        <Link href="/" className="inline-flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 shadow-brutal-sm">
+          <img
+            src="https://yabatech.edu.ng/img/logss.png"
+            alt="Yaba College of Technology"
+            className="h-9 w-auto object-contain"
+          />
+          <span className="border-l-2 border-accent pl-3 text-xs font-black uppercase leading-tight tracking-wide">
+            Project<br />Supervision
           </span>
         </Link>
       </header>
