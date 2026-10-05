@@ -70,9 +70,9 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        brutal: "3px 3px 0 0 hsl(var(--foreground))",
-        "brutal-sm": "2px 2px 0 0 hsl(var(--foreground))",
-        "brutal-lg": "5px 5px 0 0 hsl(var(--foreground))",
+        brutal: "3px 3px 0 0 hsl(var(--shadow-color))",
+        "brutal-sm": "2px 2px 0 0 hsl(var(--shadow-color))",
+        "brutal-lg": "5px 5px 0 0 hsl(var(--shadow-color))",
         none: "none",
       },
       fontSize: {
