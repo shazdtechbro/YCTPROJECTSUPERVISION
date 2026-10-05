@@ -25,7 +25,7 @@ export default function AuthLayout({
       </main>
 
       <footer className="mx-auto w-full max-w-md px-6 pb-10 text-2xs text-muted-foreground">
-        YABATECH ND · Digital Project Supervision &amp; Progress Tracking
+        YABATECH HND · Digital Project Supervision &amp; Progress Tracking
       </footer>
     </div>
   );
