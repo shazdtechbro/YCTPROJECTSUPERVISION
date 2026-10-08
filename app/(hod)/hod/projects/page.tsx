@@ -134,7 +134,8 @@ export default function HodProjects() {
                       </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {p.studentName}
+                      <span className="block">{p.studentName}</span>
+                      <span className="text-xs">{p.studentMatricNumber || "Matric number not recorded"}</span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {p.supervisorName}
