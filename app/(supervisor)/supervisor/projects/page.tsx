@@ -106,7 +106,8 @@ export default function SupervisorProjects() {
                     </Link>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {p.studentName}
+                    <span className="block">{p.studentName}</span>
+                    <span className="text-xs">{p.studentMatricNumber || "Matric number not recorded"}</span>
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={p.milestoneStatus} />
