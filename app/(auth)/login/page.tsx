@@ -29,7 +29,7 @@ function mapAuthError(code?: string): string {
 }
 
 function LoginForm() {
-  const { signInWithPassword, signInWithGoogle } = useAuth();
+  const { signInWithPassword, signInWithMatric, signInWithGoogle } = useAuth();
   const router = useRouter();
   const nextParam = useSearchParams().get("next");
 
@@ -67,19 +67,23 @@ function LoginForm() {
         className="mt-6 space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          void run("password", () => signInWithPassword(email.trim(), password));
+          const credential = email.trim();
+          const matric = /^[FDP]\/(?:ND|HD)\/\d{2}\/\d{7}$/i.test(credential);
+          void run("password", () => matric
+            ? signInWithMatric(credential, password)
+            : signInWithPassword(credential, password));
         }}
       >
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email or matriculation number</Label>
           <Input
             id="email"
-            type="email"
-            autoComplete="email"
+            type="text"
+            autoComplete="username"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@yabatech.edu.ng"
+            placeholder="name@example.com or F/HD/24/3211001"
           />
         </div>
         <div className="space-y-1.5">
