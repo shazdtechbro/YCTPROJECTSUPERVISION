@@ -1,0 +1,97 @@
+{
+  "source": "Screenshots supplied by the project owner in the chat on 8 October 2026",
+  "raw_screenshot_count": 13,
+  "application_figure_count": 8,
+  "figures": [
+    {
+      "number": "4.1",
+      "caption": "Account Registration and Student Identification",
+      "sources": [
+        "01-account-registration.jpg",
+        "02-student-registration-details.jpg"
+      ],
+      "panels": [
+        "(a) Role selection and student registration fields.",
+        "(b) Student details, department selection and account creation."
+      ]
+    },
+    {
+      "number": "4.2",
+      "caption": "Departmental Supervisor Selection and Topic/Team Setup",
+      "sources": [
+        "03-supervisor-directory.jpg",
+        "04-topic-partner-form.jpg"
+      ],
+      "panels": [
+        "(a) Supervisors listed for the student\u2019s department.",
+        "(b) Selected supervisor, proposed topic and partner-entry controls."
+      ]
+    },
+    {
+      "number": "4.3",
+      "caption": "Topic-Submission Confirmation and the Student Project Dashboard",
+      "sources": [
+        "09-submission-confirmation.jpg",
+        "05-student-pending-dashboard.jpg"
+      ],
+      "panels": [
+        "(a) Successful topic-submission confirmation.",
+        "(b) Pending topic, initial progress and project summary."
+      ]
+    },
+    {
+      "number": "4.4",
+      "caption": "Chapter Stages, Deadline Extension and Project Activity History",
+      "sources": [
+        "07-extension-activity-history.jpg"
+      ],
+      "panels": [
+        "Chapter states, deadline-extension controls and timestamped project activity."
+      ]
+    },
+    {
+      "number": "4.5",
+      "caption": "Supervisor Dashboard and Topic-Decision Controls",
+      "sources": [
+        "08-supervisor-dashboard.jpg",
+        "10-supervisor-topic-controls.jpg"
+      ],
+      "panels": [
+        "(a) Supervisor workload summary before project activity.",
+        "(b) Pending topic with approval, decline and pending controls."
+      ]
+    },
+    {
+      "number": "4.6",
+      "caption": "Supervisor Project Overview, Student Identity and Defence-Date Control",
+      "sources": [
+        "11-supervisor-project-overview.jpg"
+      ],
+      "panels": [
+        "Project overview showing matriculation identity, team, navigation tabs and defence-date entry."
+      ]
+    },
+    {
+      "number": "4.7",
+      "caption": "HOD Activity Dashboard and Departmental Project-Health Overview",
+      "sources": [
+        "12-hod-activity-dashboard.jpg",
+        "13-hod-project-overview.jpg"
+      ],
+      "panels": [
+        "(a) Departmental counters, response metric and supervision-activity chart.",
+        "(b) Department projects with progress and health classifications."
+      ]
+    },
+    {
+      "number": "4.8",
+      "caption": "Departmental Supervisor Workload and Responsiveness",
+      "sources": [
+        "14-hod-supervisor-workload.jpg"
+      ],
+      "panels": [
+        "Supervisor workload, overdue-project and response summaries."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Area,Acceptance criterion,Result,Evidence basis
+Registration and login,Student matriculation identity and account login operate correctly; staff use their registered email accounts.,Passed,Functional acceptance completed and confirmed by the project owner
+Supervisor/topic setup,"The student selects a departmental supervisor, submits a topic and includes eligible registered partners.",Passed,Functional acceptance completed and confirmed by the project owner
+Membership and notifications,Added partners receive the project event and can access the shared project; notifications identify relevant workflow actions.,Passed,Functional acceptance completed and confirmed by the project owner
+Topic decisions,"The assigned supervisor can approve, decline or retain Pending; a declined topic can be revised and resubmitted by the lead.",Passed,Functional acceptance completed and confirmed by the project owner
+Chapter work and review,"Document upload, revisions, feedback, grades and current-version review states support chapter progression.",Passed,Functional acceptance completed and confirmed by the project owner
+Progress and final approval,Approved stages produce 20-per-cent increments; all five approved chapters are required before final submission and approval.,Passed,Functional acceptance completed and confirmed by the project owner
+Tickets and activity,Project communication and timestamped decisions are recorded and retrievable by authorised users.,Passed,Functional acceptance completed and confirmed by the project owner
+Deadline and defence date,Extension requests and supervisor decisions work; deadline and defence-date values remain distinct.,Passed,Functional acceptance completed and confirmed by the project owner
+Department monitoring,"HOD project, supervisor, workload and activity views provide the authorised department overview.",Passed,Functional acceptance completed and confirmed by the project owner
+Responsive use and logout,Layouts support mobile use and logout returns the account to signed-out behaviour with protected access requiring login.,Passed,Functional acceptance completed and confirmed by the project owner
