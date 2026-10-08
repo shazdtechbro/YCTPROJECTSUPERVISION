@@ -42,7 +42,10 @@ function LoginForm() {
     try {
       const role = await fn();
       const dest =
-        nextParam && nextParam.startsWith("/") && !nextParam.startsWith("/login")
+        nextParam &&
+        nextParam.startsWith("/") &&
+        !nextParam.startsWith("/login") &&
+        !nextParam.startsWith("//")
           ? nextParam
           : homePathForRole(role);
       router.replace(dest);
@@ -69,9 +72,11 @@ function LoginForm() {
           e.preventDefault();
           const credential = email.trim();
           const matric = /^[FDP]\/(?:ND|HD)\/\d{2}\/\d{7}$/i.test(credential);
-          void run("password", () => matric
-            ? signInWithMatric(credential, password)
-            : signInWithPassword(credential, password));
+          void run("password", () =>
+            matric
+              ? signInWithMatric(credential, password)
+              : signInWithPassword(credential, password),
+          );
         }}
       >
         <div className="space-y-1.5">
@@ -97,7 +102,11 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full" loading={pending === "password"}>
+        <Button
+          type="submit"
+          className="w-full"
+          loading={pending === "password"}
+        >
           Sign in
         </Button>
       </form>

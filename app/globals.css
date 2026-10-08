@@ -15,13 +15,13 @@
     --card-foreground: 153 76% 14%;
     --popover: 0 0% 100%;
     --popover-foreground: 153 76% 14%;
-    --primary: 148 77% 25%;
+    --primary: 120 100% 20%;
     --primary-foreground: 0 0% 100%;
     --secondary: 139 32% 89%;
     --secondary-foreground: 153 72% 17%;
     --muted: 138 27% 93%;
     --muted-foreground: 153 20% 36%;
-    --accent: 47 100% 86%;
+    --accent: 47.4 100% 49.6%;
     --accent-foreground: 153 76% 14%;
     --destructive: 0 76% 49%;
     --destructive-foreground: 0 0% 100%;
@@ -33,7 +33,7 @@
     --status-on-track: 145 63% 36%;
     --status-behind: 43 96% 48%;
     --status-stalled: 0 76% 49%;
-    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-sans: "Roboto", ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
   :root.dark {
@@ -94,14 +94,47 @@
  * project tables/tabs to scroll within their own region, and preserve touch
  * sized controls without inflating the desktop typography. */
 @media (max-width: 640px) {
-  body { font-size: 16px; }
-  input, select, textarea, button { font-size: 16px; }
-  .text-2xs { font-size: 0.75rem; line-height: 1rem; }
-  [role="tablist"] { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; }
-  [role="tab"] { min-height: 40px; flex: 0 0 auto; }
-  table { min-width: 40rem; }
-  .mobile-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  [role="dialog"] { max-height: calc(100dvh - 1.5rem); overflow-y: auto; }
+  body {
+    font-size: 16px;
+  }
+  .text-xs {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+  main {
+    overflow-wrap: anywhere;
+  }
+  input:not([type="radio"]):not([type="checkbox"]),
+  select,
+  textarea:not([hidden]),
+  button:not([hidden]) {
+    font-size: 16px;
+  }
+  .text-2xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  [role="tablist"] {
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  [role="tab"] {
+    min-height: 40px;
+    flex: 0 0 auto;
+  }
+  table {
+    min-width: 40rem;
+  }
+  .mobile-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  [role="dialog"] {
+    max-height: calc(100dvh - 1.5rem);
+    overflow-y: auto;
+  }
 }
 
 @layer components {
@@ -115,7 +148,9 @@
     box-shadow: 5px 5px 0 0 hsl(var(--shadow-color));
   }
   .press {
-    transition: transform 100ms ease, box-shadow 100ms ease;
+    transition:
+      transform 100ms ease,
+      box-shadow 100ms ease;
   }
   .press:active {
     transform: translate(2px, 2px);

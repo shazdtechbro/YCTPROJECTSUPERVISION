@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   if (!idToken || !role || !department || !displayName) {
     return NextResponse.json(
       { error: "idToken, role, department and displayName are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (!ROLES.includes(role as Role)) {
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     if (decoded.role) {
       return NextResponse.json(
         { error: "Account is already provisioned" },
-        { status: 409 }
+        { status: 409 },
       );
     }
   } catch {
@@ -77,11 +77,14 @@ export async function POST(req: NextRequest) {
   if (role === "student" && (!matricNumber || !isMatricNumber(matricNumber))) {
     return NextResponse.json(
       { error: "Enter a valid matric number, for example F/HD/24/3211001." },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (role !== "student" && matricNumber) {
-    return NextResponse.json({ error: "Staff accounts do not use student matric numbers." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Staff accounts do not use student matric numbers." },
+      { status: 400 },
+    );
   }
 
   const db = getAdminDb();
@@ -89,17 +92,22 @@ export async function POST(req: NextRequest) {
   if ((await userRef.get()).exists) {
     return NextResponse.json(
       { error: "Account is already provisioned" },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
-  const matricRef = matricNumber ? db.doc(`matric_index/${matricNumber.replaceAll("/", "_")}`) : null;
+  const matricRef = matricNumber
+    ? db.doc(`matric_index/${matricNumber.replaceAll("/", "_")}`)
+    : null;
   if (matricRef && (await matricRef.get()).exists) {
-    return NextResponse.json({ error: "That matric number is already registered." }, { status: 409 });
+    return NextResponse.json(
+      { error: "That matric number is already registered." },
+      { status: 409 },
+    );
   }
 
   const batch = db.batch();
-  batch.set(userRef, {
+  batch.create(userRef, {
     uid,
     displayName: displayName.trim(),
     email: (verifiedEmail ?? "").toLowerCase(),

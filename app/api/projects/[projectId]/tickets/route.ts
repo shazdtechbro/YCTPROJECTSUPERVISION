@@ -17,17 +17,22 @@ const PRIORITIES: TicketPriority[] = ["low", "medium", "high"];
 /** POST { title, body, priority, assigneeId?, dueDate? } — student or supervisor of the project. */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: { projectId: string } },
 ) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const project = await loadProjectAdmin(params.projectId);
-  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  if (!project)
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
   const isMember =
-    (Array.isArray(project.memberIds) ? project.memberIds.includes(user.uid) : project.studentId === user.uid) || project.supervisorId === user.uid;
-  if (!isMember) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    (Array.isArray(project.memberIds)
+      ? project.memberIds.includes(user.uid)
+      : project.studentId === user.uid) || project.supervisorId === user.uid;
+  if (!isMember)
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   let body: {
     title?: string;
@@ -42,7 +47,10 @@ export async function POST(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
   if (!body.title?.trim() || !body.body?.trim()) {
-    return NextResponse.json({ error: "title and body are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "title and body are required" },
+      { status: 400 },
+    );
   }
   const priority = PRIORITIES.includes(body.priority as TicketPriority)
     ? (body.priority as TicketPriority)
@@ -75,7 +83,7 @@ export async function POST(
       lastActivityAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     },
-    { merge: true }
+    { merge: true },
   );
 
   const before = project.milestoneStatus;
@@ -95,22 +103,33 @@ export async function POST(
     {
       kind: "ticket",
       title: `New ticket: ${body.title.trim()}`,
-      href: projectHref(recipientIsStudent ? "student" : "supervisor", params.projectId),
+      href: projectHref(
+        recipientIsStudent ? "student" : "supervisor",
+        params.projectId,
+      ),
       actorName: user.name ?? "",
-    }
+    },
   );
 
   if (before !== verdict.status) {
     const wasOverdue = before !== "on_track" ? 1 : 0;
     const isOverdue = verdict.status !== "on_track" ? 1 : 0;
-    bumpStats(batch, db, project.supervisorId, { overdueCount: isOverdue - wasOverdue }, false);
+    bumpStats(
+      batch,
+      db,
+      project.supervisorId,
+      { overdueCount: isOverdue - wasOverdue },
+      false,
+    );
     batch.set(
       db.doc(`dashboard_stats/${project.supervisorId}`),
       {
-        [`byMilestoneStatus.${before}`]: FieldValue.increment(-1),
-        [`byMilestoneStatus.${verdict.status}`]: FieldValue.increment(1),
+        byMilestoneStatus: {
+          [before]: FieldValue.increment(-1),
+          [verdict.status]: FieldValue.increment(1),
+        },
       },
-      { merge: true }
+      { merge: true },
     );
   }
 

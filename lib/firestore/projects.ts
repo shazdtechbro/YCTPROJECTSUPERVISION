@@ -3,8 +3,16 @@
  * `/api/*` route handlers (server, admin) so `dashboard_stats` can be updated in
  * the same batch — see `lib/api/projects.ts`.
  */
-import { collection, doc, getDoc, orderBy, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 
+import { getUser } from "./users";
 import { getDb } from "@/lib/firebase";
 import type { MilestoneStatus, ProjectDoc, ProjectStatus } from "@/lib/types";
 import { projectConverter } from "./converters";
@@ -15,10 +23,10 @@ const projectsCol = () =>
   collection(getDb(), paths.projects).withConverter(projectConverter);
 
 export async function getProject(
-  projectId: string
+  projectId: string,
 ): Promise<ProjectDoc | null> {
   const snap = await getDoc(
-    doc(getDb(), paths.project(projectId)).withConverter(projectConverter)
+    doc(getDb(), paths.project(projectId)).withConverter(projectConverter),
   );
   return snap.exists() ? snap.data() : null;
 }
@@ -30,13 +38,13 @@ export async function getProject(
 export function getSupervisorProjectsPage(
   supervisorId: string,
   status: ProjectStatus,
-  params?: PageParams
+  params?: PageParams,
 ): Promise<Page<ProjectDoc>> {
   const q = query(
     projectsCol(),
     where("supervisorId", "==", supervisorId),
     where("status", "==", status),
-    orderBy("lastActivityAt", "desc")
+    orderBy("lastActivityAt", "desc"),
   );
   return fetchPage(q, params);
 }
@@ -48,33 +56,38 @@ export function getSupervisorProjectsPage(
 export function getDepartmentProjectsPage(
   department: string,
   milestoneStatus: MilestoneStatus | "all",
-  params?: PageParams
+  params?: PageParams,
 ): Promise<Page<ProjectDoc>> {
   const q =
     milestoneStatus === "all"
       ? query(
           projectsCol(),
           where("department", "==", department),
-          orderBy("lastActivityAt", "desc")
+          orderBy("lastActivityAt", "desc"),
         )
       : query(
           projectsCol(),
           where("department", "==", department),
           where("milestoneStatus", "==", milestoneStatus),
-          orderBy("lastActivityAt", "desc")
+          orderBy("lastActivityAt", "desc"),
         );
   return fetchPage(q, params);
 }
 
 /** The project(s) owned by a student (normally exactly one). */
-export function getStudentProjectsPage(
+export async function getStudentProjectsPage(
   studentId: string,
-  params?: PageParams
+  params?: PageParams,
 ): Promise<Page<ProjectDoc>> {
+  const profile = await getUser(studentId);
+  if (profile?.projectId) {
+    const project = await getProject(profile.projectId);
+    return { items: project ? [project] : [], hasMore: false, cursor: null };
+  }
   const q = query(
     projectsCol(),
     where("studentId", "==", studentId),
-    orderBy("lastActivityAt", "desc")
+    orderBy("lastActivityAt", "desc"),
   );
   return fetchPage(q, params);
 }

@@ -15,13 +15,17 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Timeline } from "@/components/shared/timeline";
-import { StatCardsSkeleton, TimelineSkeleton } from "@/components/shared/skeletons";
+import {
+  StatCardsSkeleton,
+  TimelineSkeleton,
+} from "@/components/shared/skeletons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
 import type { ActivityEvent, ProjectDoc } from "@/lib/types";
 import { ProjectRequestForm } from "@/components/student/project-request-form";
+import { ProjectWorkflowPanel } from "@/components/shared/project-workflow-panel";
 import { MatricNumberSetup } from "@/components/student/matric-number-setup";
 
 export default function StudentDashboardPage() {
@@ -51,17 +55,23 @@ export default function StudentDashboardPage() {
             <StatCardsSkeleton count={3} />
           </div>
         }
-        empty={
-          <ProjectRequestForm onCreated={project.retry} />
-        }
+        empty={<ProjectRequestForm onCreated={project.retry} />}
       >
-        {project.data && <DashboardBody project={project.data} />}
+        {project.data && (
+          <DashboardBody project={project.data} onChanged={project.retry} />
+        )}
       </QueryState>
     </div>
   );
 }
 
-function DashboardBody({ project }: { project: ProjectDoc }) {
+function DashboardBody({
+  project,
+  onChanged,
+}: {
+  project: ProjectDoc;
+  onChanged: () => void;
+}) {
   const activity = useAsyncData<ActivityEvent[]>(async () => {
     const [tickets, subs] = await Promise.all([
       getTicketsPage(project.id, { pageSize: 6 }),
@@ -103,7 +113,11 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
             <CardTitle className="text-base">{project.title}</CardTitle>
             <StatusBadge status={project.milestoneStatus} />
           </div>
-          {project.topicStatus && <p className="w-fit rounded-full border px-3 py-1 text-xs font-medium capitalize">Topic {project.topicStatus}</p>}
+          {project.topicStatus && (
+            <p className="w-fit rounded-full border px-3 py-1 text-xs font-medium capitalize">
+              Topic {project.topicStatus}
+            </p>
+          )}
           <p className="line-clamp-2 text-sm text-muted-foreground">
             {project.abstract}
           </p>
@@ -126,7 +140,11 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
               value={formatDate(project.defenseDate)}
               icon={CalendarClock}
             />
-            <Meta label="Open tickets" value={String(project.openTicketCount)} icon={Ticket} />
+            <Meta
+              label="Open tickets"
+              value={String(project.openTicketCount)}
+              icon={Ticket}
+            />
           </div>
           <Link
             href={`/student/project/${project.id}`}
@@ -137,6 +155,11 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
         </CardContent>
       </Card>
 
+      <ProjectWorkflowPanel
+        project={project}
+        role="student"
+        onChanged={onChanged}
+      />
       <Card>
         <CardHeader>
           <CardTitle>Recent activity</CardTitle>

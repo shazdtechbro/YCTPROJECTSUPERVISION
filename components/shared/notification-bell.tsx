@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, FileText, MessageSquare, Ticket as TicketIcon, CheckCircle2, FolderPlus } from "lucide-react";
+import {
+  Bell,
+  FileText,
+  MessageSquare,
+  Ticket as TicketIcon,
+  CheckCircle2,
+  FolderPlus,
+} from "lucide-react";
 
 import {
   DropdownMenu,
@@ -48,7 +55,7 @@ export function NotificationBell() {
     if (next && unread.length && user) {
       void markNotificationsRead(
         user.uid,
-        unread.map((i) => i.id)
+        unread.map((i) => i.id),
       );
     }
   }
@@ -71,7 +78,10 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[22rem] p-0">
+      <DropdownMenuContent
+        align="end"
+        className="w-[22rem] max-w-[calc(100vw-1rem)] p-0"
+      >
         <div className="flex items-center justify-between border-b px-3 py-2">
           <span className="text-sm font-medium">Notifications</span>
           {unread.length > 0 && (
@@ -99,7 +109,7 @@ export function NotificationBell() {
                     onClick={() => setOpen(false)}
                     className={cn(
                       "flex gap-2.5 px-3 py-2.5 text-sm hover:bg-accent",
-                      !n.read && "bg-primary/[0.03]"
+                      !n.read && "bg-primary/[0.03]",
                     )}
                   >
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />

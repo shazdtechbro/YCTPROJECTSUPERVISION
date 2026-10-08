@@ -39,7 +39,7 @@ export function SubmissionList({
   const [nonce, setNonce] = useState(0);
   const query = usePaginatedQuery(
     (params) => getSubmissionsPage(projectId, params),
-    [projectId, nonce]
+    [projectId, nonce],
   );
   const refresh = () => setNonce((n) => n + 1);
 
@@ -120,7 +120,9 @@ function SubmissionRow({
       });
       window.open(url, "_blank", "noopener");
     } catch (err) {
-      toast.error("Couldn't open file", { description: (err as Error).message });
+      toast.error("Couldn't open file", {
+        description: (err as Error).message,
+      });
     } finally {
       setDownloading(false);
     }
@@ -129,7 +131,14 @@ function SubmissionRow({
   async function setStatus(status: SubmissionStatus, withGrade = false) {
     setSaving(true);
     try {
-      await api.setSubmissionStatus(projectId, s.id, status, withGrade ? { grade: grade === "" ? null : Number(grade), feedback } : undefined);
+      await api.setSubmissionStatus(
+        projectId,
+        s.id,
+        status,
+        withGrade
+          ? { grade: grade === "" ? null : Number(grade), feedback }
+          : undefined,
+      );
       toast.success("Review updated");
       onChanged();
     } catch (err) {
@@ -147,10 +156,14 @@ function SubmissionRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
           {s.title}{" "}
-          <span className="font-normal text-muted-foreground">v{s.version}</span>
+          <span className="font-normal text-muted-foreground">
+            v{s.version}
+          </span>
         </p>
         <p className="truncate text-2xs text-muted-foreground">
-          {s.fileName} · {formatFileSize(s.fileSize)} · {formatDate(s.createdAt)}{s.chapterNumber ? ` · Chapter ${s.chapterNumber}` : ""}
+          {s.fileName} · {formatFileSize(s.fileSize)} ·{" "}
+          {formatDate(s.createdAt)}
+          {s.chapterNumber ? ` · Chapter ${s.chapterNumber}` : ""}
         </p>
       </div>
       <StatusBadge status={s.status} />
@@ -183,14 +196,60 @@ function SubmissionRow({
           </SelectContent>
         </Select>
       )}
-      {canReview && <details className="basis-full rounded-md border bg-background p-3">
-        <summary className="cursor-pointer text-sm font-medium">Review and grading workspace</summary>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[140px_1fr]">
-          <div className="space-y-1.5"><Label htmlFor={`grade-${s.id}`}>Grade (0–100)</Label><Input id={`grade-${s.id}`} type="number" min="0" max="100" value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="Optional" /></div>
-          <div className="space-y-1.5"><Label htmlFor={`feedback-${s.id}`}>Written feedback</Label><Textarea id={`feedback-${s.id}`} value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={3} placeholder="Provide clear, actionable comments for the student." /></div>
-          <Button className="sm:col-start-2 sm:justify-self-end" size="sm" disabled={saving || (grade !== "" && (Number(grade) < 0 || Number(grade) > 100))} onClick={() => setStatus(s.status, true)}>Save review</Button>
+      {!canReview && (s.grade != null || s.reviewFeedback) && (
+        <div className="basis-full rounded-md bg-secondary/50 p-3 text-sm">
+          {s.grade != null && (
+            <p className="font-semibold">Grade: {s.grade}/100</p>
+          )}
+          {s.reviewFeedback && (
+            <p className="mt-1 whitespace-pre-wrap break-words">
+              {s.reviewFeedback}
+            </p>
+          )}
         </div>
-      </details>}
+      )}
+      {canReview && (
+        <details className="basis-full rounded-md border bg-background p-3">
+          <summary className="cursor-pointer text-sm font-medium">
+            Review and grading workspace
+          </summary>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[140px_1fr]">
+            <div className="space-y-1.5">
+              <Label htmlFor={`grade-${s.id}`}>Grade (0–100)</Label>
+              <Input
+                id={`grade-${s.id}`}
+                type="number"
+                min="0"
+                max="100"
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`feedback-${s.id}`}>Written feedback</Label>
+              <Textarea
+                id={`feedback-${s.id}`}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={3}
+                placeholder="Provide clear, actionable comments for the student."
+              />
+            </div>
+            <Button
+              className="sm:col-start-2 sm:justify-self-end"
+              size="sm"
+              disabled={
+                saving ||
+                (grade !== "" && (Number(grade) < 0 || Number(grade) > 100))
+              }
+              onClick={() => setStatus(s.status, true)}
+            >
+              Save review
+            </Button>
+          </div>
+        </details>
+      )}
     </li>
   );
 }

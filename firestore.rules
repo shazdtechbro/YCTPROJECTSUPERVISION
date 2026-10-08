@@ -116,18 +116,8 @@ service cloud.firestore {
         || (isStudent() && isProjectStudent(resource.data))
       );
 
-      // Supervisors manage their own projects. Students may update a bounded
-      // set of fields on their own project (e.g. abstract, progress note);
-      // status transitions and assignment stay with the supervisor.
-      allow create: if isSupervisor()
-        && request.resource.data.supervisorId == request.auth.uid
-        && request.resource.data.department == department();
-      allow update: if isProjectSupervisor(resource.data)
-        || (isProjectStudent(resource.data)
-            && !request.resource.data.diff(resource.data).affectedKeys()
-                  .hasAny(['supervisorId', 'studentId', 'department',
-                           'status', 'milestoneStatus']));
-      allow delete: if false;
+      // Mutations are authorised and audited by the server API only.
+      allow create, update, delete: if false;
 
       // ---- projects/{projectId}/tickets/{ticketId} ----------------
       match /tickets/{ticketId} {
@@ -152,14 +142,7 @@ service cloud.firestore {
       match /submissions/{submissionId} {
         function project() { return existingProject(projectId); }
         allow read: if canReadProject(project());
-        // Only the project's student uploads submissions.
-        allow create: if isProjectStudent(project())
-          && request.resource.data.submittedById == request.auth.uid
-          && request.resource.data.projectId == projectId;
-        // Student can revise; supervisor sets review status.
-        allow update: if isProjectStudent(project())
-          || isProjectSupervisor(project());
-        allow delete: if false;
+        allow create, update, delete: if false;
 
         // ---- .../comments/{commentId} --------------------------
         match /comments/{commentId} {

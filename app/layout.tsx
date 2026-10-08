@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const roboto = localFont({
+  src: "../public/fonts/roboto-latin-variable.woff2",
+  variable: "--font-sans",
+  weight: "100 900",
+  display: "swap",
+});
 const siteTitle = "YABATECH Project Supervision System";
-const siteDescription = "A YABATECH HND workspace for students, supervisors and the HOD to track project milestones, review submissions and exchange feedback.";
+const siteDescription =
+  "A YABATECH HND workspace for students, supervisors and the HOD to track project milestones, review submissions and exchange feedback.";
 const socialPreview = {
   url: "/yabatech-og-preview.png",
   width: 1200,
@@ -43,7 +49,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.variable + " font-sans antialiased"}>
+      <body className={roboto.variable + " font-sans antialiased"}>
         <ThemeProvider>
           <AuthProvider>
             {children}

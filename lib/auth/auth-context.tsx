@@ -66,7 +66,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  */
 async function syncSessionCookie(
   user: User | null,
-  forceRefresh = false
+  forceRefresh = false,
 ): Promise<Role | null> {
   if (!user) {
     await fetch("/api/session", { method: "DELETE" });
@@ -96,7 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // onIdTokenChanged fires on sign-in/out AND on token refresh, so the
     // session cookie and custom claims stay current.
-    const unsub = onIdTokenChanged(getFirebaseAuth(), async (nextUser) => {
+    let auth;
+    try {
+      auth = getFirebaseAuth();
+    } catch {
+      setLoading(false);
+      return;
+    }
+    const unsub = onIdTokenChanged(auth, async (nextUser) => {
       setUser(nextUser);
       try {
         if (nextUser) {
@@ -126,50 +133,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cred = await signInWithEmailAndPassword(
         getFirebaseAuth(),
         email,
-        password
+        password,
       );
       try {
         const role = await syncSessionCookie(cred.user);
-        if (!role) throw new Error("This account has no role assigned yet. Ask your department to provision it.");
+        if (!role)
+          throw new Error(
+            "This account has no role assigned yet. Ask your department to provision it.",
+          );
         return role;
       } catch (error) {
         await signOut(getFirebaseAuth());
         throw error;
       }
     },
-    []
+    [],
   );
 
-  const signInWithMatric = useCallback(async (matricNumber: string, password: string): Promise<Role> => {
-    const result = await fetch("/api/auth/student-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ matricNumber, password }),
-    });
-    const data = await result.json().catch(() => ({})) as { customToken?: string; error?: string };
-    if (!result.ok || !data.customToken) throw new Error(data.error || "Matric number or password is incorrect.");
-    const credential = await signInWithCustomToken(getFirebaseAuth(), data.customToken);
-    try {
-      const role = await syncSessionCookie(credential.user, true);
-      if (role !== "student") throw new Error("This account is not a student account.");
-      return role;
-    } catch (error) {
-      await signOut(getFirebaseAuth());
-      throw error;
-    }
-  }, []);
+  const signInWithMatric = useCallback(
+    async (matricNumber: string, password: string): Promise<Role> => {
+      const result = await fetch("/api/auth/student-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matricNumber, password }),
+      });
+      const data = (await result.json().catch(() => ({}))) as {
+        customToken?: string;
+        error?: string;
+      };
+      if (!result.ok || !data.customToken)
+        throw new Error(
+          data.error || "Matric number or password is incorrect.",
+        );
+      const credential = await signInWithCustomToken(
+        getFirebaseAuth(),
+        data.customToken,
+      );
+      try {
+        const role = await syncSessionCookie(credential.user, true);
+        if (role !== "student")
+          throw new Error("This account is not a student account.");
+        return role;
+      } catch (error) {
+        await signOut(getFirebaseAuth());
+        throw error;
+      }
+    },
+    [],
+  );
 
   const signInWithGoogle = useCallback(async (): Promise<Role> => {
     const cred = await signInWithPopup(
       getFirebaseAuth(),
-      new GoogleAuthProvider()
+      new GoogleAuthProvider(),
     );
     try {
       const role = await syncSessionCookie(cred.user);
       if (role) return role;
       await signOut(getFirebaseAuth());
       throw new Error(
-        "No authorized account is set up for this Google user yet. Contact your department."
+        "No authorized account is set up for this Google user yet. Contact your department.",
       );
     } catch (error) {
       await signOut(getFirebaseAuth());
@@ -182,7 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const cred = await createUserWithEmailAndPassword(
       auth,
       input.email.trim(),
-      input.password
+      input.password,
     );
     await updateProfile(cred.user, { displayName: input.displayName.trim() });
     const idToken = await cred.user.getIdToken();
@@ -222,7 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signUp,
       signOutUser,
-    ]
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

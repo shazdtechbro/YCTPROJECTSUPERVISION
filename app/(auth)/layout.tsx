@@ -10,7 +10,7 @@ export default function AuthLayout({
       <header className="mx-auto flex w-full max-w-md items-center justify-between px-6 pt-10">
         <Link href="/" className="inline-flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 shadow-brutal-sm">
           <img
-            src="https://yabatech.edu.ng/img/logss.png"
+            src="/yabatech-logo.png"
             alt="Yaba College of Technology"
             className="h-9 w-auto object-contain"
           />

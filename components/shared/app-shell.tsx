@@ -16,7 +16,7 @@ function Brand() {
   return (
     <div className="flex min-w-0 items-center gap-2.5">
       <img
-        src="https://yabatech.edu.ng/img/logss.png"
+        src="/yabatech-logo.png"
         alt="Yaba College of Technology"
         className="h-8 w-auto shrink-0 object-contain"
       />
@@ -71,10 +71,7 @@ export function AppShell({
               <div className="flex h-14 items-center px-4">
                 <Brand />
               </div>
-              <SidebarNav
-                items={nav}
-                onNavigate={() => setMobileOpen(false)}
-              />
+              <SidebarNav items={nav} onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
 
@@ -88,7 +85,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
           {children}
         </main>
       </div>
