@@ -128,7 +128,7 @@ export default function SupervisorDrilldown({
                       </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {p.studentName}
+                      {p.studentName} · {p.studentMatricNumber || "Matric number not recorded"}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={p.milestoneStatus} />
