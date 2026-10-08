@@ -1,0 +1,15 @@
+{
+  "chapters": 4,
+  "numbered_figures": 11,
+  "included_design_images": 3,
+  "pending_application_figures": 8,
+  "baseline_screenshot_files": 14,
+  "literature_studies_retained": 20,
+  "live_acceptance_cases": 17,
+  "regression_tests_passed": 34,
+  "font": "Times New Roman 12 pt (Word default preserved)",
+  "page_size": "A4",
+  "preview_pages": 49,
+  "source_commit": "b8f2960401b650a837ce1d130440612b28f735d3",
+  "verification": "PASSED"
+}
