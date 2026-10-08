@@ -164,7 +164,7 @@ function AttentionList({ uid }: { uid: string }) {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{p.title}</p>
                     <p className="truncate text-2xs text-muted-foreground">
-                      {p.studentName} · {p.milestoneReason} ·{" "}
+                      {p.studentName} · {p.studentMatricNumber || "Matric number not recorded"} · {p.milestoneReason} ·{" "}
                       {formatRelativeTime(p.lastActivityAt)}
                     </p>
                   </div>
