@@ -14,6 +14,8 @@ import {
 
 import { getSessionUser, homePathForRole } from "@/lib/auth/session";
 
+export const dynamic = "force-dynamic";
+
 export default async function LandingPage() {
   const user = await getSessionUser();
   const primaryHref = user ? homePathForRole(user.role) : "/signup";
@@ -22,29 +24,29 @@ export default async function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between border-b border-border px-5 py-4">
-        <Link href="/" className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <header className="mx-auto flex max-w-6xl flex-col items-stretch gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <Link href="/" className="flex min-w-0 items-center gap-2 rounded-lg sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <img
             src="/yabatech-logo.png"
             alt="Yaba College of Technology"
-            className="h-10 w-auto object-contain"
+            className="h-8 w-auto shrink-0 object-contain sm:h-10"
           />
           <span className="border-l-2 border-accent pl-3 text-xs font-black uppercase leading-tight tracking-wide">
             Project<br />Supervision
           </span>
         </Link>
-        <nav className="flex items-center gap-2">
+        <nav className="flex flex-wrap items-center justify-end gap-2 sm:shrink-0">
           {!user && (
             <Link
               href="/login"
-              className="press hidden h-9 items-center rounded-md border-2 border-transparent px-3 text-sm font-semibold hover:border-border sm:inline-flex"
+              className="press inline-flex h-11 items-center rounded-md border-2 border-transparent px-3 text-sm font-semibold hover:border-border"
             >
               Sign in
             </Link>
           )}
           <Link
             href={primaryHref}
-            className="press inline-flex h-9 items-center gap-1.5 rounded-md border-2 border-border bg-primary px-3 text-sm font-bold text-primary-foreground shadow-brutal-sm"
+            className="press inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-md border-2 border-border bg-primary px-3 text-sm font-bold text-primary-foreground shadow-brutal-sm"
           >
             {primaryLabel}
             <ArrowRight className="h-4 w-4" />

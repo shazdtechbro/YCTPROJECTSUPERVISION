@@ -11,6 +11,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -27,6 +28,7 @@ import {
 } from "firebase/auth";
 
 import { getFirebaseAuth } from "@/lib/firebase";
+import { createSessionSynchronizer } from "./session-sync";
 import { api } from "@/lib/api";
 import type { Role } from "@/lib/types";
 
@@ -64,26 +66,11 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  * auth flows must await this before navigating, otherwise the router hits a
  * protected route before the cookie exists and middleware bounces it.
  */
-async function syncSessionCookie(
-  user: User | null,
-  forceRefresh = false,
-): Promise<Role | null> {
-  if (!user) {
-    await fetch("/api/session", { method: "DELETE" });
-    return null;
-  }
-  const result = await user.getIdTokenResult(forceRefresh);
-  const res = await fetch("/api/session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken: result.token }),
-  });
-  if (!res.ok) {
-    const { error } = await res.json().catch(() => ({}));
-    throw new Error(error || "Could not establish a session.");
-  }
-  return (result.claims.role as Role | undefined) ?? null;
-}
+const sessionSynchronizer = createSessionSynchronizer(
+  (...args) => fetch(...args),
+  () => getFirebaseAuth().currentUser?.uid ?? null,
+);
+const syncSessionCookie = sessionSynchronizer.sync;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -91,6 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: null,
     department: null,
   });
+  const authRevision = useRef(0);
+  const loggingOut = useRef(false);
+  const previouslySignedIn = useRef(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -104,10 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const unsub = onIdTokenChanged(auth, async (nextUser) => {
+      const hadUser = previouslySignedIn.current;
+      previouslySignedIn.current = !!nextUser;
+      const revision = ++authRevision.current;
+      if (loggingOut.current && nextUser) return;
       setUser(nextUser);
       try {
         if (nextUser) {
           const res = await nextUser.getIdTokenResult();
+          if (revision !== authRevision.current || loggingOut.current || auth.currentUser?.uid !== nextUser.uid) return;
           setClaims({
             role: (res.claims.role as Role | undefined) ?? null,
             department: (res.claims.department as string | undefined) ?? null,
@@ -116,20 +111,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setClaims({ role: null, department: null });
           await syncSessionCookie(null);
+          if (hadUser && !loggingOut.current) window.location.replace("/");
         }
       } catch {
         // A network/provisioning error must not leave every route behind the
         // initial-auth loading screen. Interactive flows surface their errors.
-        if (nextUser) setClaims({ role: null, department: null });
+        if (nextUser && revision === authRevision.current) setClaims({ role: null, department: null });
       } finally {
-        setLoading(false);
+        if (revision === authRevision.current) setLoading(false);
       }
     });
     return unsub;
   }, []);
 
+  useEffect(() => {
+    const refreshRestoredPage = (event: PageTransitionEvent) => {
+      if (event.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", refreshRestoredPage);
+    return () => window.removeEventListener("pageshow", refreshRestoredPage);
+  }, []);
+
   const signInWithPassword = useCallback(
     async (email: string, password: string): Promise<Role> => {
+      loggingOut.current = false;
+      sessionSynchronizer.beginSignIn();
       const cred = await signInWithEmailAndPassword(
         getFirebaseAuth(),
         email,
@@ -152,6 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithMatric = useCallback(
     async (matricNumber: string, password: string): Promise<Role> => {
+      loggingOut.current = false;
+      sessionSynchronizer.beginSignIn();
       const result = await fetch("/api/auth/student-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,6 +191,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signInWithGoogle = useCallback(async (): Promise<Role> => {
+    loggingOut.current = false;
+    sessionSynchronizer.beginSignIn();
     const cred = await signInWithPopup(
       getFirebaseAuth(),
       new GoogleAuthProvider(),
@@ -201,6 +211,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (input: SignUpInput): Promise<Role> => {
+    loggingOut.current = false;
+    sessionSynchronizer.beginSignIn();
     const auth = getFirebaseAuth();
     const cred = await createUserWithEmailAndPassword(
       auth,
@@ -222,7 +234,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOutUser = useCallback(async () => {
-    await signOut(getFirebaseAuth());
+    loggingOut.current = true;
+    authRevision.current += 1;
+    sessionSynchronizer.invalidate();
+    try {
+      await signOut(getFirebaseAuth());
+    } finally {
+      setUser(null);
+      setClaims({ role: null, department: null });
+      await sessionSynchronizer.clear();
+    }
   }, []);
 
   const value = useMemo<AuthContextValue>(

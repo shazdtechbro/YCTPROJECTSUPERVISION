@@ -237,7 +237,7 @@ npm run test:browser
 ```
 
 The API regression suite executes actual handlers with simulated Firebase services.
-The Chromium smoke suite checks public pages at 320, 375, 768 and 1440px; it
+The Chromium smoke suite checks public pages at 320, 375, 390, 430, 768 and 1440px; it
 requires Chromium at `/usr/bin/chromium` (or `YCT_CHROMIUM_PATH`). Set
 `YCT_TEST_BASE_URL` for another target. Screenshots are saved under
 `/tmp/yct-browser-results` (or `YCT_TEST_OUTPUT`). Where Chromium lacks an
@@ -251,3 +251,5 @@ verification. Vercel builds do not publish Firestore rules or indexes: deploy
 the repository's `firestore.rules` and `firestore.indexes.json` separately to
 the matching Firebase project. Projects and submission mutations are server-only
 so client SDK writes cannot bypass approval and grading checks.
+
+Logout waits for Firebase sign-out and verified server-cookie deletion before a full navigation to the landing page. Cookie writes are serialized so delayed token refreshes cannot restore a logged-out session. Browser checks include phone header overlap, signed-out landing actions, cookie deletion and protected-route redirects.

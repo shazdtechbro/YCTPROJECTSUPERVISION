@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { spawn } = require('node:child_process');
@@ -24,10 +24,10 @@ async function verifiedRequest(route) {
   } finally { for(const file of [headersFile,bodyFile]) if(fs.existsSync(file)) fs.unlinkSync(file); }
 }
 (async () => {
- const browser = await chromium.launch({ executablePath: process.env.YCT_CHROMIUM_PATH || '/usr/bin/chromium', headless:true, args:['--no-sandbox'] });
+ const browser = process.env.YCT_BROWSER === 'webkit' ? await webkit.launch({headless:true}) : await chromium.launch({ executablePath: process.env.YCT_CHROMIUM_PATH || '/usr/bin/chromium', headless:true, args:['--no-sandbox'] });
  const results=[];
  try {
-  for (const width of [320,375,768,1440]) {
+  for (const width of [320,375,390,430,768,1440]) {
    const context=await browser.newContext({viewport:{width,height:900}});
    if(process.env.YCT_BROWSER_VERIFY_WITH_CURL==='1') await context.route('https://**/*',verifiedRequest);
    const page=await context.newPage(), errors=[];
@@ -38,6 +38,19 @@ async function verifiedRequest(route) {
     assert.ok(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),`${pathname} overflow at ${width}`);
     assert.equal(await page.locator('h1').count(),1);
     assert.ok(await page.locator('img[src="/yabatech-logo.png"]').first().evaluate(e=>e.complete && e.naturalWidth>0),`YABATECH logo loaded on ${pathname}`);
+    if (pathname === '/') {
+      assert.equal(await page.getByRole('link', { name: 'Go to dashboard' }).count(), 0, 'signed-out landing page must not offer the dashboard');
+      const brand = await page.locator('header > a').boundingBox();
+      const nav = await page.locator('header > nav').boundingBox();
+      assert.ok(brand.y + brand.height <= nav.y + 1 || brand.x + brand.width <= nav.x + 1, `header content does not overlap at ${width}`);
+      // Stress the longer authenticated CTA using the same real header styles.
+      await page.locator('header nav a[href="/signup"]').evaluate(e => { e.firstChild.textContent = 'Go to dashboard'; });
+      const action = await page.locator('header nav a[href="/signup"]').boundingBox();
+      assert.ok(action.x >= 0 && action.x + action.width <= width, `dashboard CTA fits at ${width}`);
+      assert.ok(brand.y + brand.height <= action.y + 1 || brand.x + brand.width <= action.x + 1, `dashboard CTA does not overlap branding at ${width}`);
+      await page.screenshot({path:`${output}/${width}-dashboard-cta-layout.png`,fullPage:true});
+      await page.goto(base + '/', {waitUntil:'networkidle'});
+    }
     if(pathname==='/signup') {
      await page.getByText('Supervisor',{exact:true}).click();
      assert.equal(await page.locator('#matric').count(),0,'staff do not need a matric number');
@@ -48,6 +61,20 @@ async function verifiedRequest(route) {
     await page.screenshot({path:`${output}/${width}-${pathname==='/'?'home':pathname.slice(1)}.png`,fullPage:true});
     results.push({width,path:pathname,status:response.status()});
    }
+   // The real session endpoint must expire even an HttpOnly browser cookie.
+   await context.addCookies([{ name: '__session', value: 'qa-stale-session', url: base, httpOnly: true }]);
+   const logout = await page.evaluate(async () => {
+     const response = await fetch('/api/session', {method: 'DELETE', cache: 'no-store'});
+     return { status: response.status, cache: response.headers.get('Cache-Control') };
+   });
+   assert.equal(logout.status, 200, 'server logout succeeds');
+   assert.equal(logout.cache, 'no-store', 'logout response cannot be cached');
+   assert.ok(!(await context.cookies()).some(cookie => cookie.name === '__session'), 'HttpOnly session cookie is removed');
+   await page.goto(base + '/', {waitUntil: 'networkidle'});
+   assert.equal(await page.getByRole('link', {name: 'Go to dashboard'}).count(), 0, 'fresh landing page stays signed out');
+   const protectedResponse = await page.goto(base + '/supervisor/dashboard', {waitUntil: 'networkidle'});
+   assert.equal(new URL(page.url()).pathname, '/login', 'protected dashboard requires login after logout');
+   assert.equal(protectedResponse.status(), 200);
    assert.deepEqual(errors,[],`JavaScript errors at ${width}`);
    await context.close();
   }
