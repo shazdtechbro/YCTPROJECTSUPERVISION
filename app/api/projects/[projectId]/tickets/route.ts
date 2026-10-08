@@ -26,7 +26,7 @@ export async function POST(
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
   const isMember =
-    project.studentId === user.uid || project.supervisorId === user.uid;
+    (Array.isArray(project.memberIds) ? project.memberIds.includes(user.uid) : project.studentId === user.uid) || project.supervisorId === user.uid;
   if (!isMember) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   let body: {
