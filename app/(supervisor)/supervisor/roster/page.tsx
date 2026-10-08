@@ -51,8 +51,8 @@ export default function SupervisorRoster() {
         empty={
           <EmptyState
             icon={Users}
-            title="No students yet"
-            description="Create a project for a student and they'll appear here."
+            title="No supervised projects yet"
+            description="Students in your department can submit topics to you. Approved and pending projects will appear here."
           />
         }
       >
@@ -71,6 +71,7 @@ export default function SupervisorRoster() {
                       <p className="truncate text-sm font-medium">
                         {p.studentName}
                       </p>
+                      <p className="truncate text-xs text-muted-foreground">{p.studentMatricNumber || "Matric number not recorded"}</p>
                       <p className="truncate text-2xs text-muted-foreground">
                         {p.title}
                       </p>
