@@ -34,7 +34,7 @@ export async function POST(
 
   const project = await loadProjectAdmin(params.projectId);
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
-  if (project.studentId !== user.uid) {
+  if (!(Array.isArray(project.memberIds) ? project.memberIds.includes(user.uid) : project.studentId === user.uid)) {
     return NextResponse.json({ error: "Only the project's student can submit" }, { status: 403 });
   }
 
@@ -44,13 +44,14 @@ export async function POST(
     storagePath?: string;
     fileName?: string;
     fileSize?: number;
+    chapterNumber?: number;
   };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
-  const { title, kind, storagePath, fileName, fileSize } = body;
+  const { title, kind, storagePath, fileName, fileSize, chapterNumber } = body;
   if (!title?.trim() || !storagePath || !fileName || !fileSize) {
     return NextResponse.json(
       { error: "title, storagePath, fileName and fileSize are required" },
@@ -63,6 +64,15 @@ export async function POST(
   const subKind = KINDS.includes(kind as SubmissionKind)
     ? (kind as SubmissionKind)
     : "other";
+  if (project.topicStatus !== "approved" && subKind !== "proposal") {
+    return NextResponse.json({ error: "Your supervisor must approve the project topic before chapter work can be submitted." }, { status: 409 });
+  }
+  if ((subKind === "chapter" || subKind === "revision") && (!Number.isInteger(chapterNumber) || chapterNumber! < 1 || chapterNumber! > 5)) {
+    return NextResponse.json({ error: "Choose a chapter from 1 to 5 for this submission." }, { status: 400 });
+  }
+  if (subKind === "final" && !(Array.isArray(project.chapterStatuses) ? project.chapterStatuses : []).every((status: string) => status === "approved")) {
+    return NextResponse.json({ error: "All five chapter stages must be approved before final submission." }, { status: 409 });
+  }
 
   const db = getAdminDb();
   const projectRef = db.doc(`projects/${params.projectId}`);
@@ -71,11 +81,16 @@ export async function POST(
 
   const subRef = subsCol.doc();
   const batch = db.batch();
+  const chapterStatuses: string[] = Array.isArray(project.chapterStatuses)
+    ? [...project.chapterStatuses]
+    : ["not_started", "not_started", "not_started", "not_started", "not_started"];
+  if ((subKind === "chapter" || subKind === "revision") && chapterNumber) chapterStatuses[chapterNumber - 1] = "in_review";
 
   batch.set(subRef, {
     projectId: params.projectId,
     title: title.trim(),
     kind: subKind,
+    chapterNumber: subKind === "chapter" || subKind === "revision" ? chapterNumber : null,
     status: "pending_review",
     version,
     storagePath,
@@ -88,6 +103,8 @@ export async function POST(
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
+  const event = db.collection(`projects/${params.projectId}/activity`).doc();
+  batch.set(event, { kind: "submission", title: `${title.trim()} submitted for review`, actorId: user.uid, actorName: user.name ?? "Student", createdAt: FieldValue.serverTimestamp() });
 
   batch.set(
     projectRef,
@@ -95,6 +112,8 @@ export async function POST(
       lastSubmissionAt: FieldValue.serverTimestamp(),
       lastActivityAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
+      chapterStatuses,
+      progressPct: chapterStatuses.filter((status) => status === "approved").length * 20,
     },
     { merge: true }
   );
