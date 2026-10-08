@@ -74,6 +74,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     text-rendering: optimizeLegibility;
+    font-size: 1rem;
   }
   h1,
   h2,
@@ -87,6 +88,20 @@
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }
+}
+
+/* Phone layout: keep form text legible (and avoid iOS input zoom), allow long
+ * project tables/tabs to scroll within their own region, and preserve touch
+ * sized controls without inflating the desktop typography. */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  input, select, textarea, button { font-size: 16px; }
+  .text-2xs { font-size: 0.75rem; line-height: 1rem; }
+  [role="tablist"] { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  [role="tab"] { min-height: 40px; flex: 0 0 auto; }
+  table { min-width: 40rem; }
+  .mobile-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  [role="dialog"] { max-height: calc(100dvh - 1.5rem); overflow-y: auto; }
 }
 
 @layer components {
