@@ -34,10 +34,19 @@ export const api = {
   createProject: (input: {
     studentId?: string;
     studentEmail?: string;
+    studentMatricNumber?: string;
+    supervisorId?: string;
+    partnerMatricNumbers?: string[];
     title: string;
     abstract: string;
     defenseDate?: string | null;
   }) => req<{ projectId: string }>("/api/projects", "POST", input),
+
+  decideTopic: (projectId: string, topicStatus: "pending" | "approved" | "declined", note = "") =>
+    req(`/api/projects/${projectId}`, "PATCH", { topicStatus, topicDecisionNote: note }),
+
+  resubmitTopic: (projectId: string, topicRevision: string) =>
+    req(`/api/projects/${projectId}`, "PATCH", { topicRevision }),
 
   updateProject: (
     projectId: string,
@@ -82,6 +91,7 @@ export const api = {
       storagePath: string;
       fileName: string;
       fileSize: number;
+      chapterNumber?: number;
     }
   ) =>
     req<{ submissionId: string; version: number }>(
@@ -93,11 +103,19 @@ export const api = {
   setSubmissionStatus: (
     projectId: string,
     submissionId: string,
-    status: SubmissionStatus
+    status: SubmissionStatus,
+    review?: { grade?: number | null; feedback?: string }
   ) =>
     req(`/api/projects/${projectId}/submissions/${submissionId}`, "PATCH", {
       status,
+      ...(review ? { grade: review.grade, feedback: review.feedback } : {}),
     }),
+
+  requestExtension: (projectId: string, requestedUntil: string) =>
+    req(`/api/projects/${projectId}`, "PATCH", { extensionRequestedUntil: requestedUntil }),
+
+  decideExtension: (projectId: string, status: "approved" | "declined", note = "") =>
+    req(`/api/projects/${projectId}`, "PATCH", { extensionStatus: status, extensionDecisionNote: note }),
 
   postComment: (projectId: string, submissionId: string, body: string) =>
     req<{ commentId: string }>(
@@ -111,5 +129,6 @@ export const api = {
     role: string;
     department: string;
     displayName: string;
+    matricNumber?: string;
   }) => req<{ uid: string; role: string }>("/api/auth/provision", "POST", input),
 };

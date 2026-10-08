@@ -36,6 +36,16 @@ export type SubmissionStatus =
   | "changes_requested"
   | "approved";
 
+export type TopicStatus = "pending" | "approved" | "declined";
+export type ChapterStatus = "not_started" | "in_review" | "changes_requested" | "approved";
+export const CHAPTER_STAGES = [
+  "Chapter One: Introduction",
+  "Chapter Two: Literature Review",
+  "Chapter Three: Methodology",
+  "Chapter Four: System Design and Implementation",
+  "Chapter Five: Summary, Conclusion and Recommendations",
+] as const;
+
 /** Base fields every stored document carries after the converter runs. */
 export interface DocBase {
   id: string;
@@ -50,6 +60,7 @@ export interface UserDoc extends DocBase {
   role: Role;
   department: string;
   photoURL?: string;
+  matricNumber?: string;
   /** Present on student docs only — enables fast supervisor roster queries. */
   supervisorId?: string;
   /** Present on student docs only — the student's single active project. */
@@ -58,6 +69,15 @@ export interface UserDoc extends DocBase {
 
 export interface ProjectDoc extends DocBase {
   title: string;
+  topicStatus?: TopicStatus;
+  topicDecisionNote?: string;
+  memberIds?: string[];
+  memberNames?: string[];
+  memberMatricNumbers?: string[];
+  chapterStatuses?: ChapterStatus[];
+  extensionStatus?: "pending" | "approved" | "declined" | null;
+  extensionRequestedUntil?: string | null;
+  extensionDecisionNote?: string;
   abstract: string;
   department: string;
   status: ProjectStatus;
@@ -67,6 +87,7 @@ export interface ProjectDoc extends DocBase {
   /** Denormalised for list rendering without extra reads. */
   studentId: string;
   studentName: string;
+  studentMatricNumber?: string;
   supervisorId: string;
   supervisorName: string;
   /** ISO date (yyyy-mm-dd) of the next milestone deadline. */
@@ -100,6 +121,9 @@ export interface SubmissionDoc extends DocBase {
   projectId: string;
   title: string;
   kind: SubmissionKind;
+  chapterNumber?: number | null;
+  grade?: number | null;
+  reviewFeedback?: string;
   status: SubmissionStatus;
   version: number;
   /** Firebase Storage object path, not a public URL. */
@@ -170,7 +194,7 @@ export interface NotificationDoc {
 /** Shape used by the shared activity <Timeline />. */
 export interface ActivityEvent {
   id: string;
-  kind: "ticket" | "submission" | "comment" | "status_change";
+  kind: "ticket" | "submission" | "comment" | "status_change" | "review" | "topic" | "extension";
   title: string;
   actorName: string;
   at: Timestamp;
