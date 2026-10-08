@@ -11,7 +11,7 @@ let requestId = 0;
 async function verifiedRequest(route) {
   const id = ++requestId, headersFile = `${output}/${id}.headers`, bodyFile = `${output}/${id}.body`;
   const request = route.request();
-  const args = ['--silent','--show-error','--location','--compressed','--max-time','30','--dump-header',headersFile,'--output',bodyFile,'--request',request.method()];
+  const args = ['--silent','--show-error','--compressed','--max-time','30','--dump-header',headersFile,'--output',bodyFile,'--request',request.method()];
   for (const [key,value] of Object.entries(request.headers())) if (!['host','content-length','accept-encoding'].includes(key)) args.push('--header',`${key}: ${value}`);
   if (request.postData()) args.push('--data-binary','@-');
   args.push(request.url());
