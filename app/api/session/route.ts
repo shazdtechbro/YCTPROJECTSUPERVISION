@@ -53,8 +53,9 @@ export async function POST(req: NextRequest) {
 }
 
 /** DELETE -> clears the session cookie (sign-out). */
-export async function DELETE() {
-  const res = NextResponse.json({ status: "ok" }, { headers: { "Cache-Control": "no-store" } });
+export async function DELETE(req: NextRequest) {
+  const hadSession = Boolean(req.cookies.get(SESSION_COOKIE)?.value);
+  const res = NextResponse.json({ status: "ok", hadSession }, { headers: { "Cache-Control": "no-store" } });
   res.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

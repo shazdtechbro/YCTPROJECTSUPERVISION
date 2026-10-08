@@ -110,8 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await syncSessionCookie(nextUser);
         } else {
           setClaims({ role: null, department: null });
-          await syncSessionCookie(null);
-          if (hadUser && !loggingOut.current) window.location.replace("/");
+          const hadServerSession = await sessionSynchronizer.clearIfSignedOut();
+          if ((hadUser || hadServerSession) && !loggingOut.current) window.location.replace("/");
         }
       } catch {
         // A network/provisioning error must not leave every route behind the

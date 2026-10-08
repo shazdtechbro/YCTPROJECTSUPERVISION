@@ -27,18 +27,26 @@ export function createSessionSynchronizer(
       cache: "no-store",
     });
     if (!response.ok) throw new Error("Could not complete sign-out. Please try again.");
-    return null;
+    const data = await response.json().catch(() => ({}));
+    return data.hadSession === true;
   }
 
   return {
     beginSignIn() { generation += 1; signedOut = false; },
     invalidate() { generation += 1; signedOut = true; },
     clear: () => enqueue(clearCookie),
+    clearIfSignedOut(): Promise<boolean> {
+      const revision = generation;
+      return enqueue(async () => revision !== generation || currentUid() ? false : clearCookie());
+    },
     sync(identity: SessionIdentity | null, forceRefresh = false): Promise<Role | null> {
       const revision = generation;
       return enqueue(async () => {
         if (revision !== generation) return null;
-        if (!identity) return currentUid() ? null : clearCookie();
+        if (!identity) {
+          if (!currentUid()) await clearCookie();
+          return null;
+        }
         if (signedOut || currentUid() !== identity.uid) return null;
         const result = await identity.getIdTokenResult(forceRefresh);
         if (revision !== generation || signedOut || currentUid() !== identity.uid) return null;

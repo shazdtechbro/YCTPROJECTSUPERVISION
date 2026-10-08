@@ -70,3 +70,18 @@ test('a new explicit sign-in can establish a session after logout', async () => 
   sessions.invalidate(); await sessions.clear(); sessions.beginSignIn();
   assert.equal(await sessions.sync(identity), 'student');
 });
+
+test('initial signed-out state detects and clears a leftover server session', async () => {
+  const sessions = createSessionSynchronizer(async () => Response.json({hadSession: true}), () => null);
+  assert.equal(await sessions.clearIfSignedOut(), true);
+});
+
+test('initial cookie cleanup never deletes a newly authenticated session', async () => {
+  const calls = []; let uid = null;
+  const sessions = createSessionSynchronizer(async (_, options) => { calls.push(options.method); return Response.json({hadSession: true}); }, () => uid);
+  const stale = sessions.clearIfSignedOut();
+  sessions.beginSignIn(); uid = 'student';
+  assert.equal(await stale, false);
+  assert.equal(await sessions.sync(identity), 'student');
+  assert.deepEqual(calls, ['POST']);
+});
