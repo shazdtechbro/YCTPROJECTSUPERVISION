@@ -37,6 +37,7 @@ async function verifiedRequest(route) {
     assert.equal(response.status(),200,`${pathname} HTTP status`);
     assert.ok(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),`${pathname} overflow at ${width}`);
     assert.equal(await page.locator('h1').count(),1);
+    assert.ok(await page.locator('img[src="/yabatech-logo.png"]').first().evaluate(e=>e.complete && e.naturalWidth>0),`YABATECH logo loaded on ${pathname}`);
     if(pathname==='/signup') {
      await page.getByText('Supervisor',{exact:true}).click();
      assert.equal(await page.locator('#matric').count(),0,'staff do not need a matric number');

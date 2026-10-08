@@ -221,3 +221,33 @@ Stitch HTML is a design reference, not code to paste. For each screen: create th
 route under the matching role group and rebuild it with `components/ui` +
 `components/shared` + the `lib/firestore` query functions and the three
 loading/error/empty states. The scaffolded pages already follow this pattern.
+
+
+## Verification
+
+```bash
+npm ci
+npm test
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run start -- --hostname 127.0.0.1 --port 3002
+# In a separate terminal:
+npm run test:browser
+```
+
+The API regression suite executes actual handlers with simulated Firebase services.
+The Chromium smoke suite checks public pages at 320, 375, 768 and 1440px; it
+requires Chromium at `/usr/bin/chromium` (or `YCT_CHROMIUM_PATH`). Set
+`YCT_TEST_BASE_URL` for another target. Screenshots are saved under
+`/tmp/yct-browser-results` (or `YCT_TEST_OUTPUT`). Where Chromium lacks an
+environment proxy CA, `YCT_BROWSER_VERIFY_WITH_CURL=1` uses the system-trusted
+curl bridge without disabling HTTPS certificate validation. These checks do not
+replace live authenticated testing.
+
+Use [the full Cowork product-testing prompt](docs/COWORK-FULL-PRODUCT-TEST.md)
+for deployment, account, project, storage, role, grading, extension and defense
+verification. Vercel builds do not publish Firestore rules or indexes: deploy
+the repository's `firestore.rules` and `firestore.indexes.json` separately to
+the matching Firebase project. Projects and submission mutations are server-only
+so client SDK writes cannot bypass approval and grading checks.

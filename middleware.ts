@@ -11,7 +11,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const SESSION_COOKIE = "__session";
 const AUTH_PAGES = ["/login", "/signup"];
 /** Reachable without a session, including the social preview image. */
-const PUBLIC = ["/", "/login", "/signup", "/opengraph-image", "/yabatech-og-preview.png"];
+const PUBLIC = ["/", "/login", "/signup", "/opengraph-image", "/yabatech-og-preview.png", "/yabatech-logo.png"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

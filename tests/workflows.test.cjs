@@ -581,3 +581,11 @@ test("existing student adds matric; duplicate identifiers are denied", async () 
     409,
   );
 });
+
+test("YABATECH logo remains public without a session", () => {
+  const { NextRequest } = require("next/server");
+  const { middleware } = require("../middleware.ts");
+  const response = middleware(new NextRequest("https://project-supervision-system.vercel.app/yabatech-logo.png"));
+  assert.equal(response.headers.get("x-middleware-next"), "1");
+  assert.equal(response.headers.get("location"), null);
+});
