@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CalendarClock, FileText, FolderKanban, Ticket } from "lucide-react";
+import { ArrowRight, CalendarClock, FileText, Ticket } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
 import {
@@ -21,6 +21,8 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
 import type { ActivityEvent, ProjectDoc } from "@/lib/types";
+import { ProjectRequestForm } from "@/components/student/project-request-form";
+import { MatricNumberSetup } from "@/components/student/matric-number-setup";
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
@@ -37,6 +39,7 @@ export default function StudentDashboardPage() {
         title="Dashboard"
         description="Your project, milestone health and recent activity."
       />
+      <MatricNumberSetup />
 
       <QueryState
         phase={project.phase}
@@ -49,11 +52,7 @@ export default function StudentDashboardPage() {
           </div>
         }
         empty={
-          <EmptyState
-            icon={FolderKanban}
-            title="No project yet"
-            description="Your supervisor will create your project record. It'll show up here with milestones and deadlines."
-          />
+          <ProjectRequestForm onCreated={project.retry} />
         }
       >
         {project.data && <DashboardBody project={project.data} />}
@@ -104,6 +103,7 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
             <CardTitle className="text-base">{project.title}</CardTitle>
             <StatusBadge status={project.milestoneStatus} />
           </div>
+          {project.topicStatus && <p className="w-fit rounded-full border px-3 py-1 text-xs font-medium capitalize">Topic {project.topicStatus}</p>}
           <p className="line-clamp-2 text-sm text-muted-foreground">
             {project.abstract}
           </p>
