@@ -20,7 +20,7 @@ export async function PATCH(
 
   const project = await loadProjectAdmin(params.projectId);
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
-  if (project.studentId !== user.uid && project.supervisorId !== user.uid) {
+  if (!(Array.isArray(project.memberIds) ? project.memberIds.includes(user.uid) : project.studentId === user.uid) && project.supervisorId !== user.uid) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
