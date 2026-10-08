@@ -11,7 +11,7 @@ let requestId = 0;
 async function verifiedRequest(route) {
   const id = ++requestId, headersFile = `${output}/${id}.headers`, bodyFile = `${output}/${id}.body`;
   const request = route.request();
-  const args = ['--silent','--show-error','--compressed','--max-time','30','--dump-header',headersFile,'--output',bodyFile,'--request',request.method()];
+  const args = ['--silent','--show-error','--location','--compressed','--max-time','30','--dump-header',headersFile,'--output',bodyFile,'--request',request.method()];
   for (const [key,value] of Object.entries(request.headers())) if (!['host','content-length','accept-encoding'].includes(key)) args.push('--header',`${key}: ${value}`);
   if (request.postData()) args.push('--data-binary','@-');
   args.push(request.url());
@@ -72,7 +72,18 @@ async function verifiedRequest(route) {
    assert.ok(!(await context.cookies()).some(cookie => cookie.name === '__session'), 'HttpOnly session cookie is removed');
    await page.goto(base + '/', {waitUntil: 'networkidle'});
    assert.equal(await page.getByRole('link', {name: 'Go to dashboard'}).count(), 0, 'fresh landing page stays signed out');
-   const protectedResponse = await page.goto(base + '/supervisor/dashboard', {waitUntil: 'networkidle'});
+   let protectedUrl = base + '/supervisor/dashboard';
+   if (process.env.YCT_BROWSER_VERIFY_WITH_CURL === '1') {
+    // Inspect the actual redirect without following it in the TLS bridge,
+    // then navigate to its destination (WebKit cannot fulfil redirect responses).
+    const { execFileSync } = require('node:child_process');
+    const headers = execFileSync('curl', ['--silent', '--show-error', '--head', protectedUrl], {encoding: 'utf8'});
+    assert.match(headers, /HTTP\/[^ ]+ 307/);
+    const location = headers.match(/^location:\s*(.+)$/im)?.[1].trim();
+    assert.ok(location, 'protected page returns a login redirect');
+    protectedUrl = new URL(location, base).href;
+   }
+   const protectedResponse = await page.goto(protectedUrl, {waitUntil: 'networkidle'});
    assert.equal(new URL(page.url()).pathname, '/login', 'protected dashboard requires login after logout');
    assert.equal(protectedResponse.status(), 200);
    assert.deepEqual(errors,[],`JavaScript errors at ${width}`);
