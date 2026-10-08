@@ -88,7 +88,9 @@ direct `anon`/`authenticated` access); the service-role key used by
 
 ## Auth & roles
 
-- Sign-in is email/password or Google (`lib/auth/auth-context.tsx`, client).
+- Students can sign in with matric number and password; email/password remains
+  available. Supervisors and HODs create accounts with their own email and
+  password and select their role at sign-up.
 - On every ID-token change the client POSTs the token to
   `app/api/session/route.ts`, which **verifies it server-side** and mints an
   `HttpOnly` session cookie. The browser never sets an auth cookie itself.
@@ -100,6 +102,18 @@ direct `anon`/`authenticated` access); the service-role key used by
   route).
 
 Roles: `student` · `supervisor` · `hod`.
+
+Public sign-up lets people select Student, Supervisor or HOD. Role and
+department are recorded at provisioning and checked on each session. This
+self-selected role does not verify that a registrant is employed by the school;
+an institutional verification process would be needed to prevent impersonation.
+Student matric numbers follow `F/HD/24/3211001` (`F`, `D` or `P`; `ND` or
+`HD`; two-digit year; seven-digit identifier).
+
+Students submit a topic to a supervisor in their department and may add up to
+four project partners by matric number. Topic decisions, chapter stages,
+submission grades and written feedback, deadline extension decisions and
+project activity are stored and served through authenticated API routes.
 
 ---
 

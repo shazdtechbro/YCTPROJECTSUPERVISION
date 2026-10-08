@@ -27,7 +27,8 @@ service cloud.firestore {
     }
     // Avoids a get() when the parent project doc is already being read/written.
     function isProjectStudent(project) {
-      return isSignedIn() && project.studentId == request.auth.uid;
+      return isSignedIn() && (project.studentId == request.auth.uid
+        || (project.keys().hasAny(['memberIds']) && project.memberIds.hasAny([request.auth.uid])));
     }
     function isProjectSupervisor(project) {
       return isSignedIn() && project.supervisorId == request.auth.uid;
@@ -66,7 +67,7 @@ service cloud.firestore {
       // provisioned by the Admin SDK and are immutable from the client.
       allow update: if request.auth.uid == uid
         && !request.resource.data.diff(resource.data).affectedKeys()
-              .hasAny(['role', 'department', 'supervisorId', 'uid']);
+              .hasAny(['role', 'department', 'supervisorId', 'projectId', 'uid', 'matricNumber', 'email']);
       allow create, delete: if false; // Admin SDK only.
 
       // ---- users/{uid}/notifications/{id} ------------------------------
@@ -112,7 +113,7 @@ service cloud.firestore {
       allow list: if isSignedIn() && (
         (isSupervisor() && resource.data.supervisorId == request.auth.uid)
         || (isHod() && resource.data.department == department())
-        || (isStudent() && resource.data.studentId == request.auth.uid)
+        || (isStudent() && isProjectStudent(resource.data))
       );
 
       // Supervisors manage their own projects. Students may update a bounded
@@ -137,6 +138,14 @@ service cloud.firestore {
           && request.resource.data.projectId == projectId;
         allow update: if canWriteProjectSubtree(project());
         allow delete: if isProjectSupervisor(project());
+      }
+
+      // Audit log is written only by trusted server routes and readable by
+      // project members, the assigned supervisor and the department HOD.
+      match /activity/{activityId} {
+        function project() { return existingProject(projectId); }
+        allow read: if canReadProject(project());
+        allow write: if false;
       }
 
       // ---- projects/{projectId}/submissions/{submissionId} --------

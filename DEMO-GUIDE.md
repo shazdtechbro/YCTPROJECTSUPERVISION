@@ -9,16 +9,12 @@ whole department. Budget about **15–20 minutes**.
 
 ---
 
-## Test accounts
+## Account access
 
-| Role | Email | Password |
-| --- | --- | --- |
-| **Lecturer / Supervisor** | `shazilysanni@gmail.com` | `#Shazily1` |
-| **Student** | `sannishazily@gmail.com` | `#Shazily1` |
-| **HOD** (pre-loaded demo dept) | `hod@demo.test` | `demo1234` |
-
-All three are in the **Computer Science** department, so they see the
-same projects.
+Choose Student, Supervisor or Head of Department at sign-up. Students enter a
+YABATECH matric number and can sign in with that number and their password.
+Supervisors and HODs register with their own email addresses and passwords.
+This guide does not publish anyone's password or reusable demo credentials.
 
 **Tip:** to see the **real-time** parts properly, open the student in a
 normal window and the lecturer in a **private/incognito** window (or a
@@ -35,23 +31,17 @@ second — no refresh.
 
 ---
 
-## Part 1 — Lecturer creates the project
+## Part 1 — Student proposes a project
 
-1. Go to **/login**, sign in as the **Lecturer**.
-   - You should land straight on the **Supervisor Dashboard** (no
-     stuck/loading screen).
-2. Left nav → **Projects** → click **New project** (top right).
-3. Fill in:
-   - **Student email:** `sannishazily@gmail.com`
-   - **Title:** e.g. *Automated timetable generator for HND programmes*
-   - **Abstract:** any 2–3 sentences (min 20 characters)
-   - **Defense date:** pick a date **about 3 weeks from today** (this
-     matters for Part 4)
-4. Click **Create project**. You get a toast, and the project appears in
-   the table.
-5. Open the project from the table → you're in the **project workspace**
-   with 4 tabs. On the **Overview** tab you can also **set / change the
-   defense date** at the bottom.
+1. Create a student account with a matric number such as
+   `F/HD/24/3211001`, then sign in using the matric number and password.
+2. On the student dashboard, choose a supervisor from the department list.
+3. Enter the proposed project topic, an optional description and up to four
+   project partners using each partner's matric number.
+4. Submit the topic. The supervisor receives a notification and can approve,
+   decline with feedback, or leave the topic pending.
+5. Each added partner receives a notification on their own dashboard. Once the
+   topic is approved, the team can submit the chapter stages for review.
 
 ---
 
@@ -126,8 +116,8 @@ The status (On track / Behind / Stalled) is **computed**, not set by hand.
 
 ## Part 5 — HOD / department view
 
-Sign in as **`hod@demo.test` / `demo1234`** (there's pre-loaded demo data
-so this view is already populated with other supervisors and students).
+Create a Head of Department account for the review session, then sign in with
+its email and password. Do not share its password in this document.
 
 1. **Department dashboard:**
    - Totals across the department, a **per-supervisor table** with an
