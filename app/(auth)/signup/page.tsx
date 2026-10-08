@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { DEPARTMENTS, ROLE_OPTIONS } from "@/lib/constants";
 import { homePathForRole } from "@/lib/routes";
-import { cn } from "@/lib/utils";
+import { isMatricNumber, normalizeMatricNumber } from "@/lib/matric";
 import type { Role } from "@/lib/types";
 
 export default function SignUpPage() {
@@ -28,6 +28,7 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [matricNumber, setMatricNumber] = useState("");
   const [role, setRole] = useState<Role>("student");
   const [department, setDepartment] = useState<string>("");
   const [pending, setPending] = useState(false);
@@ -36,6 +37,7 @@ export default function SignUpPage() {
     name.trim().length >= 2 &&
     /\S+@\S+\.\S+/.test(email) &&
     password.length >= 6 &&
+    (role !== "student" || isMatricNumber(matricNumber)) &&
     department.length > 0;
 
   async function onSubmit(e: React.FormEvent) {
@@ -49,6 +51,7 @@ export default function SignUpPage() {
         password,
         role,
         department,
+        ...(role === "student" ? { matricNumber: normalizeMatricNumber(matricNumber) } : {}),
       });
       toast.success("Account created");
       router.replace(homePathForRole(assigned));
@@ -75,6 +78,17 @@ export default function SignUpPage() {
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">I am a</legend>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {ROLE_OPTIONS.map((option) => (
+              <label key={option.value} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${role === option.value ? "border-primary bg-primary/10" : "border-border"}`}>
+                <input type="radio" name="role" value={option.value} checked={role === option.value} onChange={() => setRole(option.value)} className="mt-1 accent-primary" />
+                <span><span className="block font-medium">{option.label}</span><span className="text-xs text-muted-foreground">{option.hint}</span></span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="space-y-1.5">
           <Label htmlFor="name">Full name</Label>
           <Input
@@ -86,6 +100,22 @@ export default function SignUpPage() {
             placeholder="Ada Okafor"
           />
         </div>
+
+        {role === "student" && <div className="space-y-1.5">
+          <Label htmlFor="matric">Matriculation number</Label>
+          <Input
+            id="matric"
+            required
+            autoComplete="off"
+            value={matricNumber}
+            onChange={(e) => setMatricNumber(e.target.value)}
+            placeholder="F/HD/24/3211001"
+            aria-describedby="matric-help"
+          />
+          <p id="matric-help" className="text-xs text-muted-foreground">
+            Format: F, D or P / ND or HD / year / 7-digit number.
+          </p>
+        </div>}
 
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
@@ -111,32 +141,6 @@ export default function SignUpPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="At least 6 characters"
           />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>Role</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {ROLE_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setRole(opt.value)}
-                className={cn(
-                  "rounded-md border px-2 py-2 text-left text-xs transition-colors",
-                  role === opt.value
-                    ? "border-primary bg-primary/5 text-foreground"
-                    : "border-border text-muted-foreground hover:border-foreground/20"
-                )}
-              >
-                <span className="block font-medium text-foreground">
-                  {opt.label}
-                </span>
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {ROLE_OPTIONS.find((o) => o.value === role)?.hint}
-          </p>
         </div>
 
         <div className="space-y-1.5">
