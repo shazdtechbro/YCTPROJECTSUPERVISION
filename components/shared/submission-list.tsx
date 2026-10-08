@@ -22,6 +22,9 @@ import {
 import { api } from "@/lib/api";
 import { getSubmissionDownloadUrl } from "@/lib/storage/submissions";
 import { formatDate, formatFileSize } from "@/lib/format";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import type { SubmissionDoc, SubmissionStatus } from "@/lib/types";
 
 export function SubmissionList({
@@ -105,6 +108,8 @@ function SubmissionRow({
 }) {
   const [downloading, setDownloading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [grade, setGrade] = useState(s.grade == null ? "" : String(s.grade));
+  const [feedback, setFeedback] = useState(s.reviewFeedback ?? "");
 
   async function download() {
     setDownloading(true);
@@ -121,10 +126,10 @@ function SubmissionRow({
     }
   }
 
-  async function setStatus(status: SubmissionStatus) {
+  async function setStatus(status: SubmissionStatus, withGrade = false) {
     setSaving(true);
     try {
-      await api.setSubmissionStatus(projectId, s.id, status);
+      await api.setSubmissionStatus(projectId, s.id, status, withGrade ? { grade: grade === "" ? null : Number(grade), feedback } : undefined);
       toast.success("Review updated");
       onChanged();
     } catch (err) {
@@ -145,7 +150,7 @@ function SubmissionRow({
           <span className="font-normal text-muted-foreground">v{s.version}</span>
         </p>
         <p className="truncate text-2xs text-muted-foreground">
-          {s.fileName} · {formatFileSize(s.fileSize)} · {formatDate(s.createdAt)}
+          {s.fileName} · {formatFileSize(s.fileSize)} · {formatDate(s.createdAt)}{s.chapterNumber ? ` · Chapter ${s.chapterNumber}` : ""}
         </p>
       </div>
       <StatusBadge status={s.status} />
@@ -165,7 +170,7 @@ function SubmissionRow({
       {canReview && (
         <Select
           value={s.status}
-          onValueChange={(v) => setStatus(v as SubmissionStatus)}
+          onValueChange={(v) => setStatus(v as SubmissionStatus, true)}
           disabled={saving}
         >
           <SelectTrigger className="h-8 w-[168px]">
@@ -178,6 +183,14 @@ function SubmissionRow({
           </SelectContent>
         </Select>
       )}
+      {canReview && <details className="basis-full rounded-md border bg-background p-3">
+        <summary className="cursor-pointer text-sm font-medium">Review and grading workspace</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-[140px_1fr]">
+          <div className="space-y-1.5"><Label htmlFor={`grade-${s.id}`}>Grade (0–100)</Label><Input id={`grade-${s.id}`} type="number" min="0" max="100" value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="Optional" /></div>
+          <div className="space-y-1.5"><Label htmlFor={`feedback-${s.id}`}>Written feedback</Label><Textarea id={`feedback-${s.id}`} value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={3} placeholder="Provide clear, actionable comments for the student." /></div>
+          <Button className="sm:col-start-2 sm:justify-self-end" size="sm" disabled={saving || (grade !== "" && (Number(grade) < 0 || Number(grade) > 100))} onClick={() => setStatus(s.status, true)}>Save review</Button>
+        </div>
+      </details>}
     </li>
   );
 }

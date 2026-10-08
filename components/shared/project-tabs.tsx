@@ -14,6 +14,7 @@ import { TicketList } from "./ticket-list";
 import { SubmissionList } from "./submission-list";
 import { FeedbackPanel } from "./feedback-panel";
 import { DefenseDateControl } from "./defense-date-control";
+import { ProjectWorkflowPanel } from "./project-workflow-panel";
 import {
   Tabs,
   TabsContent,
@@ -111,7 +112,7 @@ function Inner({
             />
 
             <Tabs value={tab} onValueChange={changeTab}>
-              <TabsList>
+              <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="tickets">Tickets</TabsTrigger>
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -119,6 +120,7 @@ function Inner({
               </TabsList>
 
               <TabsContent value="overview" className="mt-4">
+                <div className="space-y-4">
                 <Card>
                   <CardContent className="space-y-5 p-5">
                     <div>
@@ -143,7 +145,7 @@ function Inner({
                         <Fact
                           icon={User}
                           label="Student"
-                          value={project.data.studentName}
+                          value={`${project.data.studentName} · ${project.data.studentMatricNumber || "Matric number not recorded"}`}
                         />
                       )}
                       {role !== "supervisor" && (
@@ -163,6 +165,7 @@ function Inner({
                         value={String(project.data.openTicketCount)}
                       />
                     </div>
+                    {project.data.memberMatricNumbers?.length ? <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Project team</p><ul className="mt-2 flex flex-wrap gap-2">{project.data.memberMatricNumbers.map((matric, index) => <li key={`${matric}-${index}`} className="rounded-full bg-secondary px-3 py-1 text-sm">{project.data?.memberNames?.[index] ?? "Student"}{matric ? ` · ${matric}` : ""}</li>)}</ul></div> : null}
                     {role === "supervisor" && (
                       <DefenseDateControl
                         projectId={projectId}
@@ -172,6 +175,8 @@ function Inner({
                     )}
                   </CardContent>
                 </Card>
+                <ProjectWorkflowPanel project={project.data} role={role} onChanged={() => setNonce((n) => n + 1)} />
+                </div>
               </TabsContent>
 
               <TabsContent value="tickets" className="mt-4">
@@ -181,9 +186,10 @@ function Inner({
               <TabsContent value="submissions" className="mt-4">
                 <SubmissionList
                   projectId={projectId}
-                  canUpload={role === "student"}
+                  canUpload={role === "student" && (project.data.topicStatus ?? "approved") === "approved"}
                   canReview={role === "supervisor"}
                 />
+                {role === "student" && project.data.topicStatus === "pending" && <p className="mt-3 rounded-md bg-secondary p-3 text-sm">Your supervisor must approve the project topic before chapter submissions can be uploaded.</p>}
               </TabsContent>
 
               <TabsContent value="feedback" className="mt-4">

@@ -44,6 +44,7 @@ export function UploadSubmissionDialog({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState<SubmissionKind>("chapter");
+  const [chapterNumber, setChapterNumber] = useState("1");
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -53,6 +54,7 @@ export function UploadSubmissionDialog({
   function reset() {
     setTitle("");
     setKind("chapter");
+    setChapterNumber("1");
     setFile(null);
     setProgress(0);
   }
@@ -79,6 +81,7 @@ export function UploadSubmissionDialog({
         storagePath: uploaded.storagePath,
         fileName: uploaded.fileName,
         fileSize: uploaded.fileSize,
+        ...(kind === "chapter" || kind === "revision" ? { chapterNumber: Number(chapterNumber) } : {}),
       });
       toast.success("Submission uploaded");
       reset();
@@ -137,6 +140,19 @@ export function UploadSubmissionDialog({
               </SelectContent>
             </Select>
           </div>
+          {(kind === "chapter" || kind === "revision") && <div className="space-y-1.5">
+            <Label htmlFor="s-chapter">Chapter stage</Label>
+            <Select value={chapterNumber} onValueChange={setChapterNumber}>
+              <SelectTrigger id="s-chapter"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Chapter One: Introduction</SelectItem>
+                <SelectItem value="2">Chapter Two: Literature Review</SelectItem>
+                <SelectItem value="3">Chapter Three: Methodology</SelectItem>
+                <SelectItem value="4">Chapter Four: System Design and Implementation</SelectItem>
+                <SelectItem value="5">Chapter Five: Summary and Conclusion</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>}
           <div className="space-y-1.5">
             <Label>File</Label>
             <FileUpload

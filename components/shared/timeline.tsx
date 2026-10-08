@@ -2,6 +2,8 @@ import {
   FileText,
   GitCommitHorizontal,
   MessageSquare,
+  MessageSquareText,
+  Clock3,
   Ticket,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -15,6 +17,9 @@ const ICONS: Record<ActivityEvent["kind"], LucideIcon> = {
   submission: FileText,
   comment: MessageSquare,
   status_change: GitCommitHorizontal,
+  review: MessageSquareText,
+  topic: GitCommitHorizontal,
+  extension: Clock3,
 };
 
 /** Cross-role activity feed. Presentational — feed it `ActivityEvent[]`. */
