@@ -112,7 +112,7 @@ export default function SupervisorDrilldown({
                   <TableHead>Project</TableHead>
                   <TableHead>Student</TableHead>
                   <TableHead>Milestone</TableHead>
-                  <TableHead>Defense</TableHead>
+                  <TableHead>Proposal</TableHead>
                   <TableHead className="text-right">Last activity</TableHead>
                 </TableRow>
               </TableHeader>
@@ -134,7 +134,7 @@ export default function SupervisorDrilldown({
                       <StatusBadge status={p.milestoneStatus} />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatDate(p.defenseDate)}
+                      {formatDate(p.proposalDate ?? null)}
                     </TableCell>
                     <TableCell className="text-right text-2xs text-muted-foreground">
                       {formatRelativeTime(p.lastActivityAt)}

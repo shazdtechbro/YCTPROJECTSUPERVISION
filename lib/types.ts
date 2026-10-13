@@ -94,6 +94,8 @@ export interface ProjectDoc extends DocBase {
   nextDeadline: string | null;
   /** ISO date (yyyy-mm-dd) of the project defense. */
   defenseDate: string | null;
+  /** ISO date (yyyy-mm-dd) of the project proposal presentation. */
+  proposalDate?: string | null;
   progressPct: number;
   openTicketCount: number;
   /** Rolling denormalised count — trailing 30 days. Maintained on ticket write. */

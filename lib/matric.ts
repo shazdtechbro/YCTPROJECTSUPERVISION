@@ -8,3 +8,9 @@ export function normalizeMatricNumber(value: string): string {
 export function isMatricNumber(value: string): boolean {
   return MATRIC_NUMBER_PATTERN.test(normalizeMatricNumber(value));
 }
+
+/** Firebase password auth needs an email-shaped identifier, not a student inbox. */
+export function studentAuthEmail(matricNumber: string): string {
+  if (!isMatricNumber(matricNumber)) throw new Error("Enter a valid matriculation number.");
+  return `${normalizeMatricNumber(matricNumber).replaceAll("/", "_").toLowerCase()}@students.project-supervision.invalid`;
+}

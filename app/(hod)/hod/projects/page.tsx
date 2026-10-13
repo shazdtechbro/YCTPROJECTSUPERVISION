@@ -119,7 +119,7 @@ export default function HodProjects() {
                   <TableHead>Student</TableHead>
                   <TableHead>Supervisor</TableHead>
                   <TableHead>Milestone</TableHead>
-                  <TableHead>Defense</TableHead>
+                  <TableHead>Proposal</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -144,7 +144,7 @@ export default function HodProjects() {
                       <StatusBadge status={p.milestoneStatus} />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatDate(p.defenseDate)}
+                      {formatDate(p.proposalDate ?? null)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -168,7 +168,7 @@ export default function HodProjects() {
                     </p>
                     <Progress value={p.progressPct} />
                     <p className="text-2xs text-muted-foreground">
-                      Defense {formatDate(p.defenseDate)}
+                      Proposal {formatDate(p.proposalDate ?? null)}
                     </p>
                   </CardContent>
                 </Link>

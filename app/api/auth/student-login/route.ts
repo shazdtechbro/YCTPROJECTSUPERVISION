@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     if (
       !profile.exists ||
       profile.get("role") !== "student" ||
-      typeof profile.get("email") !== "string"
+      typeof (profile.get("authEmail") || profile.get("email")) !== "string"
     )
       return invalid();
     // Firebase verifies the password and applies its credential-abuse protections.
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: profile.get("email"),
+          email: profile.get("authEmail") || profile.get("email"),
           password: body.password,
           returnSecureToken: true,
         }),

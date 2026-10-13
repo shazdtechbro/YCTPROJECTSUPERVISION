@@ -13,7 +13,7 @@ import { StatusBadge } from "./status-badge";
 import { TicketList } from "./ticket-list";
 import { SubmissionList } from "./submission-list";
 import { FeedbackPanel } from "./feedback-panel";
-import { DefenseDateControl } from "./defense-date-control";
+import { ProposalDateControl } from "./proposal-date-control";
 import { ProjectWorkflowPanel } from "./project-workflow-panel";
 import {
   Tabs,
@@ -125,7 +125,7 @@ function Inner({
                   <CardContent className="space-y-5 p-5">
                     <div>
                       <p className="text-2xs uppercase tracking-wide text-muted-foreground">
-                        Abstract
+                        Project description
                       </p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                         {project.data.abstract}
@@ -157,8 +157,8 @@ function Inner({
                       )}
                       <Fact
                         icon={CalendarClock}
-                        label="Defense date"
-                        value={formatDate(project.data.defenseDate)}
+                        label="Proposal date"
+                        value={formatDate(project.data.proposalDate ?? null)}
                       />
                       <Fact
                         label="Open tickets"
@@ -167,9 +167,9 @@ function Inner({
                     </div>
                     {project.data.memberMatricNumbers?.length ? <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Project team</p><ul className="mt-2 flex flex-wrap gap-2">{project.data.memberMatricNumbers.map((matric, index) => <li key={`${matric}-${index}`} className="rounded-full bg-secondary px-3 py-1 text-sm">{project.data?.memberNames?.[index] ?? "Student"}{matric ? ` · ${matric}` : ""}</li>)}</ul></div> : null}
                     {role === "supervisor" && (
-                      <DefenseDateControl
+                      <ProposalDateControl
                         projectId={projectId}
-                        current={project.data.defenseDate}
+                        current={project.data.proposalDate ?? null}
                         onSaved={() => setNonce((n) => n + 1)}
                       />
                     )}

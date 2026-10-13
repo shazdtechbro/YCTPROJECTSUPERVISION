@@ -27,9 +27,9 @@ import { formatDate, formatRelativeTime } from "@/lib/format";
 import type { ProjectStatus } from "@/lib/types";
 
 const STATUS_TABS: { value: ProjectStatus; label: string }[] = [
-  { value: "active", label: "Active" },
-  { value: "submitted", label: "Submitted" },
   { value: "approved", label: "Approved" },
+  { value: "submitted", label: "Submitted" },
+  { value: "active", label: "Active" },
   { value: "archived", label: "Archived" },
 ];
 
@@ -90,7 +90,7 @@ export default function SupervisorProjects() {
                 <TableHead>Project</TableHead>
                 <TableHead>Student</TableHead>
                 <TableHead>Milestone</TableHead>
-                <TableHead>Defense</TableHead>
+                <TableHead>Proposal</TableHead>
                 <TableHead className="text-right">Updated</TableHead>
               </TableRow>
             </TableHeader>
@@ -113,7 +113,7 @@ export default function SupervisorProjects() {
                     <StatusBadge status={p.milestoneStatus} />
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {formatDate(p.defenseDate)}
+                    {formatDate(p.proposalDate ?? null)}
                   </TableCell>
                   <TableCell className="text-right text-2xs text-muted-foreground">
                     {formatRelativeTime(p.lastActivityAt)}

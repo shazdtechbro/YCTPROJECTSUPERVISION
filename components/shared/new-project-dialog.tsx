@@ -22,7 +22,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
   const [studentMatricNumber, setStudentMatricNumber] = useState("");
   const [title, setTitle] = useState("");
   const [abstract, setAbstract] = useState("");
-  const [defenseDate, setDefenseDate] = useState("");
+  const [proposalDate, setProposalDate] = useState("");
   const [busy, setBusy] = useState(false);
 
   const canSubmit =
@@ -40,7 +40,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
         studentMatricNumber: studentMatricNumber.trim().toUpperCase(),
         title: title.trim(),
         abstract: abstract.trim(),
-        defenseDate: defenseDate || null,
+        proposalDate: proposalDate || null,
       });
       toast.success("Project created", {
         description: `${studentMatricNumber.trim().toUpperCase()} has been notified.`,
@@ -48,7 +48,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
       setStudentMatricNumber("");
       setTitle("");
       setAbstract("");
-      setDefenseDate("");
+      setProposalDate("");
       setOpen(false);
       onCreated?.();
     } catch (err) {
@@ -96,7 +96,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-abstract">Abstract</Label>
+            <Label htmlFor="p-abstract">Project description</Label>
             <Textarea
               id="p-abstract"
               rows={4}
@@ -106,12 +106,12 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-defense">Defense date (optional)</Label>
+            <Label htmlFor="p-proposal">Proposal date (optional)</Label>
             <Input
-              id="p-defense"
+              id="p-proposal"
               type="date"
-              value={defenseDate}
-              onChange={(e) => setDefenseDate(e.target.value)}
+              value={proposalDate}
+              onChange={(e) => setProposalDate(e.target.value)}
               className="max-w-[200px]"
             />
           </div>

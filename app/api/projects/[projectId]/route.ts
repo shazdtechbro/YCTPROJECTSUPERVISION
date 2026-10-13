@@ -1,3 +1,4 @@
+import { isCalendarDate } from "@/lib/dates";
 import { NextResponse, type NextRequest } from "next/server";
 import { FieldValue, type WriteBatch } from "firebase-admin/firestore";
 
@@ -330,6 +331,11 @@ export async function PATCH(
       updatedAt: FieldValue.serverTimestamp(),
     };
     if (isSupervisor) {
+      if ("proposalDate" in body) {
+        if (body.proposalDate !== null && !isCalendarDate(body.proposalDate))
+          return NextResponse.json({ error: "Enter a valid proposal date." }, { status: 400 });
+        patch.proposalDate = body.proposalDate;
+      }
       if ("defenseDate" in body)
         patch.defenseDate = (body.defenseDate as string) || null;
       if ("nextDeadline" in body)

@@ -40,6 +40,7 @@ export const api = {
     title: string;
     abstract: string;
     defenseDate?: string | null;
+    proposalDate?: string | null;
   }) => req<{ projectId: string }>("/api/projects", "POST", input),
 
   decideTopic: (projectId: string, topicStatus: "pending" | "approved" | "declined", note = "") =>
@@ -52,6 +53,7 @@ export const api = {
     projectId: string,
     patch: Partial<{
       defenseDate: string | null;
+      proposalDate: string | null;
       nextDeadline: string | null;
       progressPct: number;
       abstract: string;

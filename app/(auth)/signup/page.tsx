@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -35,7 +36,7 @@ export default function SignUpPage() {
 
   const canSubmit =
     name.trim().length >= 2 &&
-    /\S+@\S+\.\S+/.test(email) &&
+    (role === "student" || /\S+@\S+\.\S+/.test(email)) &&
     password.length >= 6 &&
     (role !== "student" || isMatricNumber(matricNumber)) &&
     department.length > 0;
@@ -47,7 +48,7 @@ export default function SignUpPage() {
     try {
       const assigned = await signUp({
         displayName: name,
-        email,
+        ...(role !== "student" ? { email } : {}),
         password,
         role,
         department,
@@ -61,7 +62,7 @@ export default function SignUpPage() {
       toast.error("Could not create account", {
         description:
           code === "auth/email-already-in-use"
-            ? "That email is already registered — sign in instead."
+            ? role === "student" ? "That matriculation number is already registered — sign in instead." : "That email is already registered — sign in instead."
             : code === "auth/weak-password"
               ? "Choose a stronger password (6+ characters)."
               : (err as Error).message,
@@ -78,17 +79,14 @@ export default function SignUpPage() {
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={onSubmit}>
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium">I am a</legend>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {ROLE_OPTIONS.map((option) => (
-              <label key={option.value} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${role === option.value ? "border-primary bg-primary/10" : "border-border"}`}>
-                <input type="radio" name="role" value={option.value} checked={role === option.value} onChange={() => setRole(option.value)} className="mt-1 accent-primary" />
-                <span><span className="block font-medium">{option.label}</span><span className="text-xs text-muted-foreground">{option.hint}</span></span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <div className="space-y-1.5">
+          <Label htmlFor="role">Role</Label>
+          <Select value={role} onValueChange={(value) => setRole(value as Role)}>
+            <SelectTrigger id="role"><SelectValue placeholder="Select your role" /></SelectTrigger>
+            <SelectContent>{ROLE_OPTIONS.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">{ROLE_OPTIONS.find(option => option.value === role)?.hint}</p>
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="name">Full name</Label>
           <Input
@@ -117,7 +115,7 @@ export default function SignUpPage() {
           </p>
         </div>}
 
-        <div className="space-y-1.5">
+        {role !== "student" && <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -128,13 +126,12 @@ export default function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@yabatech.edu.ng"
           />
-        </div>
+        </div>}
 
         <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             required
             autoComplete="new-password"
             value={password}

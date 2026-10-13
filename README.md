@@ -88,9 +88,17 @@ direct `anon`/`authenticated` access); the service-role key used by
 
 ## Auth & roles
 
-- Students can sign in with matric number and password; email/password remains
-  available. Supervisors and HODs create accounts with their own email and
-  password and select their role at sign-up.
+- Students register and sign in with matric number and password, without an
+  email inbox or username. Name and department identify their project profile.
+  Supervisors and HODs use email/password and select their role from a dropdown.
+  Existing email-based student accounts remain compatible with matric login.
+- New students use an internal Firebase authentication identifier in `authEmail`;
+  it is not a contact address and is not shown in account menus. Legacy accounts
+  continue to authenticate using their existing profile email.
+- Supervisors schedule proposal presentations with `proposalDate`. Existing
+  `defenseDate` values remain historical data; they are not relabelled as proposal
+  dates. Proposal dates appear consistently across student, supervisor and HOD
+  views and are validated by the server.
 - On every ID-token change the client POSTs the token to
   `app/api/session/route.ts`, which **verifies it server-side** and mints an
   `HttpOnly` session cookie. The browser never sets an auth cookie itself.
@@ -103,7 +111,7 @@ direct `anon`/`authenticated` access); the service-role key used by
 
 Roles: `student` · `supervisor` · `hod`.
 
-Public sign-up lets people select Student, Supervisor or HOD. Role and
+Public sign-up provides a Role dropdown for Student, Supervisor or HOD. Role and
 department are recorded at provisioning and checked on each session. This
 self-selected role does not verify that a registrant is employed by the school;
 an institutional verification process would be needed to prevent impersonation.

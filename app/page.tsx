@@ -56,7 +56,7 @@ export default async function LandingPage() {
 
       {/* hero */}
       <section className="mx-auto max-w-6xl px-5 pb-8 pt-10 sm:pt-20">
-        <span className="inline-block -rotate-1 border-2 border-border bg-accent px-2 py-0.5 text-2xs font-black uppercase tracking-wide text-accent-foreground shadow-brutal-sm">
+        <span className="inline-block border-2 border-border bg-accent px-2 py-0.5 text-2xs font-black uppercase tracking-wide text-accent-foreground shadow-brutal-sm">
           YABATECH HND · Final-year projects
         </span>
         <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
@@ -131,7 +131,7 @@ export default async function LandingPage() {
               icon: ShieldCheck,
               title: "Supervisors",
               points: [
-                "Roster of students with status at a glance",
+                "List of students with status at a glance",
                 "Review submissions, comment per file",
                 "Dashboard rollup — no fishing through projects",
               ],

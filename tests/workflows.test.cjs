@@ -589,3 +589,57 @@ test("YABATECH logo remains public without a session", () => {
   assert.equal(response.headers.get("x-middleware-next"), "1");
   assert.equal(response.headers.get("location"), null);
 });
+
+test("proposal scheduling persists independently of the historical defence date", async () => {
+  user = supervisor();
+  db.data.get("projects/p").defenseDate = "2027-03-01";
+  const res = await routes.patch.PATCH(req({ proposalDate: "2026-11-12" }), params);
+  assert.equal(res.status, 200);
+  assert.equal(db.data.get("projects/p").proposalDate, "2026-11-12");
+  assert.equal(db.data.get("projects/p").defenseDate, "2027-03-01");
+  assert.equal((await routes.patch.PATCH(req({ proposalDate: null }), params)).status, 200);
+  assert.equal(db.data.get("projects/p").proposalDate, null);
+});
+test("invalid proposal dates and student schedule writes do not persist", async () => {
+  assert.equal((await routes.patch.PATCH(req({ proposalDate: "2026-11-12" }), params)).status, 400);
+  user = supervisor();
+  for (const proposalDate of ["2026-02-30", "not-a-date", 17, ""]) {
+    assert.equal((await routes.patch.PATCH(req({ proposalDate }), params)).status, 400);
+  }
+  assert.equal(db.data.get("projects/p").proposalDate, undefined);
+});
+test("email-free student provisioning stores an internal auth identifier and unique matric index", async () => {
+  const { studentAuthEmail } = require("../lib/matric.ts");
+  const provision = require("../app/api/auth/provision/route.ts");
+  const matricNumber = "P/ND/26/3999007";
+  auth.verifyIdToken = async () => ({ uid: "newstudent", email: studentAuthEmail(matricNumber) });
+  let claims;
+  auth.setCustomUserClaims = async (uid, value) => { assert.equal(uid, "newstudent"); claims = value; };
+  const res = await provision.POST(req({ idToken: "valid", role: "student", department: "Computer Science", displayName: "New Student", matricNumber }));
+  assert.equal(res.status, 200);
+  const profile = db.data.get("users/newstudent");
+  assert.equal(profile.email, "");
+  assert.equal(profile.authEmail, studentAuthEmail(matricNumber));
+  assert.equal(db.data.get("matric_index/P_ND_26_3999007").uid, "newstudent");
+  assert.equal(claims.role, "student");
+});
+test("email-free student matric login verifies password against the internal auth identifier", async () => {
+  const { studentAuthEmail } = require("../lib/matric.ts");
+  const profile = db.data.get("users/lead");
+  profile.email = "";
+  profile.authEmail = studentAuthEmail(profile.matricNumber);
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY = "test-only-public-key";
+  const previous = global.fetch;
+  global.fetch = async (_, options) => {
+    const body = JSON.parse(options.body);
+    assert.equal(body.email, profile.authEmail);
+    assert.equal(body.password, "correct-password");
+    passwordVerified = true;
+    return Response.json({ idToken: "verified" });
+  };
+  try {
+    const res = await routes.login.POST(req({ matricNumber: profile.matricNumber, password: "correct-password" }));
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).customToken, "custom-lead");
+  } finally { global.fetch = previous; }
+});

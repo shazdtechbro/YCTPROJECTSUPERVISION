@@ -27,7 +27,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
       icon: LayoutDashboard,
     },
     { label: "Projects", href: "/supervisor/projects", icon: FolderKanban },
-    { label: "Roster", href: "/supervisor/roster", icon: Users },
+    { label: "Students", href: "/supervisor/roster", icon: Users },
   ],
   hod: [
     { label: "Dashboard", href: "/hod/dashboard", icon: LayoutDashboard },

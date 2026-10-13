@@ -29,12 +29,13 @@ import {
 
 import { getFirebaseAuth } from "@/lib/firebase";
 import { createSessionSynchronizer } from "./session-sync";
+import { studentAuthEmail } from "@/lib/matric";
 import { api } from "@/lib/api";
 import type { Role } from "@/lib/types";
 
 export interface SignUpInput {
   displayName: string;
-  email: string;
+  email?: string;
   password: string;
   role: Role;
   department: string;
@@ -216,18 +217,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = getFirebaseAuth();
     const cred = await createUserWithEmailAndPassword(
       auth,
-      input.email.trim(),
+      input.role === "student"
+        ? studentAuthEmail(input.matricNumber ?? "")
+        : (input.email ?? "").trim(),
       input.password,
     );
     await updateProfile(cred.user, { displayName: input.displayName.trim() });
     const idToken = await cred.user.getIdToken();
-    await api.provisionAccount({
-      idToken,
-      role: input.role,
-      department: input.department,
-      displayName: input.displayName.trim(),
-      matricNumber: input.matricNumber,
-    });
+    try {
+      await api.provisionAccount({
+        idToken,
+        role: input.role,
+        department: input.department,
+        displayName: input.displayName.trim(),
+        matricNumber: input.matricNumber,
+      });
+    } catch (error) {
+      // Do not leave an unprovisioned account signed in.
+      await signOut(auth);
+      throw error;
+    }
     // Force-refresh so the new claims land, then mint + await the session cookie.
     const role = await syncSessionCookie(cred.user, true);
     return role ?? input.role;

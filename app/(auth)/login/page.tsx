@@ -6,11 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth/auth-context";
 import { homePathForRole } from "@/lib/routes";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ROLE_OPTIONS } from "@/lib/constants";
 import type { Role } from "@/lib/types";
 
 function mapAuthError(code?: string): string {
@@ -18,7 +21,7 @@ function mapAuthError(code?: string): string {
     case "auth/invalid-credential":
     case "auth/wrong-password":
     case "auth/user-not-found":
-      return "Email or password is incorrect.";
+      return "Login details or password are incorrect.";
     case "auth/too-many-requests":
       return "Too many attempts. Try again in a few minutes.";
     case "auth/popup-closed-by-user":
@@ -33,6 +36,7 @@ function LoginForm() {
   const router = useRouter();
   const nextParam = useSearchParams().get("next");
 
+  const [loginRole, setLoginRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState<null | "password" | "google">(null);
@@ -71,31 +75,37 @@ function LoginForm() {
         onSubmit={(e) => {
           e.preventDefault();
           const credential = email.trim();
-          const matric = /^[FDP]\/(?:ND|HD)\/\d{2}\/\d{7}$/i.test(credential);
+
           void run("password", () =>
-            matric
+            loginRole === "student"
               ? signInWithMatric(credential, password)
               : signInWithPassword(credential, password),
           );
         }}
       >
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email or matriculation number</Label>
+          <Label htmlFor="login-role">Role</Label>
+          <Select value={loginRole} onValueChange={(value) => { setLoginRole(value as Role); setEmail(""); }}>
+            <SelectTrigger id="login-role"><SelectValue /></SelectTrigger>
+            <SelectContent>{ROLE_OPTIONS.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="email">{loginRole === "student" ? "Matriculation number" : "Email"}</Label>
           <Input
             id="email"
-            type="text"
+            type={loginRole === "student" ? "text" : "email"}
             autoComplete="username"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@example.com or F/HD/24/3211001"
+            placeholder={loginRole === "student" ? "F/HD/24/3211001" : "name@example.com"}
           />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             required
             value={password}
@@ -111,6 +121,7 @@ function LoginForm() {
         </Button>
       </form>
 
+      {loginRole !== "student" && <>
       <div className="my-5 flex items-center gap-3">
         <Separator className="flex-1" />
         <span className="text-2xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -127,6 +138,7 @@ function LoginForm() {
       >
         Continue with Google
       </Button>
+      </>}
 
       <p className="mt-6 text-sm text-muted-foreground">
         You don’t have an account?{" "}

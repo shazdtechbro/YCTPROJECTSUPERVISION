@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 
-export function DefenseDateControl({
+export function ProposalDateControl({
   projectId,
   current,
   onSaved,
@@ -25,9 +25,9 @@ export function DefenseDateControl({
     setBusy(true);
     try {
       const res = await api.updateProject(projectId, {
-        defenseDate: value || null,
+        proposalDate: value || null,
       });
-      toast.success("Defense date saved", {
+      toast.success("Proposal date saved", {
         description: `Milestone: ${res.milestone.reason}`,
       });
       onSaved?.();
@@ -40,12 +40,12 @@ export function DefenseDateControl({
 
   return (
     <div className="rounded-md border bg-surface/50 p-3">
-      <Label htmlFor="defense" className="text-2xs uppercase tracking-wide text-muted-foreground">
-        Set defense date
+      <Label htmlFor="proposal-date" className="text-2xs uppercase tracking-wide text-muted-foreground">
+        Set proposal date
       </Label>
       <div className="mt-1.5 flex gap-2">
         <Input
-          id="defense"
+          id="proposal-date"
           type="date"
           value={value}
           onChange={(e) => setValue(e.target.value)}

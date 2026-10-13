@@ -38,7 +38,7 @@ export default function SupervisorRoster() {
   return (
     <div>
       <PageHeader
-        title="Roster"
+        title="Students"
         description="Your students and their live milestone status."
         actions={<NewProjectDialog onCreated={query.retry} />}
       />
@@ -80,7 +80,7 @@ export default function SupervisorRoster() {
                   </div>
                   <Progress value={p.progressPct} />
                   <div className="flex justify-between text-2xs text-muted-foreground">
-                    <span>Defense {formatDate(p.defenseDate)}</span>
+                    <span>Proposal {formatDate(p.proposalDate ?? null)}</span>
                     <span className="tnum">{p.progressPct}%</span>
                   </div>
                 </CardContent>

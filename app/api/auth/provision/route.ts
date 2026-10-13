@@ -110,7 +110,8 @@ export async function POST(req: NextRequest) {
   batch.create(userRef, {
     uid,
     displayName: displayName.trim(),
-    email: (verifiedEmail ?? "").toLowerCase(),
+    email: verifiedEmail?.endsWith("@students.project-supervision.invalid") ? "" : (verifiedEmail ?? ""),
+    ...(verifiedEmail?.endsWith("@students.project-supervision.invalid") ? { authEmail: verifiedEmail } : {}),
     role,
     department,
     ...(matricNumber ? { matricNumber } : {}),

@@ -1,3 +1,4 @@
+import { isCalendarDate } from "@/lib/dates";
 import { NextResponse, type NextRequest } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
     title?: string;
     abstract?: string;
     defenseDate?: string | null;
+    proposalDate?: string | null;
     supervisorId?: string;
     partnerMatricNumbers?: string[];
   };
@@ -194,6 +196,7 @@ export async function POST(req: NextRequest) {
           supervisorName: supervisorSnap.get("displayName"),
           nextDeadline: null,
           defenseDate: null,
+          proposalDate: null,
           progressPct: 0,
           chapterStatuses: [
             "not_started",
@@ -294,6 +297,9 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  if (body.proposalDate !== undefined && body.proposalDate !== null && !isCalendarDate(body.proposalDate)) {
+    return NextResponse.json({ error: "Enter a valid proposal date." }, { status: 400 });
+  }
   const {
     studentId,
     studentEmail,
@@ -387,6 +393,7 @@ export async function POST(req: NextRequest) {
     supervisorName: user.name ?? "",
     nextDeadline: null,
     defenseDate: defenseDate || null,
+    proposalDate: body.proposalDate ?? null,
     progressPct: 0,
     openTicketCount: 0,
     ticketsLast30Days: 0,
