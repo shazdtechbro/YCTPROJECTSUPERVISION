@@ -106,11 +106,11 @@ export const api = {
     projectId: string,
     submissionId: string,
     status: SubmissionStatus,
-    review?: { grade?: number | null; feedback?: string }
+    review?: { grade?: number | null; feedback?: string; revisionDueDate?: string | null }
   ) =>
     req(`/api/projects/${projectId}/submissions/${submissionId}`, "PATCH", {
       status,
-      ...(review ? { grade: review.grade, feedback: review.feedback } : {}),
+      ...(review ? { grade: review.grade, feedback: review.feedback, revisionDueDate: review.revisionDueDate } : {}),
     }),
 
   requestExtension: (projectId: string, requestedUntil: string) =>

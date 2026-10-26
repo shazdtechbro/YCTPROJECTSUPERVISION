@@ -1,3 +1,4 @@
+import { isCalendarDate } from "@/lib/dates";
 import { NextResponse, type NextRequest } from "next/server";
 import { FieldValue, type WriteBatch } from "firebase-admin/firestore";
 
@@ -11,7 +12,6 @@ import type { SubmissionStatus } from "@/lib/types";
 export const runtime = "nodejs";
 
 const STATUSES: SubmissionStatus[] = [
-  "pending_review",
   "changes_requested",
   "approved",
 ];
@@ -25,7 +25,7 @@ export async function PATCH(
   if (!user)
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  let body: { status?: string; grade?: number | null; feedback?: string };
+  let body: { status?: string; grade?: number | null; feedback?: string; revisionDueDate?: string | null };
   try {
     body = await req.json();
   } catch {
@@ -54,6 +54,9 @@ export async function PATCH(
     );
   }
 
+  if (body.revisionDueDate !== undefined && body.revisionDueDate !== null && !isCalendarDate(body.revisionDueDate)) {
+    return NextResponse.json({ error: "Enter a valid revision date." }, { status: 400 });
+  }
   const db = getAdminDb();
   return db.runTransaction(async (tx) => {
     const projectSnap = await tx.get(db.doc(`projects/${params.projectId}`));
@@ -136,12 +139,17 @@ export async function PATCH(
         { status: 409 },
       );
     }
+    if (body.grade != null && (sub.kind !== "final" || !allChaptersApproved)) {
+      return NextResponse.json({ error: "Grade the final submission after all five chapters are approved." }, { status: 409 });
+    }
     const batch = tx as unknown as WriteBatch;
 
     batch.set(
       subRef,
       {
         status: next,
+        reviewedAt: FieldValue.serverTimestamp(),
+        ...(body.revisionDueDate !== undefined ? { revisionDueDate: body.revisionDueDate } : {}),
         ...(next !== "pending_review" && !sub.firstResponseAt
           ? { firstResponseAt: FieldValue.serverTimestamp() }
           : {}),

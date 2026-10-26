@@ -19,9 +19,13 @@ require.extensions[".ts"] = (module, filename) =>
     filename,
   );
 let user, db, auth, passwordVerified;
+const signedFiles = [];
 const originalLoad = Module._load;
 Module._load = function (id, parent, main) {
   if (id === "server-only") return {};
+  if (id === "@/lib/supabase-admin") return {
+    createSubmissionSignedUrl: async (...args) => { signedFiles.push(args); return "https://storage.example.test/signed-file"; },
+  };
   if (id === "@/lib/firebase-admin")
     return { getAdminDb: () => db, getAdminAuth: () => auth };
   if (id === "@/lib/auth/session") return { getSessionUser: async () => user };
@@ -395,15 +399,15 @@ test("five chapters, feedback, grades and final approval persist correctly", asy
     assert.equal(
       (
         await routes.review.PATCH(
-          req({ status: "approved", grade: 80, feedback: "Clear structure" }),
+          req({ status: "approved", feedback: "Clear structure", revisionDueDate: "2026-12-01" }),
           { params: { projectId: "p", submissionId } },
         )
       ).status,
       200,
     );
     assert.equal(
-      db.data.get(`projects/p/submissions/${submissionId}`).grade,
-      80,
+      db.data.get(`projects/p/submissions/${submissionId}`).reviewFeedback,
+      "Clear structure",
     );
     assert.equal(db.data.get("projects/p").progressPct, i * 20);
   }
@@ -416,7 +420,7 @@ test("five chapters, feedback, grades and final approval persist correctly", asy
   user = supervisor();
   assert.equal(
     (
-      await routes.review.PATCH(req({ status: "approved" }), {
+      await routes.review.PATCH(req({ status: "approved", grade: 80 }), {
         params: {
           projectId: "p",
           submissionId: (await final.json()).submissionId,
@@ -642,4 +646,63 @@ test("email-free student matric login verifies password against the internal aut
     assert.equal(res.status, 200);
     assert.equal((await res.json()).customToken, "custom-lead");
   } finally { global.fetch = previous; }
+});
+
+test("uploads use the project topic and automatically enter pending review", async () => {
+  const res = await routes.submit.POST(req({ ...upload, title: undefined }), params);
+  assert.equal(res.status, 200);
+  const sub = db.data.get(`projects/p/submissions/${(await res.json()).submissionId}`);
+  assert.equal(sub.title, project.title);
+  assert.equal(sub.status, "pending_review");
+});
+test("pending is automatic and cannot be chosen as a supervisor review outcome", async () => {
+  user = supervisor();
+  const res = await routes.review.PATCH(req({ status: "pending_review" }), params);
+  assert.equal(res.status, 400);
+});
+test("proposal and chapter reviews cannot award an early grade", async () => {
+  user = supervisor();
+  for (const kind of ["proposal", "chapter", "revision", "final"]) {
+    db.data.set("projects/p/submissions/s", { kind, chapterNumber: 1, status: "pending_review" });
+    const res = await routes.review.PATCH(req({ status: "changes_requested", grade: 65 }), params);
+    assert.equal(res.status, 409);
+    assert.equal(db.data.get("projects/p/submissions/s").grade, undefined);
+  }
+});
+test("feedback and revision date persist for student readers and invalid dates do not write", async () => {
+  user = supervisor();
+  db.data.set("projects/p/submissions/s", { title: "Proposal", kind: "proposal", status: "pending_review" });
+  assert.equal((await routes.review.PATCH(req({ status: "changes_requested", feedback: "Expand the methodology", revisionDueDate: "2026-02-30" }), params)).status, 400);
+  assert.equal(db.data.get("projects/p/submissions/s").reviewFeedback, undefined);
+  const res = await routes.review.PATCH(req({ status: "changes_requested", feedback: "Expand the methodology", revisionDueDate: "2026-11-10" }), params);
+  assert.equal(res.status, 200);
+  const sub = db.data.get("projects/p/submissions/s");
+  assert.equal(sub.reviewFeedback, "Expand the methodology");
+  assert.equal(sub.revisionDueDate, "2026-11-10");
+  assert.ok(sub.reviewedAt.toDate() instanceof Date);
+});
+test("document navigation authorises the supervisor and members, supports download, and rejects outsiders", async () => {
+  const route = require("../app/api/projects/[projectId]/submissions/[submissionId]/file/route.ts");
+  const { NextRequest } = require("next/server");
+  db.data.set("projects/p/submissions/s", { storagePath: "projects/p/submissions/s/file.docx", fileName: "chapter-one.docx" });
+  user = supervisor();
+  const res = await route.GET(new NextRequest("http://localhost/file?download=1"), params);
+  assert.equal(res.status, 303);
+  assert.equal(res.headers.get("location"), "https://storage.example.test/signed-file");
+  assert.equal(res.headers.get("cache-control"), "private, no-store");
+  assert.equal(signedFiles.at(-1)[2], "chapter-one.docx");
+  user = student("partner");
+  assert.equal((await route.GET(new NextRequest("http://localhost/file"), params)).status, 303);
+  assert.equal(signedFiles.at(-1)[2], undefined);
+  user = student("outsider");
+  assert.equal((await route.GET(new NextRequest("http://localhost/file"), params)).status, 403);
+  user = null;
+  assert.equal((await route.GET(new NextRequest("http://localhost/file"), params)).status, 401);
+});
+test("document links cannot sign a different project's file", async () => {
+  const route = require("../app/api/projects/[projectId]/submissions/[submissionId]/file/route.ts");
+  const { NextRequest } = require("next/server");
+  db.data.set("projects/p/submissions/s", { storagePath: "projects/other/submissions/s/file.pdf" });
+  user = supervisor();
+  assert.equal((await route.GET(new NextRequest("http://localhost/file"), params)).status, 400);
 });

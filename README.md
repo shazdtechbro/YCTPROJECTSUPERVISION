@@ -120,8 +120,25 @@ Student matric numbers follow `F/HD/24/3211001` (`F`, `D` or `P`; `ND` or
 
 Students submit a topic to a supervisor in their department and may add up to
 four project partners by matric number. Topic decisions, chapter stages,
-submission grades and written feedback, deadline extension decisions and
+final-project grades and written feedback, deadline extension decisions and
 project activity are stored and served through authenticated API routes.
+
+
+Submission uploads use the existing project topic and a document category rather
+than a second title. Pending review is assigned automatically. Supervisors choose
+Changes requested or Approved and save a comment followed by an optional revision
+due date. Numeric grades are accepted only for final submissions after all five
+chapters are approved. Saved reviews appear in both Submissions and Feedback.
+The Activity log combines recorded supervision tasks with automatic workflow events.
+
+Files and version history provides individual View file and Download links for
+each loaded version. These links navigate to an authenticated server redirect,
+avoiding iPhone popup blocking while retaining private, short-lived storage URLs.
+
+Additional component regression checks can be run with
+`YCT_ESBUILD=/path/to/esbuild node tests/submission-feedback-browser.cjs` using
+esbuild 0.25.12 as an external test tool. This exercises real components with
+controlled service data and the production CSS; it does not write to live accounts.
 
 ---
 

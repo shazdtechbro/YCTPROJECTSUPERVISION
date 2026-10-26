@@ -62,7 +62,7 @@ function Stats({ stats }: { stats: DashboardStatsDoc }) {
     { label: "Active projects", value: stats.activeProjects, icon: FolderKanban },
     { label: "Overdue", value: stats.overdueCount, icon: AlertTriangle },
     { label: "Pending reviews", value: stats.pendingSubmissions, icon: FileClock },
-    { label: "Open tickets", value: stats.openTickets, icon: Ticket },
+    { label: "Open activities", value: stats.openTickets, icon: Ticket },
     {
       label: "Avg response",
       value:

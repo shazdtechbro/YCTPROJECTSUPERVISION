@@ -103,7 +103,7 @@ export function computeMilestoneStatus(
   ) {
     return {
       status: "behind",
-      reason: "No tickets raised in the last 30 days",
+      reason: "No activities recorded in the last 30 days",
     };
   }
 

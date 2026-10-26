@@ -102,7 +102,7 @@ export async function POST(
     recipientIsStudent ? project.studentId : project.supervisorId,
     {
       kind: "ticket",
-      title: `New ticket: ${body.title.trim()}`,
+      title: `New activity: ${body.title.trim()}`,
       href: projectHref(
         recipientIsStudent ? "student" : "supervisor",
         params.projectId,

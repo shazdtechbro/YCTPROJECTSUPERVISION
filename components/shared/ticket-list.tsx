@@ -9,6 +9,7 @@ import { useLiveCollection } from "@/hooks/use-live-collection";
 import { EmptyState } from "./empty-state";
 import { ErrorState } from "./error-state";
 import { StatusBadge } from "./status-badge";
+import { ProjectActivityLog } from "./project-activity-log";
 import { NewTicketDialog } from "./new-ticket-dialog";
 import { TimelineSkeleton } from "./skeletons";
 import {
@@ -48,6 +49,7 @@ export function TicketList({
           <NewTicketDialog projectId={projectId} />
         </div>
       )}
+      <ProjectActivityLog projectId={projectId} refreshKey={items} />
       {phase === "loading" && <TimelineSkeleton rows={4} />}
       {phase === "error" && (
         <ErrorState description={error?.message} />
@@ -55,8 +57,8 @@ export function TicketList({
       {phase === "empty" && (
         <EmptyState
           icon={TicketIcon}
-          title="No tickets"
-          description="Tickets track requested changes and open questions. New ones show up here in real time."
+          title="No activities"
+          description="Record supervision tasks, questions and updates. New activities appear here in real time."
         />
       )}
       {phase === "ready" && (
@@ -91,7 +93,7 @@ function TicketRow({
     try {
       await api.setTicketStatus(projectId, t.id, status);
     } catch (err) {
-      toast.error("Couldn't update ticket", {
+      toast.error("Couldn't update activity", {
         description: (err as Error).message,
       });
     } finally {

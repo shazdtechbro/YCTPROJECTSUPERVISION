@@ -7,6 +7,8 @@ import { getSubmissionsPage } from "@/lib/firestore";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { QueryState } from "./query-state";
 import { EmptyState } from "./empty-state";
+import { ReviewFeedback } from "./review-feedback";
+import { Button } from "@/components/ui/button";
 import { CommentThread } from "./comment-thread";
 import {
   Select,
@@ -21,8 +23,14 @@ import type { SubmissionDoc } from "@/lib/types";
 /** Pick a submission, read/continue its comment thread. Shared student/supervisor. */
 export function FeedbackPanel({ projectId }: { projectId: string }) {
   const subs = useAsyncData<SubmissionDoc[]>(async () => {
-    const page = await getSubmissionsPage(projectId, { pageSize: 50 });
-    return page.items;
+    const items: SubmissionDoc[] = [];
+    let page = await getSubmissionsPage(projectId, { pageSize: 50 });
+    items.push(...page.items);
+    while (page.hasMore) {
+      page = await getSubmissionsPage(projectId, { pageSize: 50, cursor: page.cursor });
+      items.push(...page.items);
+    }
+    return items;
   }, [projectId]);
 
   const [selected, setSelected] = useState<string>("");
@@ -35,7 +43,7 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
 
   return (
     <QueryState
-      phase={subs.phase}
+      phase={subs.phase === "ready" && !subs.data?.length ? "empty" : subs.phase}
       error={subs.error}
       onRetry={subs.retry}
       skeleton={
@@ -53,6 +61,7 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
       }
     >
       <div className="space-y-4">
+        <Button size="sm" variant="outline" onClick={subs.retry}>Refresh feedback</Button>
         <Select value={selected} onValueChange={setSelected}>
           <SelectTrigger className="w-full sm:w-80">
             <SelectValue placeholder="Choose a submission" />
@@ -67,6 +76,8 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
         </Select>
         {selected && (
           <div className="rounded-lg border p-4">
+            {subs.data?.find(s => s.id === selected) && <ReviewFeedback submission={subs.data.find(s => s.id === selected)!} />}
+            <h3 className="mb-3 mt-4 text-sm font-medium">Discussion</h3>
             <CommentThread
               key={selected}
               projectId={projectId}

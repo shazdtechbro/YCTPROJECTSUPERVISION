@@ -67,7 +67,7 @@ export default async function LandingPage() {
         </h1>
         <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
           One place for students, supervisors and the HOD. Track milestones,
-          review submissions, raise tickets, and see who&apos;s behind — before
+          review submissions, record activities, and see who&apos;s behind — before
           it&apos;s a problem at the defense.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -98,7 +98,7 @@ export default async function LandingPage() {
               <span>·</span>
               <span>File review</span>
               <span>·</span>
-              <span>Ticketing</span>
+              <span>Activity log</span>
               <span>·</span>
               <span>Live notifications</span>
               <span>·</span>
@@ -124,7 +124,7 @@ export default async function LandingPage() {
               points: [
                 "One project view with live milestone health",
                 "Upload chapters with a real progress bar",
-                "Raise tickets, follow feedback threads",
+                "Record activities, follow feedback threads",
               ],
             },
             {
@@ -171,9 +171,9 @@ export default async function LandingPage() {
       <section className="border-y-2 border-border bg-surface">
         <div className="mx-auto grid max-w-6xl gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
           {[
-            [GaugeCircle, "Milestone engine", "On track / behind / stalled, from defense date, submission cadence and ticket activity. Nightly cron + on-the-fly."],
+            [GaugeCircle, "Milestone engine", "On track / behind / stalled, from defense date, submission cadence and recorded activities. Nightly cron + on-the-fly."],
             [FileCheck2, "Submission review", "Versioned uploads to private storage, signed-URL downloads, approve / request changes."],
-            [Ticket, "Ticketing", "Priority, due dates, status — students and supervisors, both directions."],
+            [Ticket, "Activity log", "Priority, due dates, status — students and supervisors, both directions."],
             [MessagesSquare, "Per-file feedback", "Comment threads scoped to a single submission. Live."],
             [BellRing, "Live notifications", "Real-time bell on the events that touch your projects."],
             [CalendarClock, "Responsiveness", "Average time from a student's submission to the supervisor's first reply."],

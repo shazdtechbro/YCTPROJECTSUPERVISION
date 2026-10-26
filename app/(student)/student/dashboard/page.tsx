@@ -141,7 +141,7 @@ function DashboardBody({
               icon={CalendarClock}
             />
             <Meta
-              label="Open tickets"
+              label="Open activities"
               value={String(project.openTicketCount)}
               icon={Ticket}
             />
@@ -175,7 +175,7 @@ function DashboardBody({
                 icon={FileText}
                 className="min-h-[140px] border-0 bg-transparent"
                 title="Nothing yet"
-                description="Tickets and submissions will appear here as they happen."
+                description="Activities and submissions will appear here as they happen."
               />
             }
           >

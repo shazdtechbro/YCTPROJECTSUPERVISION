@@ -59,7 +59,7 @@ export default function HodReports() {
         {[
           ["Submissions · 60d", totalActivity.submissions],
           ["Comments · 60d", totalActivity.comments],
-          ["Tickets · 60d", totalActivity.tickets],
+          ["Activities · 60d", totalActivity.tickets],
         ].map(([label, value]) => (
           <Card key={label as string}>
             <CardContent className="p-4">

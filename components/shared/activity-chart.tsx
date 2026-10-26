@@ -76,7 +76,7 @@ export function ActivityChart({ data }: { data: ActivityPointDoc[] }) {
           <Area
             type="monotone"
             dataKey="tickets"
-            name="Tickets"
+            name="Activities"
             stroke="hsl(var(--status-behind))"
             fill="transparent"
             strokeWidth={2}

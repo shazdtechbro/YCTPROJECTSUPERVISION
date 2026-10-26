@@ -114,7 +114,7 @@ function Inner({
             <Tabs value={tab} onValueChange={changeTab}>
               <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="tickets">Tickets</TabsTrigger>
+                <TabsTrigger value="tickets">Activity log</TabsTrigger>
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
                 <TabsTrigger value="feedback">Feedback</TabsTrigger>
               </TabsList>
@@ -125,7 +125,7 @@ function Inner({
                   <CardContent className="space-y-5 p-5">
                     <div>
                       <p className="text-2xs uppercase tracking-wide text-muted-foreground">
-                        Project description
+                        Overview
                       </p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                         {project.data.abstract}
@@ -161,7 +161,7 @@ function Inner({
                         value={formatDate(project.data.proposalDate ?? null)}
                       />
                       <Fact
-                        label="Open tickets"
+                        label="Open activities"
                         value={String(project.data.openTicketCount)}
                       />
                     </div>
@@ -186,7 +186,11 @@ function Inner({
               <TabsContent value="submissions" className="mt-4">
                 <SubmissionList
                   projectId={projectId}
-                  canUpload={role === "student" && (project.data.topicStatus ?? "approved") === "approved"}
+                  projectTopic={project.data.title}
+                  allChaptersApproved={project.data.chapterStatuses?.length === 5 && project.data.chapterStatuses.every(s => s === "approved")}
+                  canUpload={role === "student" && !project.data.finalApproved}
+                  chapterWorkAllowed={(project.data.topicStatus ?? "approved") === "approved"}
+                  onProjectChanged={() => setNonce(n => n + 1)}
                   canReview={role === "supervisor"}
                 />
                 {role === "student" && project.data.topicStatus === "pending" && <p className="mt-3 rounded-md bg-secondary p-3 text-sm">Your supervisor must approve the project topic before chapter submissions can be uploaded.</p>}

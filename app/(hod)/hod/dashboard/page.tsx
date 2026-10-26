@@ -129,7 +129,7 @@ export default function HodDashboard() {
               <EmptyState
                 className="min-h-[200px] border-0 bg-transparent"
                 title="No activity recorded yet"
-                description="Submissions, comments and tickets will chart here as they happen."
+                description="Submissions, comments and activities will chart here as they happen."
               />
             }
           >

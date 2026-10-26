@@ -126,6 +126,8 @@ export interface SubmissionDoc extends DocBase {
   chapterNumber?: number | null;
   grade?: number | null;
   reviewFeedback?: string;
+  revisionDueDate?: string | null;
+  reviewedAt?: Timestamp;
   status: SubmissionStatus;
   version: number;
   /** Firebase Storage object path, not a public URL. */

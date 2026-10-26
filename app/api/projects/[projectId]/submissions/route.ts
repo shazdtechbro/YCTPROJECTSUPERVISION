@@ -75,7 +75,8 @@ export async function POST(
       );
     }
 
-    const { title, kind, storagePath, fileName, fileSize, chapterNumber } =
+    const title = project.title;
+    const { kind, storagePath, fileName, fileSize, chapterNumber } =
       body;
     if (
       typeof title !== "string" ||

@@ -64,12 +64,12 @@ export function NewTicketDialog({
         priority,
         dueDate: dueDate || null,
       });
-      toast.success("Ticket created");
+      toast.success("Activity recorded");
       reset();
       setOpen(false);
       onCreated?.();
     } catch (err) {
-      toast.error("Couldn't create ticket", {
+      toast.error("Couldn't record activity", {
         description: (err as Error).message,
       });
     } finally {
@@ -82,16 +82,16 @@ export function NewTicketDialog({
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="h-4 w-4" />
-          New ticket
+          New activity
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New ticket</DialogTitle>
+          <DialogTitle>New activity</DialogTitle>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="space-y-1.5">
-            <Label htmlFor="t-title">Title</Label>
+            <Label htmlFor="t-title">Activity</Label>
             <Input
               id="t-title"
               value={title}
@@ -156,7 +156,7 @@ export function NewTicketDialog({
               Cancel
             </Button>
             <Button type="submit" loading={busy} disabled={!canSubmit}>
-              Create ticket
+              Create activity
             </Button>
           </div>
         </form>
