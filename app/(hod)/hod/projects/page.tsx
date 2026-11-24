@@ -1,5 +1,7 @@
 "use client";
 
+import { currentStage } from "@/lib/project-stages";
+
 import { useState } from "react";
 import Link from "next/link";
 import { FolderKanban, LayoutGrid, Rows3 } from "lucide-react";
@@ -35,7 +37,7 @@ const FILTERS: { value: MilestoneStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "on_track", label: "On track" },
   { value: "behind", label: "Behind" },
-  { value: "stalled", label: "Stalled" },
+  { value: "stalled", label: "Overview" },
 ];
 
 export default function HodProjects() {
@@ -119,7 +121,7 @@ export default function HodProjects() {
                   <TableHead>Student</TableHead>
                   <TableHead>Supervisor</TableHead>
                   <TableHead>Milestone</TableHead>
-                  <TableHead>Proposal</TableHead>
+                  <TableHead>Current stage</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -144,7 +146,8 @@ export default function HodProjects() {
                       <StatusBadge status={p.milestoneStatus} />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatDate(p.proposalDate ?? null)}
+                      {currentStage(p).label}
+                      <span className="block text-xs">{formatDate(currentStage(p).deadline)}</span>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -168,7 +171,7 @@ export default function HodProjects() {
                     </p>
                     <Progress value={p.progressPct} />
                     <p className="text-2xs text-muted-foreground">
-                      Proposal {formatDate(p.proposalDate ?? null)}
+                      {currentStage(p).label} Â· {formatDate(currentStage(p).deadline)}
                     </p>
                   </CardContent>
                 </Link>

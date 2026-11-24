@@ -114,9 +114,9 @@ function Inner({
             <Tabs value={tab} onValueChange={changeTab}>
               <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="tickets">Activity log</TabsTrigger>
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
                 <TabsTrigger value="feedback">Feedback</TabsTrigger>
+                <TabsTrigger value="tickets">Activity log</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="mt-4">

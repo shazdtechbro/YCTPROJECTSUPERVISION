@@ -15,7 +15,7 @@ type AnyStatus =
 const LABEL: Record<AnyStatus, string> = {
   on_track: "On track",
   behind: "Behind",
-  stalled: "Stalled",
+  stalled: "Overview",
   active: "Active",
   submitted: "Submitted",
   approved: "Approved",

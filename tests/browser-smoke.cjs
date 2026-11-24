@@ -51,6 +51,15 @@ async function verifiedRequest(route) {
       await page.screenshot({path:`${output}/${width}-dashboard-cta-layout.png`,fullPage:true});
       await page.goto(base + '/', {waitUntil:'networkidle'});
     }
+    if(pathname==='/login' && process.env.YCT_CHECK_PASSWORD_RESET==='1') {
+     await page.getByRole('button',{name:'Forgot password?'}).click();
+     await page.getByText('Contact your department office', {exact:false}).waitFor();
+     await page.locator('#login-role').click();
+     await page.getByRole('option',{name:'Supervisor'}).click();
+     await page.getByLabel('Account email').fill('staff@example.test');
+     await page.getByRole('button',{name:'Send password reset link'}).waitFor();
+     assert.ok(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),`reset form overflow at ${width}`);
+    }
     if(pathname==='/signup') {
      await page.getByText('Supervisor',{exact:true}).click();
      assert.equal(await page.locator('#matric').count(),0,'staff do not need a matric number');

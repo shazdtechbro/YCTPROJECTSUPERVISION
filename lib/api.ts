@@ -113,8 +113,14 @@ export const api = {
       ...(review ? { grade: review.grade, feedback: review.feedback, revisionDueDate: review.revisionDueDate } : {}),
     }),
 
-  requestExtension: (projectId: string, requestedUntil: string) =>
-    req(`/api/projects/${projectId}`, "PATCH", { extensionRequestedUntil: requestedUntil }),
+  setStageDeadline: (projectId: string, stage: import("./project-stages").ProjectStage, date: string | null) =>
+    req(`/api/projects/${projectId}`, "PATCH", { stageDeadline: { stage, date } }),
+
+  requestExtension: (projectId: string, requestedUntil: string, extensionStage: import("./project-stages").ProjectStage, extensionReason: string) =>
+    req(`/api/projects/${projectId}`, "PATCH", { extensionRequestedUntil: requestedUntil, extensionStage, extensionReason }),
+
+  updatePartners: (projectId: string, addPartner?: string, removePartner?: string) =>
+    req(`/api/projects/${projectId}`, "PATCH", { partners: { addPartner, removePartner } }),
 
   decideExtension: (projectId: string, status: "approved" | "declined", note = "") =>
     req(`/api/projects/${projectId}`, "PATCH", { extensionStatus: status, extensionDecisionNote: note }),

@@ -1,3 +1,5 @@
+import { isProjectStage, stageDeadline, stageLabel } from "@/lib/project-stages";
+import { isMatricNumber, normalizeMatricNumber } from "@/lib/matric";
 import { isCalendarDate } from "@/lib/dates";
 import { NextResponse, type NextRequest } from "next/server";
 import { FieldValue, type WriteBatch } from "firebase-admin/firestore";
@@ -218,14 +220,96 @@ export async function PATCH(
       return NextResponse.json({ status: "ok", topicStatus: value });
     }
 
+    if ("partners" in body) {
+      if (!isStudent || user.uid !== project.studentId) {
+        return NextResponse.json({ error: "Only the project lead can manage partners." }, { status: 403 });
+      }
+      if (project.finalApproved || project.status === "archived") {
+        return NextResponse.json({ error: "This project is closed to membership changes." }, { status: 409 });
+      }
+      const operation = body.partners as { addPartner?: unknown; removePartner?: unknown } | null;
+      const adding = typeof operation?.addPartner === "string";
+      const removing = typeof operation?.removePartner === "string";
+      const raw = adding ? operation?.addPartner : operation?.removePartner;
+      if (adding === removing || typeof raw !== "string" || (adding && !isMatricNumber(raw))) {
+        return NextResponse.json({ error: "Enter a valid partner matriculation number." }, { status: 400 });
+      }
+      const matric = adding ? normalizeMatricNumber(raw) : "";
+      const partnerId = adding
+        ? (await tx.get(db.doc(`matric_index/${matric.replaceAll("/", "_")}`))).get("uid")
+        : members.find((id) => id === raw);
+      if (typeof partnerId !== "string" || partnerId === project.studentId) {
+        return NextResponse.json({ error: "Choose a registered partner other than the project lead." }, { status: 400 });
+      }
+      const memberIds = [project.studentId, ...members.filter((id) => id !== project.studentId)];
+      const partnerRef = db.doc(`users/${partnerId}`);
+      const partner = await tx.get(partnerRef);
+      const existing = memberIds.includes(partnerId);
+      if (adding && existing) return NextResponse.json({ status: "ok" });
+      if (adding && (memberIds.length >= 5 || partner.get("role") !== "student" ||
+          partner.get("department") !== project.department || partner.get("projectId"))) {
+        return NextResponse.json({ error: "A project can have four unassigned student partners from your department." }, { status: 409 });
+      }
+      const nextPartners = adding ? [...memberIds.slice(1), partnerId] : memberIds.slice(1).filter((id) => id !== partnerId);
+      const profiles = await Promise.all(nextPartners.map((id) => tx.get(db.doc(`users/${id}`))));
+      batch.set(projectRef, {
+        memberIds: [project.studentId, ...nextPartners],
+        memberNames: [project.studentName, ...profiles.map((p) => p.get("displayName") ?? "Student")],
+        memberMatricNumbers: [project.studentMatricNumber ?? project.memberMatricNumbers?.[0] ?? "", ...profiles.map((p) => p.get("matricNumber") ?? "")],
+        updatedAt: FieldValue.serverTimestamp(),
+        lastActivityAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      if (adding || partner.get("projectId") === project.id) {
+        batch.set(partnerRef, { projectId: adding ? project.id : null }, { merge: true });
+      }
+      const title = adding ? "Project partner added" : "Project partner removed";
+      batch.set(db.collection(`projects/${params.projectId}/activity`).doc(), {
+        kind: "membership", title, actorId: user.uid, actorName: user.name ?? "Project lead",
+        note: partner.get("displayName") ?? partner.get("matricNumber") ?? "Student", createdAt: FieldValue.serverTimestamp(),
+      });
+      batch.set(db.collection(`users/${partnerId}/notifications`).doc(), {
+        kind: "project", title, href: adding ? `/student/project/${project.id}` : "/student/dashboard",
+        actorName: user.name ?? "Project lead", read: false, createdAt: FieldValue.serverTimestamp(),
+      });
+      return NextResponse.json({ status: "ok" });
+    }
+
+    if ("stageDeadline" in body) {
+      const input = body.stageDeadline as { stage?: unknown; date?: unknown } | null;
+      if (!isSupervisor) return NextResponse.json({ error: "Only the assigned supervisor can set deadlines." }, { status: 403 });
+      if (!input || !isProjectStage(input.stage) || (input.date !== null && !isCalendarDate(input.date))) {
+        return NextResponse.json({ error: "Choose a stage and enter a valid deadline." }, { status: 400 });
+      }
+      if (project.finalApproved || (project.extensionStatus === "pending" && project.extensionStage === input.stage)) {
+        return NextResponse.json({ error: "This deadline cannot be changed while an extension is pending or after final approval." }, { status: 409 });
+      }
+      const label = stageLabel(input.stage);
+      batch.set(projectRef, {
+        stageDeadlines: { [input.stage]: input.date },
+        updatedAt: FieldValue.serverTimestamp(),
+        lastActivityAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      const title = input.date ? `${label} deadline set for ${input.date}` : `${label} deadline cleared`;
+      notifyMembers(title, user.name ?? "Supervisor");
+      batch.set(db.collection(`projects/${params.projectId}/activity`).doc(), {
+        kind: "deadline", title, actorId: user.uid, actorName: user.name ?? "Supervisor",
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      return NextResponse.json({ status: "ok" });
+    }
+
     if ("extensionRequestedUntil" in body) {
+      const stage = body.extensionStage;
+      const reason = typeof body.extensionReason === "string" ? body.extensionReason.trim() : "";
+      const deadline = isProjectStage(stage) ? stageDeadline(project, stage) : null;
+      if (!isStudent || !isProjectStage(stage) || !deadline || !reason || reason.length > 2000) {
+        return NextResponse.json({ error: "Choose a stage with a supervisor-set deadline and provide a reason." }, { status: 400 });
+      }
       const proposedDate =
         typeof body.extensionRequestedUntil === "string"
           ? new Date(`${body.extensionRequestedUntil}T00:00:00.000Z`)
           : new Date(NaN);
-      const currentDeadline = project.nextDeadline
-        ? new Date(`${project.nextDeadline}T00:00:00.000Z`)
-        : new Date();
+      const currentDeadline = new Date(`${deadline}T00:00:00.000Z`);
       const validDate =
         typeof body.extensionRequestedUntil === "string" &&
         /^\d{4}-\d{2}-\d{2}$/.test(body.extensionRequestedUntil) &&
@@ -233,6 +317,7 @@ export async function PATCH(
         proposedDate.toISOString().slice(0, 10) ===
           body.extensionRequestedUntil &&
         proposedDate > currentDeadline &&
+        proposedDate > new Date(new Date().toISOString().slice(0, 10)) &&
         proposedDate.getTime() <= Date.now() + 180 * 86_400_000;
       if (!isStudent || !validDate) {
         return NextResponse.json(
@@ -249,6 +334,9 @@ export async function PATCH(
         projectRef,
         {
           extensionStatus: "pending",
+          extensionStage: stage,
+          extensionReason: reason,
+          extensionDecisionNote: "",
           extensionRequestedUntil: body.extensionRequestedUntil,
           updatedAt: FieldValue.serverTimestamp(),
           lastActivityAt: FieldValue.serverTimestamp(),
@@ -271,7 +359,8 @@ export async function PATCH(
         .doc();
       batch.set(event, {
         kind: "extension",
-        title: "Deadline extension requested",
+        title: `${stageLabel(stage)} deadline extension requested`,
+        note: reason,
         actorId: user.uid,
         actorName: user.name ?? "Student",
         date: body.extensionRequestedUntil,
@@ -302,7 +391,9 @@ export async function PATCH(
           extensionStatus: decision,
           extensionDecisionNote: note,
           ...(decision === "approved"
-            ? { nextDeadline: project.extensionRequestedUntil }
+            ? (project.extensionStage
+                ? { stageDeadlines: { [project.extensionStage]: project.extensionRequestedUntil } }
+                : { nextDeadline: project.extensionRequestedUntil })
             : {}),
           updatedAt: FieldValue.serverTimestamp(),
           lastActivityAt: FieldValue.serverTimestamp(),
