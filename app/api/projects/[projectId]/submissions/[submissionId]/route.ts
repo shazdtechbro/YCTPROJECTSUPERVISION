@@ -85,6 +85,9 @@ export async function PATCH(
         { status: 404 },
       );
     const sub = snap.data()!;
+    if (sub.kind === "proposal" && project.latestProposalSubmissionId && project.latestProposalSubmissionId !== params.submissionId) {
+      return NextResponse.json({ error: "Review the latest proposal submission." }, { status: 409 });
+    }
     const latest = (
       project as typeof project & {
         latestChapterSubmissionIds?: Record<string, string>;
@@ -209,6 +212,7 @@ export async function PATCH(
       {
         finalApproved,
         chapterStatuses,
+        ...(sub.kind === "proposal" ? { proposalStatus: next === "pending_review" ? "in_review" : next } : {}),
         progressPct,
         lastActivityAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),

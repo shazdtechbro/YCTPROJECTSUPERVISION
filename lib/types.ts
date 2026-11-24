@@ -75,6 +75,11 @@ export interface ProjectDoc extends DocBase {
   memberNames?: string[];
   memberMatricNumbers?: string[];
   chapterStatuses?: ChapterStatus[];
+  proposalStatus?: ChapterStatus;
+  latestProposalSubmissionId?: string;
+  stageDeadlines?: Partial<Record<import('./project-stages').ProjectStage, string | null>>;
+  extensionStage?: import('./project-stages').ProjectStage;
+  extensionReason?: string;
   extensionStatus?: "pending" | "approved" | "declined" | null;
   extensionRequestedUntil?: string | null;
   extensionDecisionNote?: string;

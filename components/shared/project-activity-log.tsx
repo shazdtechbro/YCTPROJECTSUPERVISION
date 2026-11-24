@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-export function ProjectActivityLog({ projectId, refreshKey }: { projectId: string; refreshKey?: unknown }) {
+export function ProjectActivityLog({ projectId, refreshKey, title = "Project activity log", limit }: { projectId: string; refreshKey?: unknown; title?: string; limit?: number }) {
   const [activityError, setActivityError] = useState("");
   const [activityNonce, setActivityNonce] = useState(0);
   const [events, setEvents] = useState<
@@ -33,7 +33,7 @@ export function ProjectActivityLog({ projectId, refreshKey }: { projectId: strin
     };
   }, [projectId, refreshKey, activityNonce]);
   return (      <section className="rounded-lg border bg-card p-4 sm:p-5">
-        <h2 className="font-semibold">Project activity log</h2>
+        <h2 className="font-semibold">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Topic decisions, submissions, reviews and deadline requests.
         </p>
@@ -50,7 +50,7 @@ export function ProjectActivityLog({ projectId, refreshKey }: { projectId: strin
         )}
         {events.length ? (
           <ol className="mt-4 space-y-3">
-            {events.map((event) => (
+            {events.slice(0, limit ?? events.length).map((event) => (
               <li key={event.id} className="border-l-2 border-primary/30 pl-3">
                 <p className="text-sm font-medium">{event.title}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">

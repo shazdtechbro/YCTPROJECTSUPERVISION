@@ -4,6 +4,8 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { getFirebaseAuth } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -39,6 +41,9 @@ function LoginForm() {
   const [loginRole, setLoginRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [sendingReset, setSendingReset] = useState(false);
   const [pending, setPending] = useState<null | "password" | "google">(null);
 
   async function run(method: "password" | "google", fn: () => Promise<Role>) {
@@ -120,6 +125,40 @@ function LoginForm() {
           Sign in
         </Button>
       </form>
+
+      <Button type="button" variant="link" className="mt-2 px-0" onClick={() => {
+        setResetOpen((open) => !open);
+        setResetEmail(loginRole === "student" ? "" : email);
+      }} aria-expanded={resetOpen}>
+        Forgot password?
+      </Button>
+      {resetOpen && (loginRole === "student" ? (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Contact your department office to verify your identity and recover your matriculation account.
+        </p>
+      ) : (
+        <form className="mt-2 space-y-2 rounded-md border p-3" onSubmit={async (event) => {
+          event.preventDefault();
+          setSendingReset(true);
+          try {
+            await sendPasswordResetEmail(getFirebaseAuth(), resetEmail.trim());
+            toast.success("If this email has a password account, a reset link will arrive shortly.");
+          } catch (error) {
+            const code = (error as { code?: string }).code;
+            if (code === "auth/user-not-found") {
+              toast.success("If this email has a password account, a reset link will arrive shortly.");
+            } else {
+              toast.error("Could not send a reset link. Try again shortly.");
+            }
+          } finally {
+            setSendingReset(false);
+          }
+        }}>
+          <Label htmlFor="reset-email">Account email</Label>
+          <Input id="reset-email" required type="email" autoComplete="email" value={resetEmail} onChange={(event) => setResetEmail(event.target.value)} />
+          <Button type="submit" loading={sendingReset}>Send password reset link</Button>
+        </form>
+      ))}
 
       {loginRole !== "student" && <>
       <div className="my-5 flex items-center gap-3">

@@ -203,6 +203,7 @@ export async function POST(
         updatedAt: FieldValue.serverTimestamp(),
         submissionCount: version,
         chapterStatuses,
+        ...(subKind === "proposal" ? { proposalStatus: "in_review", latestProposalSubmissionId: subRef.id } : {}),
         ...(chapterNumber
           ? { latestChapterSubmissionIds: { [chapterNumber]: subRef.id } }
           : {}),

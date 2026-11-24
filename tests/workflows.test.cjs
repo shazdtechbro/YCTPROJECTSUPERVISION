@@ -476,13 +476,15 @@ test("invalid grades and feedback are rejected", async () => {
 });
 for (const status of ["approved", "declined"])
   test(`extension can be requested and ${status}`, async () => {
+    const initial = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+    db.data.get("projects/p").stageDeadlines = { chapter1: initial, proposal: initial };
     const requested = new Date(Date.now() + 10 * 86400000)
       .toISOString()
       .slice(0, 10);
     assert.equal(
       (
         await routes.patch.PATCH(
-          req({ extensionRequestedUntil: requested }),
+          req({ extensionRequestedUntil: requested, extensionStage: "chapter1", extensionReason: "More research time" }),
           params,
         )
       ).status,
@@ -502,15 +504,18 @@ for (const status of ["approved", "declined"])
       200,
     );
     assert.equal(db.data.get("projects/p").extensionStatus, status);
+    assert.equal(db.data.get("projects/p").extensionReason, "More research time");
+    assert.equal(db.data.get("projects/p").stageDeadlines.proposal, initial);
     assert.equal(
-      db.data.get("projects/p").nextDeadline,
-      status === "approved" ? requested : undefined,
+      db.data.get("projects/p").stageDeadlines.chapter1,
+      status === "approved" ? requested : initial,
     );
   });
 test("invalid dates and student extension decisions are denied", async () => {
+  db.data.get("projects/p").stageDeadlines = { proposal: "2026-01-01" };
   for (const date of ["2026-02-31", "2000-01-01", "bad"])
     assert.equal(
-      (await routes.patch.PATCH(req({ extensionRequestedUntil: date }), params))
+      (await routes.patch.PATCH(req({ extensionRequestedUntil: date, extensionStage: "proposal", extensionReason: "More time" }), params))
         .status,
       400,
     );
@@ -520,6 +525,58 @@ test("invalid dates and student extension decisions are denied", async () => {
     400,
   );
 });
+test("only the assigned supervisor can independently set or clear all six stage deadlines", async () => {
+  const stages = ["proposal", "chapter1", "chapter2", "chapter3", "chapter4", "chapter5"];
+  const patch = (stage, date) => routes.patch.PATCH(req({ stageDeadline: { stage, date } }), params);
+  assert.equal((await patch("proposal", "2027-01-01")).status, 403);
+  user = { ...supervisor(), uid: "other" };
+  assert.equal((await patch("chapter1", "2027-01-01")).status, 403);
+  user = supervisor();
+  assert.equal((await patch("chapter1", "2027-02-30")).status, 400);
+  const expected = {};
+  for (const [index, stage] of stages.entries()) {
+    expected[stage] = `2027-01-0${index + 1}`;
+    assert.equal((await patch(stage, expected[stage])).status, 200);
+  }
+  assert.deepEqual(db.data.get("projects/p").stageDeadlines, expected);
+  assert.equal((await patch("chapter3", null)).status, 200);
+  assert.deepEqual(db.data.get("projects/p").stageDeadlines, { ...expected, chapter3: null });
+});
+
+test("extension requires an assigned stage deadline and a nonempty reason", async () => {
+  const date = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const patch = (reason) => routes.patch.PATCH(req({ extensionStage: "proposal", extensionReason: reason, extensionRequestedUntil: date }), params);
+  assert.equal((await patch("More time")).status, 400);
+  db.data.get("projects/p").stageDeadlines = { proposal: "2020-01-01" };
+  assert.equal((await patch("  ")).status, 400);
+  assert.equal((await patch("More time")).status, 200);
+});
+
+test("only the project lead can add and remove departmental partners", async () => {
+  const p = db.data.get("projects/p");
+  p.memberIds = ["lead"];
+  p.studentName = "Lead";
+  const change = (partners) => routes.patch.PATCH(req({ partners }), params);
+  user = student("outsider");
+  assert.equal((await change({ addPartner: "D/ND/24/3211002" })).status, 403);
+  user = student();
+  db.data.get("users/partner").department = "Other";
+  assert.equal((await change({ addPartner: "D/ND/24/3211002" })).status, 409);
+  db.data.get("users/partner").department = "Computer Science";
+  assert.equal((await change({ addPartner: "D/ND/24/3211002" })).status, 200);
+  assert.deepEqual(db.data.get("projects/p").memberIds, ["lead", "partner"]);
+  assert.equal(db.data.get("users/partner").projectId, "p");
+  user = student("partner");
+  assert.equal((await change({ removePartner: "partner" })).status, 403);
+  assert.equal((await routes.activity.GET(null, params)).status, 200);
+  user = student();
+  assert.equal((await change({ removePartner: "partner" })).status, 200);
+  assert.deepEqual(db.data.get("projects/p").memberIds, ["lead"]);
+  assert.equal(db.data.get("users/partner").projectId, null);
+  user = student("partner");
+  assert.equal((await routes.activity.GET(null, params)).status, 403);
+});
+
 test("activity is readable by partner and denied to outsiders", async () => {
   user = student("partner");
   assert.equal((await routes.activity.GET(null, params)).status, 200);
