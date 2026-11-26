@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import Image from "next/image";
 import authPanel from "@/public/redesign/auth-panel.png";
-import { Crest } from "@/components/shared/app-shell";
+import { Crest } from "@/components/app/crest";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
