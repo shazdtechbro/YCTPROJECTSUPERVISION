@@ -10,11 +10,14 @@ import { Crest } from "@/components/shared/app-shell";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/app/motion";
 import { HeroArt } from "@/components/app/hero-art";
 import defenseDay from "@/public/redesign/defense-day.png";
+import roleHod from "@/public/redesign/role-hod.png";
+import roleStudent from "@/public/redesign/role-student.png";
+import roleSupervisor from "@/public/redesign/role-supervisor.png";
 
 const ROLES = [
-  { art: "/redesign/role-student.png", who: "Students", head: "Always know what is next.", points: ["Live project health and progress", "Upload work and see every version", "Ask questions and track project activity"] },
-  { art: "/redesign/role-supervisor.png", who: "Supervisors", head: "Review faster, chase less.", points: ["One queue for everything to review", "Approve or request changes per file", "See who has gone quiet"] },
-  { art: "/redesign/role-hod.png", who: "Heads of department", head: "See the whole department.", points: ["Health across every project", "Workload and response per supervisor", "Activity trends over time"] },
+  { art: roleStudent, who: "Students", head: "Always know what is next.", points: ["Live project health and progress", "Upload work and see every version", "Ask questions and track project activity"] },
+  { art: roleSupervisor, who: "Supervisors", head: "Review faster, chase less.", points: ["One queue for everything to review", "Approve or request changes per file", "See who has gone quiet"] },
+  { art: roleHod, who: "Heads of department", head: "See the whole department.", points: ["Health across every project", "Workload and response per supervisor", "Activity trends over time"] },
 ];
 const STEPS = [
   { Icon: GraduationCap, t: "Register", d: "Students register with a matriculation number. Staff register with email." },
