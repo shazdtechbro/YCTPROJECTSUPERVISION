@@ -1,59 +1,57 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const roboto = localFont({
-  src: "../public/fonts/roboto-latin-variable.woff2",
-  variable: "--font-sans",
+const inter = localFont({
+  src: "../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
   weight: "100 900",
+  variable: "--font-sans",
   display: "swap",
 });
-const siteTitle = "YABATECH Project Supervision System";
-const siteDescription =
-  "A YABATECH HND workspace for students, supervisors and the HOD to track project milestones, review submissions and exchange feedback.";
-const socialPreview = {
-  url: "/yabatech-og-preview.png",
-  width: 1200,
-  height: 630,
-  alt: "YABATECH HND Project Supervision System",
-};
+const jakarta = localFont({
+  src: "../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2",
+  weight: "200 800",
+  variable: "--font-display",
+  display: "swap",
+});
+const mono = localFont({
+  src: "../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
+  weight: "100 800",
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://project-supervision-system.vercel.app"),
-  title: { default: siteTitle, template: "%s · YABATECH Project Supervision" },
-  description: siteDescription,
-  openGraph: {
-    type: "website",
-    locale: "en_NG",
-    url: "https://project-supervision-system.vercel.app",
-    siteName: "YABATECH Project Supervision",
-    title: siteTitle,
-    description: siteDescription,
-    images: [socialPreview],
+  openGraph: { images: ["/yabatech-og-preview.png"], locale: "en_NG", type: "website" },
+  twitter: { card: "summary_large_image", images: ["/yabatech-og-preview.png"] },
+  title: {
+    default: "YABATECH Project Supervision",
+    template: "%s · YABATECH Project Supervision",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
-    images: [socialPreview.url],
-  },
+  description:
+    "Students, supervisors and the HOD in one calm workspace for final-year projects at Yaba College of Technology.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#08361A",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={roboto.variable + " font-sans antialiased"}>
+      <body className={`${inter.variable} ${jakarta.variable} ${mono.variable} grain font-sans antialiased`}>
         <ThemeProvider>
           <AuthProvider>
             {children}
-            <Toaster richColors closeButton position="top-right" />
+            <Toaster closeButton position="top-center" />
           </AuthProvider>
         </ThemeProvider>
       </body>

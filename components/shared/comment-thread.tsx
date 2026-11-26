@@ -113,8 +113,8 @@ export function CommentThread({
             const mine = c.authorId === user?.uid;
             return (
               <div key={c.id} className="flex gap-3">
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback className="text-2xs">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="text-xs">
                     {c.authorName
                       .split(/\s+/)
                       .map((p) => p[0])
@@ -125,15 +125,15 @@ export function CommentThread({
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-semibold">
                       {mine ? "You" : c.authorName}
                     </span>
-                    <span className="text-2xs text-muted-foreground">
+                    <span className="text-xs text-ink-3">
                       {ROLE_LABELS[c.authorRole]} ·{" "}
                       {formatRelativeTime(c.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-0.5 whitespace-pre-wrap text-sm text-foreground/90">
+                  <p className={cn("mt-1 whitespace-pre-wrap rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-[15px]", mine ? "bg-brand-50 text-ink" : "bg-cream-2 text-ink")}>
                     {c.body}
                   </p>
                 </div>
@@ -144,7 +144,7 @@ export function CommentThread({
       </div>
 
       <form
-        className="mt-4 flex items-end gap-2 border-t pt-4"
+        className="sticky bottom-[76px] mt-4 flex items-end gap-2 border-t border-line bg-card pt-4 lg:bottom-0"
         onSubmit={(e) => {
           e.preventDefault();
           void send();
@@ -159,11 +159,11 @@ export function CommentThread({
               void send();
             }
           }}
-          placeholder="Write a comment…  (⌘/Ctrl + Enter to send)"
-          className="min-h-[44px] flex-1 resize-none"
+          placeholder="Write a comment"
+          className="min-h-[48px] flex-1 resize-none"
           rows={1}
         />
-        <Button type="submit" size="icon" loading={sending} disabled={!draft.trim()}>
+        <Button type="submit" size="icon" aria-label="Send comment" loading={sending} disabled={!draft.trim()}>
           <Send className="h-4 w-4" />
         </Button>
       </form>

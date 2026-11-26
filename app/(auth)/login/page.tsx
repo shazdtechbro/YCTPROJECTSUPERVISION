@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
@@ -35,8 +34,6 @@ function mapAuthError(code?: string): string {
 
 function LoginForm() {
   const { signInWithPassword, signInWithMatric, signInWithGoogle } = useAuth();
-  const router = useRouter();
-  const nextParam = useSearchParams().get("next");
 
   const [loginRole, setLoginRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
@@ -50,15 +47,7 @@ function LoginForm() {
     setPending(method);
     try {
       const role = await fn();
-      const dest =
-        nextParam &&
-        nextParam.startsWith("/") &&
-        !nextParam.startsWith("/login") &&
-        !nextParam.startsWith("//")
-          ? nextParam
-          : homePathForRole(role);
-      router.replace(dest);
-      router.refresh();
+      window.location.replace(homePathForRole(role));
     } catch (err) {
       const e = err as { code?: string; message?: string };
       toast.error("Sign-in failed", {

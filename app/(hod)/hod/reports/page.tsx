@@ -1,6 +1,7 @@
 "use client";
 
-import { BarChart3 } from "lucide-react";
+import { BarChart3, FileText, MessageSquare, Ticket } from "lucide-react";
+import { StatCard } from "@/components/app/stats";
 
 import { useAuth } from "@/lib/auth/auth-context";
 import {
@@ -49,32 +50,21 @@ export default function HodReports() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Reports"
         description={`Supervision analytics for ${dept || "your department"}.`}
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          ["Submissions · 60d", totalActivity.submissions],
-          ["Comments · 60d", totalActivity.comments],
-          ["Activities · 60d", totalActivity.tickets],
-        ].map(([label, value]) => (
-          <Card key={label as string}>
-            <CardContent className="p-4">
-              <p className="text-2xl font-semibold tnum">{value}</p>
-              <p className="text-2xs uppercase tracking-wide text-muted-foreground">
-                {label}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+        <StatCard dark label="Submissions · 60 days" value={totalActivity.submissions} icon={FileText} />
+        <StatCard label="Comments · 60 days" value={totalActivity.comments} icon={MessageSquare} />
+        <StatCard label="Tickets · 60 days" value={totalActivity.tickets} icon={Ticket} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Activity over time — last 60 days</CardTitle>
+          <CardTitle>Activity over time · last 60 days</CardTitle>
         </CardHeader>
         <CardContent>
           <QueryState
@@ -98,10 +88,10 @@ export default function HodReports() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Milestone distribution</CardTitle>
+          <CardTitle>Project health</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex h-3 overflow-hidden rounded-full bg-secondary">
+          <div className="flex h-3 gap-0.5 overflow-hidden rounded-full bg-cream-2">
             <span
               className="bg-[hsl(var(--status-on-track))]"
               style={{ width: `${(milestone.on_track / mTotal) * 100}%` }}
@@ -137,10 +127,10 @@ function Legend({
 }) {
   return (
     <div>
-      <p className={`text-lg font-semibold tnum text-[hsl(var(--status-${tone}))]`}>
+      <p className={`font-display text-2xl font-extrabold tnum text-[hsl(var(--status-${tone}))]`}>
         {value}
       </p>
-      <p className="text-2xs uppercase tracking-wide text-muted-foreground">
+      <p className="text-xs text-ink-3">
         {label}
       </p>
     </div>

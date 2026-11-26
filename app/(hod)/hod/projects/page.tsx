@@ -1,10 +1,7 @@
 "use client";
 
-import { currentStage } from "@/lib/project-stages";
-
 import { useState } from "react";
-import Link from "next/link";
-import { FolderKanban, LayoutGrid, Rows3 } from "lucide-react";
+import { LayoutGrid, Rows3 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
 import { getDepartmentProjectsPage } from "@/lib/firestore";
@@ -12,183 +9,71 @@ import { usePaginatedQuery } from "@/hooks/use-paginated-query";
 import { QueryState } from "@/components/shared/query-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
-import {
-  CardGridSkeleton,
-  TableSkeleton,
-} from "@/components/shared/skeletons";
+import { CardGridSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { ProjectGrid, ProjectTable } from "@/components/app/project-list";
+import { EmptySearch } from "@/components/illustrations";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib/format";
 import type { MilestoneStatus } from "@/lib/types";
 
-const FILTERS: { value: MilestoneStatus | "all"; label: string }[] = [
+const FILTERS: { value: MilestoneStatus | "all"; label: string; dot?: string }[] = [
   { value: "all", label: "All" },
-  { value: "on_track", label: "On track" },
-  { value: "behind", label: "Behind" },
-  { value: "stalled", label: "Overview" },
+  { value: "on_track", label: "On track", dot: "bg-brand-700" },
+  { value: "behind", label: "Behind", dot: "bg-sun-400" },
+  { value: "stalled", label: "Overview", dot: "bg-stalled" },
 ];
 
 export default function HodProjects() {
   const { claims } = useAuth();
   const dept = claims.department ?? "";
   const [filter, setFilter] = useState<MilestoneStatus | "all">("all");
-  const [view, setView] = useState<"table" | "cards">("table");
+  const [view, setView] = useState<"cards" | "table">("table");
 
-  const query = usePaginatedQuery(
-    (params) => getDepartmentProjectsPage(dept, filter, params),
-    [dept, filter]
-  );
+  const query = usePaginatedQuery((params) => getDepartmentProjectsPage(dept, filter, params), [dept, filter]);
+  const href = (p: { id: string }) => `/hod/projects/${p.id}`;
 
   return (
     <div>
-      <PageHeader
-        title="Department projects"
-        description="Read-only, department-wide."
-        actions={
-          <div className="flex rounded-md border p-0.5">
-            {(["table", "cards"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-sm text-muted-foreground",
-                  view === v && "bg-secondary text-foreground"
-                )}
-                aria-label={`${v} view`}
-              >
-                {v === "table" ? (
-                  <Rows3 className="h-3.5 w-3.5" />
-                ) : (
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                )}
-              </button>
-            ))}
-          </div>
-        }
-      />
+      <PageHeader title="Department projects" description={`Read-only view of every project in ${dept || "your department"}.`} />
 
-      <Tabs
-        value={filter}
-        onValueChange={(v) => setFilter(v as MilestoneStatus | "all")}
-        className="mb-4"
-      >
-        <TabsList>
+      <div className="mb-5 flex items-center gap-2">
+        <div role="tablist" aria-label="Filter by health" className="no-scrollbar -mx-4 flex flex-1 gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           {FILTERS.map((f) => (
-            <TabsTrigger key={f.value} value={f.value}>
+            <button
+              key={f.value}
+              role="tab"
+              aria-selected={filter === f.value}
+              onClick={() => setFilter(f.value)}
+              className={cn("flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold transition",
+                filter === f.value ? "bg-[#111611] text-white" : "border border-line bg-card text-ink-2 hover:border-ink-3")}
+            >
+              {f.dot && <span className={cn("h-2 w-2 rounded-full", f.dot)} />}
               {f.label}
-            </TabsTrigger>
+              {filter === f.value && query.phase === "ready" && <span className="opacity-70">{query.items.length}{query.hasMore ? "+" : ""}</span>}
+            </button>
           ))}
-        </TabsList>
-      </Tabs>
+        </div>
+        <div className="flex shrink-0 rounded-xl bg-cream-2 p-1">
+          {(["cards", "table"] as const).map((v) => (
+            <button key={v} onClick={() => setView(v)} aria-label={v === "cards" ? "Grid view" : "List view"} aria-pressed={view === v}
+              className={cn("grid h-10 w-10 place-items-center rounded-lg text-ink-3", view === v && "bg-card text-ink shadow-card")}>
+              {v === "table" ? <Rows3 className="h-[18px] w-[18px]" /> : <LayoutGrid className="h-[18px] w-[18px]" />}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <QueryState
         phase={query.phase}
         error={query.error}
         onRetry={query.retry}
-        skeleton={
-          view === "table" ? (
-            <TableSkeleton rows={8} columns={5} />
-          ) : (
-            <CardGridSkeleton count={6} />
-          )
-        }
-        empty={
-          <EmptyState
-            icon={FolderKanban}
-            title="No matching projects"
-            description="Nothing in the department matches this filter."
-          />
-        }
+        skeleton={view === "table" ? <ListSkeleton rows={6} /> : <CardGridSkeleton count={6} />}
+        empty={<EmptyState art={<EmptySearch />} title="No matching projects" description="Nothing in the department matches this filter yet." />}
       >
-        {view === "table" ? (
-          <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-surface/60">
-                  <TableHead>Project</TableHead>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Supervisor</TableHead>
-                  <TableHead>Milestone</TableHead>
-                  <TableHead>Current stage</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {query.items.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/hod/projects/${p.id}`}
-                        className="hover:underline"
-                      >
-                        {p.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      <span className="block">{p.studentName}</span>
-                      <span className="text-xs">{p.studentMatricNumber || "Matric number not recorded"}</span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {p.supervisorName}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={p.milestoneStatus} />
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {currentStage(p).label}
-                      <span className="block text-xs">{formatDate(currentStage(p).deadline)}</span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {query.items.map((p) => (
-              <Card key={p.id} interactive>
-                <Link href={`/hod/projects/${p.id}`}>
-                  <CardContent className="space-y-2.5 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="line-clamp-2 text-sm font-medium">
-                        {p.title}
-                      </p>
-                      <StatusBadge status={p.milestoneStatus} dot={false} />
-                    </div>
-                    <p className="text-2xs text-muted-foreground">
-                      {p.studentName} · {p.supervisorName}
-                    </p>
-                    <Progress value={p.progressPct} />
-                    <p className="text-2xs text-muted-foreground">
-                      {currentStage(p).label} Â· {formatDate(currentStage(p).deadline)}
-                    </p>
-                  </CardContent>
-                </Link>
-              </Card>
-            ))}
-          </div>
-        )}
+        {view === "table" ? <ProjectTable items={query.items} hrefFor={href} showStage /> : <ProjectGrid items={query.items} hrefFor={href} showStage />}
         {query.hasMore && (
-          <div className="mt-3 flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={query.loadMore}
-              disabled={query.loadingMore}
-            >
-              {query.loadingMore ? "Loading…" : "Load more"}
-            </Button>
+          <div className="mt-5 flex justify-center">
+            <Button variant="outline" onClick={query.loadMore} disabled={query.loadingMore}>{query.loadingMore ? "Loading..." : "Load more"}</Button>
           </div>
         )}
       </QueryState>

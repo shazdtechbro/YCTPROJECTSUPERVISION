@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { ProgressRing } from "@/components/app/stats";
 import { useAuth } from "@/lib/auth/auth-context";
 import { getStudentProjectsPage, getSubmissionsPage } from "@/lib/firestore";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -74,17 +75,18 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
   }).sort((a, b) => a.date.localeCompare(b.date));
 
   return (
-    <div className="space-y-5">
-      <Card>
-        <CardHeader>
-          <CardTitle>{project.title}</CardTitle>
-          <div><StatusBadge status={project.milestoneStatus} /></div>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <p>{stage.label} · {project.progressPct}% chapter progress</p>
+    <div className="grid gap-5 lg:grid-cols-2">
+      <Card className="lg:col-span-2">
+        <CardContent className="flex flex-wrap items-center justify-between gap-6 p-5 sm:p-6">
+          <div className="min-w-0 flex-1 space-y-3">
+            <StatusBadge status={project.milestoneStatus} />
+            <CardTitle className="break-words">{project.title}</CardTitle>
+            <p className="text-sm text-muted-foreground">{stage.label} · {project.progressPct}% chapter progress</p>
           <Link href={href} className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
             Open My project <ArrowRight className="h-4 w-4" />
           </Link>
+          </div>
+          <div aria-hidden="true"><ProgressRing value={project.progressPct} size={80} stroke={7} /></div>
         </CardContent>
       </Card>
       <Card>
@@ -112,7 +114,7 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
           ) : <p className="text-muted-foreground">Your supervisor hasn’t set any stage deadlines yet.</p>}
         </CardContent>
       </Card>
-      <ProjectActivityLog projectId={project.id} title="Recent activity" limit={5} />
+      <div className="lg:col-span-2"><ProjectActivityLog projectId={project.id} title="Recent activity" limit={5} /></div>
     </div>
   );
 }

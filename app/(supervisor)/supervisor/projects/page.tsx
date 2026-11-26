@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { FolderKanban } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
@@ -10,20 +9,11 @@ import { usePaginatedQuery } from "@/hooks/use-paginated-query";
 import { QueryState } from "@/components/shared/query-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { TableSkeleton } from "@/components/shared/skeletons";
 import { NewProjectDialog } from "@/components/shared/new-project-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { formatDate, formatRelativeTime } from "@/lib/format";
+import { ProjectTable } from "@/components/app/project-list";
 import type { ProjectStatus } from "@/lib/types";
 
 const STATUS_TABS: { value: ProjectStatus; label: string }[] = [
@@ -48,7 +38,7 @@ export default function SupervisorProjects() {
     <div>
       <PageHeader
         title="Projects"
-        description="Projects where you are the assigned supervisor."
+        description="Every project where you are the assigned supervisor."
         actions={<NewProjectDialog onCreated={() => setNonce((n) => n + 1)} />}
       />
 
@@ -83,51 +73,11 @@ export default function SupervisorProjects() {
           />
         }
       >
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-surface/60">
-                <TableHead>Project</TableHead>
-                <TableHead>Student</TableHead>
-                <TableHead>Milestone</TableHead>
-                <TableHead>Proposal</TableHead>
-                <TableHead className="text-right">Updated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {query.items.map((p) => (
-                <TableRow key={p.id} className="group">
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/supervisor/projects/${p.id}`}
-                      className="hover:underline"
-                    >
-                      {p.title}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    <span className="block">{p.studentName}</span>
-                    <span className="text-xs">{p.studentMatricNumber || "Matric number not recorded"}</span>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={p.milestoneStatus} />
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(p.proposalDate ?? null)}
-                  </TableCell>
-                  <TableCell className="text-right text-2xs text-muted-foreground">
-                    {formatRelativeTime(p.lastActivityAt)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <ProjectTable items={query.items} hrefFor={(p) => `/supervisor/projects/${p.id}`} showSupervisor={false} />
         {query.hasMore && (
-          <div className="mt-3 flex justify-center">
+          <div className="mt-5 flex justify-center">
             <Button
               variant="outline"
-              size="sm"
               onClick={query.loadMore}
               disabled={query.loadingMore}
             >

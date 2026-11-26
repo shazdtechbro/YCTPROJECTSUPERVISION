@@ -51,7 +51,7 @@ export function FileUpload({
 
   if (file) {
     return (
-      <div className="rounded-lg border p-3">
+      <div className="rounded-2xl border border-line bg-cream p-3">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary text-muted-foreground">
             <FileIcon className="h-4 w-4" />
@@ -97,16 +97,16 @@ export function FileUpload({
           accept(e.dataTransfer.files[0]);
         }}
         className={cn(
-          "flex w-full flex-col items-center justify-center rounded-lg border border-dashed px-6 py-8 text-center transition-colors",
+          "flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-cream px-6 py-8 text-center transition-colors",
           dragging
-            ? "border-primary bg-primary/5"
+            ? "border-brand-600 bg-brand-50"
             : "hover:border-foreground/25 hover:bg-secondary/40",
           disabled && "pointer-events-none opacity-50"
         )}
       >
-        <UploadCloud className="h-5 w-5 text-muted-foreground" />
+        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-sun-400 text-ink"><UploadCloud className="h-6 w-6" /></span>
         <p className="mt-2 text-sm font-medium">
-          Drop a file or click to browse
+          Tap to choose a file or drop it here
         </p>
         <p className="text-2xs text-muted-foreground">
           PDF, Word, PNG or JPEG · up to 25 MB

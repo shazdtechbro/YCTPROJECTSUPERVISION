@@ -40,8 +40,8 @@ async function verifiedRequest(route) {
     assert.ok(await page.locator('img[src="/yabatech-logo.png"]').first().evaluate(e=>e.complete && e.naturalWidth>0),`YABATECH logo loaded on ${pathname}`);
     if (pathname === '/') {
       assert.equal(await page.getByRole('link', { name: 'Go to dashboard' }).count(), 0, 'signed-out landing page must not offer the dashboard');
-      const brand = await page.locator('header > a').boundingBox();
-      const nav = await page.locator('header > nav').boundingBox();
+      const brand = await page.locator('header nav a[href="/"]').boundingBox();
+      const nav = await page.locator('header nav a[href="/signup"]').boundingBox();
       assert.ok(brand.y + brand.height <= nav.y + 1 || brand.x + brand.width <= nav.x + 1, `header content does not overlap at ${width}`);
       // Stress the longer authenticated CTA using the same real header styles.
       await page.locator('header nav a[href="/signup"]').evaluate(e => { e.firstChild.textContent = 'Go to dashboard'; });
@@ -61,9 +61,11 @@ async function verifiedRequest(route) {
      assert.ok(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),`reset form overflow at ${width}`);
     }
     if(pathname==='/signup') {
-     await page.getByText('Supervisor',{exact:true}).click();
+     await page.locator('#role').click();
+     await page.getByRole('option',{name:'Supervisor'}).click();
      assert.equal(await page.locator('#matric').count(),0,'staff do not need a matric number');
-     await page.getByText('Student',{exact:true}).click();
+     await page.locator('#role').click();
+     await page.getByRole('option',{name:'Student'}).click();
      await page.locator('#matric').fill('P/ND/24/3211001');
      if (width <= 640) assert.ok(parseFloat(await page.locator('#matric').evaluate(e=>getComputedStyle(e).fontSize))>=16,`mobile input text remains legible at ${width}`);
     }

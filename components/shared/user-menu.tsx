@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut, UserRound, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
@@ -43,12 +43,12 @@ export function UserMenu({
   const { theme, setTheme } = useTheme();
   const [busy, setBusy] = useState(false);
 
-  async function signOut() {
+  async function signOut(destination: "/" | "/login" = "/") {
     setBusy(true);
     try {
       await signOutUser();
       // A full navigation drops cached authenticated Next.js page payloads.
-      window.location.replace("/");
+      window.location.replace(destination);
     } catch (err) {
       toast.error("Couldn't sign out", { description: (err as Error).message });
       setBusy(false);
@@ -101,6 +101,16 @@ export function UserMenu({
           ))}
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          disabled={busy}
+          onSelect={(event) => {
+            event.preventDefault();
+            void signOut("/login");
+          }}
+        >
+          <UserRound className="h-4 w-4" />
+          Switch account
+        </DropdownMenuItem>
         <DropdownMenuItem
           disabled={busy}
           onSelect={(e) => {
