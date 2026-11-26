@@ -87,7 +87,7 @@ export default function SupervisorDrilldown({
               />
             }
           >
-            <ProjectTable items={projects.data ?? []} hrefFor={(p) => `/hod/projects/${p.id}`} showSupervisor={false} />
+            <ProjectTable items={projects.data ?? []} hrefFor={(p) => `/hod/projects/${p.id}`} showSupervisor={false} showStage />
           </QueryState>
         </div>
       </section>

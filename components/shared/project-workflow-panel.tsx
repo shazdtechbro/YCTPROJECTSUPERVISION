@@ -247,101 +247,103 @@ export function ProjectWorkflowPanel({
         </p>
       </section>
 
-      <section className="rounded-lg border bg-card p-4 sm:p-5">
-        <div>
-          <h2 className="font-semibold">{project.extensionStatus === "pending" && project.extensionStage ? `${stageLabel(project.extensionStage)} deadline extension` : extensionStage ? `${stageLabel(extensionStage)} deadline extension` : "Deadline extension"}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {project.extensionStatus === "pending"
-              ? `Request pending for ${project.extensionRequestedUntil ?? "a new deadline"}.`
-              : project.extensionStatus
-                ? `Request ${project.extensionStatus}. ${project.extensionDecisionNote ?? ""}`
-                : "No extension request is pending."}
-          </p>
-          {project.extensionReason && <p className="mt-2 whitespace-pre-wrap break-words text-sm">{project.extensionReason}</p>}
-          <p className="text-sm text-muted-foreground">{role === "student" && !availableStages.length ? "Ask your supervisor to set a deadline for the stage you need more time for. You can request an extension once the date appears." : ""}
-          </p>
-        </div>
-        {role === "student" &&
-          project.extensionStatus !== "pending" &&
-          !project.finalApproved && (
-            <form
-              className="mt-3 space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (extensionDate && extensionStage && selectedDeadline)
-                  void change(
-                    () => api.requestExtension(project.id, extensionDate, extensionStage, extensionReason),
-                    "Extension request sent to your supervisor",
-                  );
-              }}
-            >
+      {role !== "hod" && (
+        <section className="rounded-lg border bg-card p-4 sm:p-5">
+          <div>
+            <h2 className="font-semibold">{project.extensionStatus === "pending" && project.extensionStage ? `${stageLabel(project.extensionStage)} deadline extension` : extensionStage ? `${stageLabel(extensionStage)} deadline extension` : "Deadline extension"}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {project.extensionStatus === "pending"
+                ? `Request pending for ${project.extensionRequestedUntil ?? "a new deadline"}.`
+                : project.extensionStatus
+                  ? `Request ${project.extensionStatus}. ${project.extensionDecisionNote ?? ""}`
+                  : "No extension request is pending."}
+            </p>
+            {project.extensionReason && <p className="mt-2 whitespace-pre-wrap break-words text-sm">{project.extensionReason}</p>}
+            <p className="text-sm text-muted-foreground">{role === "student" && !availableStages.length ? "Ask your supervisor to set a deadline for the stage you need more time for. You can request an extension once the date appears." : ""}
+            </p>
+          </div>
+          {role === "student" &&
+            project.extensionStatus !== "pending" &&
+            !project.finalApproved && (
+              <form
+                className="mt-3 space-y-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (extensionDate && extensionStage && selectedDeadline)
+                    void change(
+                      () => api.requestExtension(project.id, extensionDate, extensionStage, extensionReason),
+                      "Extension request sent to your supervisor",
+                    );
+                }}
+              >
+                <div className="space-y-1.5">
+                  <Label htmlFor="extension-stage">Stage to extend</Label>
+                  <select id="extension-stage" className="h-10 w-full rounded-md border bg-background px-2 text-sm" value={extensionStage} onChange={(event) => setExtensionStage(event.target.value as ProjectStage | "")} required>
+                    <option value="">Choose a stage</option>
+                    {PROJECT_STAGES.map((stage) => <option key={stage} value={stage} disabled={!stageDeadline(project, stage)}>{stageLabel(stage)}{!stageDeadline(project, stage) && " · Deadline not set"}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="extension-reason">Reason for extension</Label>
+                  <Textarea id="extension-reason" value={extensionReason} onChange={(event) => setExtensionReason(event.target.value)} maxLength={2000} disabled={!selectedDeadline} required />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="extension-date">Requested new deadline</Label>
+                  {selectedDeadline && <p className="text-sm text-muted-foreground">Current deadline is {selectedDeadline}. Choose a later date.</p>}
+                  <Input
+                    id="extension-date"
+                    type="date"
+                    value={extensionDate}
+                    disabled={!selectedDeadline}
+                    onChange={(e) => setExtensionDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={busy || !selectedDeadline || !extensionDate || !extensionReason.trim()}>
+                  Request extension
+                </Button>
+              </form>
+            )}
+          {role === "supervisor" && project.extensionStatus === "pending" && (
+            <div className="mt-3 space-y-3">
               <div className="space-y-1.5">
-                <Label htmlFor="extension-stage">Stage to extend</Label>
-                <select id="extension-stage" className="h-10 w-full rounded-md border bg-background px-2 text-sm" value={extensionStage} onChange={(event) => setExtensionStage(event.target.value as ProjectStage | "")} required>
-                  <option value="">Choose a stage</option>
-                  {PROJECT_STAGES.map((stage) => <option key={stage} value={stage} disabled={!stageDeadline(project, stage)}>{stageLabel(stage)}{!stageDeadline(project, stage) && " · Deadline not set"}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="extension-reason">Reason for extension</Label>
-                <Textarea id="extension-reason" value={extensionReason} onChange={(event) => setExtensionReason(event.target.value)} maxLength={2000} disabled={!selectedDeadline} required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="extension-date">Requested new deadline</Label>
-                {selectedDeadline && <p className="text-sm text-muted-foreground">Current deadline is {selectedDeadline}. Choose a later date.</p>}
-                <Input
-                  id="extension-date"
-                  type="date"
-                  value={extensionDate}
-                  disabled={!selectedDeadline}
-                  onChange={(e) => setExtensionDate(e.target.value)}
-                  required
+                <Label htmlFor="extension-note">Decision note (optional)</Label>
+                <Textarea
+                  id="extension-note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={2}
                 />
               </div>
-              <Button type="submit" disabled={busy || !selectedDeadline || !extensionDate || !extensionReason.trim()}>
-                Request extension
-              </Button>
-            </form>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  disabled={busy}
+                  onClick={() =>
+                    void change(
+                      () => api.decideExtension(project.id, "approved", note),
+                      "Extension approved",
+                    )
+                  }
+                >
+                  Grant extension
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() =>
+                    void change(
+                      () => api.decideExtension(project.id, "declined", note),
+                      "Extension declined",
+                    )
+                  }
+                >
+                  Decline extension
+                </Button>
+              </div>
+            </div>
           )}
-        {role === "supervisor" && project.extensionStatus === "pending" && (
-          <div className="mt-3 space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="extension-note">Decision note (optional)</Label>
-              <Textarea
-                id="extension-note"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                rows={2}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                disabled={busy}
-                onClick={() =>
-                  void change(
-                    () => api.decideExtension(project.id, "approved", note),
-                    "Extension approved",
-                  )
-                }
-              >
-                Grant extension
-              </Button>
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={() =>
-                  void change(
-                    () => api.decideExtension(project.id, "declined", note),
-                    "Extension declined",
-                  )
-                }
-              >
-                Decline extension
-              </Button>
-            </div>
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
       {role === "student" && user?.uid === project.studentId && !project.finalApproved && project.status !== "archived" && (
         <section className="rounded-lg border bg-card p-4 sm:p-5">

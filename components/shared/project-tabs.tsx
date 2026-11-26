@@ -13,6 +13,7 @@ import { StatusBadge } from "./status-badge";
 import { TicketList } from "./ticket-list";
 import { SubmissionList } from "./submission-list";
 import { FeedbackPanel } from "./feedback-panel";
+import { currentStage } from "@/lib/project-stages";
 import { ProposalDateControl } from "./proposal-date-control";
 import { ProjectWorkflowPanel } from "./project-workflow-panel";
 import {
@@ -24,7 +25,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDate } from "@/lib/format";
 import type { Role } from "@/lib/types";
 
 const TABS = ["overview", "tickets", "submissions", "feedback"] as const;
@@ -157,11 +157,11 @@ function Inner({
                       )}
                       <Fact
                         icon={CalendarClock}
-                        label="Proposal date"
-                        value={formatDate(project.data.proposalDate ?? null)}
+                        label="Current stage"
+                        value={currentStage(project.data).label}
                       />
                       <Fact
-                        label="Open activities"
+                        label="Open tasks"
                         value={String(project.data.openTicketCount)}
                       />
                     </div>
