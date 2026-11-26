@@ -86,7 +86,7 @@ export default async function LandingPage() {
       {/* Facts */}
       <section className="mx-auto max-w-[1240px] px-4 py-10">
         <Stagger className="grid grid-cols-2 gap-6 border-y border-line py-8 md:grid-cols-4">
-          {[[3, "roles in one workspace"], [4, "health signals per project"], [5, "submission types tracked"], [100, "% of screens phone-ready"]].map(([n, l]) => (
+          {[[3, "roles in one workspace"], [3, "health states: on track, behind, stalled"], [5, "submission types tracked"], [100, "% of screens phone-ready"]].map(([n, l]) => (
             <StaggerItem key={l as string}>
               <div className="font-display text-[40px] font-extrabold tracking-tight md:text-[44px]"><CountUp value={n as number} /></div>
               <div className="text-[14px] text-ink-2">{l}</div>

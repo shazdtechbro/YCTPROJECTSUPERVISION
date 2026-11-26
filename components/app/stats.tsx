@@ -49,8 +49,8 @@ export function ProgressRing({ value, size = 120, stroke = 10, label }: { value:
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <div className="font-display text-2xl font-extrabold leading-none"><CountUp value={pct} suffix="%" /></div>
-          {label && <div className="mt-1 px-2 text-xs text-ink-3">{label}</div>}
+          <div className={cn("font-display font-extrabold leading-none", size < 80 ? "text-[13px]" : "text-2xl")}><CountUp value={pct} suffix="%" /></div>
+          {label && size >= 80 && <div className="mt-1 px-2 text-xs text-ink-3">{label}</div>}
         </div>
       </div>
     </div>

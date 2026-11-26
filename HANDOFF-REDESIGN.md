@@ -14,9 +14,9 @@ Front-end only. No routes, API routes, Firestore schema, auth, storage, mileston
 8. **Auth** split screen (`app/(auth)/layout.tsx`) and **landing** (`app/page.tsx`, `components/app/hero-art.tsx`).
 
 ## Remaining
-- Run `npm run lint` and `npm run build` (only `tsc --noEmit` was run; it passes).
-- Visual QA at 360 / 768 / 1024 / 1440 in a browser (not done yet), before/after screenshots.
-- Optional: `app/not-found.tsx` using `NotFoundIllustration`; Lighthouse pass.
+- Lint and production build pass (checked).
+- Landing, login checked at 375px and 1440px. Signed-in screens (dashboards, workspace) still need a visual check by someone who can sign in.
+- 404 page added. Lighthouse pass not run. Landing first-load JS is ~400kB because AuthProvider (Firebase) loads in the root layout; moving it into the authenticated layouts would speed up the landing page.
 - Deploy a Vercel preview (`vercel` CLI) once build passes.
 
 ## Notes
