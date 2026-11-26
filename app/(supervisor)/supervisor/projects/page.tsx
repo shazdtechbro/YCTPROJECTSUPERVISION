@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { FolderKanban } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
