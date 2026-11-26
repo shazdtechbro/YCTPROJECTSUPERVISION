@@ -27,8 +27,8 @@ export function DefenseDateControl({
       const res = await api.updateProject(projectId, {
         defenseDate: value || null,
       });
-      toast.success("Defense date saved", {
-        description: `Milestone: ${res.milestone.reason}`,
+      toast.success("Defence date saved", {
+        description: res.milestone.reason,
       });
       onSaved?.();
     } catch (err) {
@@ -39,19 +39,20 @@ export function DefenseDateControl({
   }
 
   return (
-    <div className="rounded-md border bg-surface/50 p-3">
-      <Label htmlFor="defense" className="text-2xs uppercase tracking-wide text-muted-foreground">
-        Set defense date
+    <div className="rounded-[20px] border border-line bg-white p-4 shadow-card md:p-5">
+      <Label htmlFor="defense" className="font-display text-lg font-bold">
+        Defence date
       </Label>
-      <div className="mt-1.5 flex gap-2">
+      <p className="mt-1 text-sm text-ink-2">Students see this on their dashboard straight away.</p>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <Input
           id="defense"
           type="date"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="max-w-[200px]"
+          className="sm:max-w-[220px]"
         />
-        <Button size="sm" onClick={save} loading={busy} disabled={!dirty}>
+        <Button onClick={save} loading={busy} disabled={!dirty}>
           Save
         </Button>
       </div>

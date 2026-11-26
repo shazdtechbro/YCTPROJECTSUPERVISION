@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Ticket as TicketIcon } from "lucide-react";
+import { EmptyAllCaughtUp } from "@/components/illustrations";
 import { toast } from "sonner";
 
 import { subscribeProjectTickets } from "@/lib/firestore";
@@ -24,9 +24,9 @@ import type { TicketDoc, TicketStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const PRIORITY_TONE: Record<string, string> = {
-  high: "text-[hsl(var(--status-stalled))]",
-  medium: "text-[hsl(var(--status-behind))]",
-  low: "text-muted-foreground",
+  high: "!bg-[#FDECEA] text-stalled",
+  medium: "!bg-sun-100 text-behind",
+  low: "text-ink-2",
 };
 
 export function TicketList({
@@ -54,13 +54,13 @@ export function TicketList({
       )}
       {phase === "empty" && (
         <EmptyState
-          icon={TicketIcon}
-          title="No tickets"
-          description="Tickets track requested changes and open questions. New ones show up here in real time."
+          art={<EmptyAllCaughtUp />}
+          title="No tickets, all clear"
+          description="Use a ticket to ask a question or request a change. New ones appear here instantly."
         />
       )}
       {phase === "ready" && (
-        <ul className="divide-y rounded-lg border">
+        <ul className="space-y-3">
           {items.map((t) => (
             <TicketRow
               key={t.id}
@@ -100,23 +100,23 @@ function TicketRow({
   }
 
   return (
-    <li className="flex flex-wrap items-start gap-3 p-4">
+    <li className="flex flex-col gap-3 rounded-[20px] border border-line bg-white p-4 shadow-card sm:flex-row sm:items-start">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium">{t.title}</span>
+          <span className="text-[15px] font-semibold">{t.title}</span>
           <span
             className={cn(
-              "text-2xs font-medium uppercase",
+              "chip bg-cream-2 capitalize",
               PRIORITY_TONE[t.priority]
             )}
           >
-            {t.priority}
+            {t.priority} priority
           </span>
         </div>
-        <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+        <p className="mt-1 line-clamp-3 text-sm text-ink-2">
           {t.body}
         </p>
-        <p className="mt-1 text-2xs text-muted-foreground">
+        <p className="mt-2 text-xs text-ink-3">
           {t.authorName} · {formatRelativeTime(t.createdAt)}
           {t.dueDate ? ` · due ${t.dueDate}` : ""}
         </p>
@@ -127,7 +127,7 @@ function TicketRow({
           onValueChange={(v) => setStatus(v as TicketStatus)}
           disabled={saving}
         >
-          <SelectTrigger className="h-8 w-[140px]">
+          <SelectTrigger className="h-11 w-full sm:w-[160px]" aria-label="Ticket status">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

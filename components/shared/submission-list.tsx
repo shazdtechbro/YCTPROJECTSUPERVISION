@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Download, FileText, Loader2 } from "lucide-react";
+import { Check, Download, FileText, Loader2, RotateCcw } from "lucide-react";
+import { EmptyNoSubmissions } from "@/components/illustrations";
 import { toast } from "sonner";
 
 import { getSubmissionsPage } from "@/lib/firestore";
@@ -12,13 +13,6 @@ import { ListSkeleton } from "./skeletons";
 import { StatusBadge } from "./status-badge";
 import { UploadSubmissionDialog } from "./upload-submission-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { api } from "@/lib/api";
 import { getSubmissionDownloadUrl } from "@/lib/storage/submissions";
 import { formatDate, formatFileSize } from "@/lib/format";
@@ -54,7 +48,7 @@ export function SubmissionList({
         skeleton={<ListSkeleton rows={4} />}
         empty={
           <EmptyState
-            icon={FileText}
+            art={<EmptyNoSubmissions />}
             title="Nothing submitted yet"
             description={
               canUpload
@@ -64,7 +58,7 @@ export function SubmissionList({
           />
         }
       >
-        <ul className="divide-y rounded-lg border">
+        <ul className="space-y-3">
           {query.items.map((s) => (
             <SubmissionRow
               key={s.id}
@@ -135,22 +129,23 @@ function SubmissionRow({
   }
 
   return (
-    <li className="flex flex-wrap items-center gap-3 p-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-secondary text-muted-foreground">
-        <FileText className="h-4 w-4" />
+    <li className="rounded-[20px] border border-line bg-white p-4 shadow-card">
+      <div className="flex items-center gap-3">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+        <FileText className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">
+        <p className="truncate text-[15px] font-semibold">
           {s.title}{" "}
-          <span className="font-normal text-muted-foreground">v{s.version}</span>
+          <span className="font-mono text-xs font-medium text-ink-3">v{s.version}</span>
         </p>
-        <p className="truncate text-2xs text-muted-foreground">
+        <p className="truncate text-xs text-ink-3">
           {s.fileName} · {formatFileSize(s.fileSize)} · {formatDate(s.createdAt)}
         </p>
       </div>
-      <StatusBadge status={s.status} />
+      <StatusBadge status={s.status} className="hidden sm:inline-flex" />
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         onClick={download}
         disabled={downloading}
@@ -162,21 +157,22 @@ function SubmissionRow({
           <Download className="h-4 w-4" />
         )}
       </Button>
+      </div>
+      <StatusBadge status={s.status} className="mt-3 sm:hidden" />
       {canReview && (
-        <Select
-          value={s.status}
-          onValueChange={(v) => setStatus(v as SubmissionStatus)}
-          disabled={saving}
-        >
-          <SelectTrigger className="h-8 w-[168px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pending_review">Pending review</SelectItem>
-            <SelectItem value="changes_requested">Changes requested</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 sm:flex sm:justify-end">
+          {s.status !== "pending_review" && (
+            <Button variant="ghost" className="col-span-2 sm:col-span-1" disabled={saving} onClick={() => setStatus("pending_review")}>
+              <RotateCcw /> Mark as pending
+            </Button>
+          )}
+          <Button variant="outline" disabled={saving || s.status === "changes_requested"} onClick={() => setStatus("changes_requested")}>
+            Request changes
+          </Button>
+          <Button disabled={saving || s.status === "approved"} loading={saving} onClick={() => setStatus("approved")}>
+            {!saving && <Check />} Approve
+          </Button>
+        </div>
       )}
     </li>
   );

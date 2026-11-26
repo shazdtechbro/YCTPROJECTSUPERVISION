@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessagesSquare } from "lucide-react";
+import { EmptyNoNotifications } from "@/components/illustrations";
 
 import { getSubmissionsPage } from "@/lib/firestore";
 import { useAsyncData } from "@/hooks/use-async-data";
@@ -46,15 +46,15 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
       }
       empty={
         <EmptyState
-          icon={MessagesSquare}
+          art={<EmptyNoNotifications />}
           title="No submissions to discuss"
-          description="Feedback threads open up once a submission is uploaded."
+          description="A feedback thread opens for every uploaded file."
         />
       }
     >
       <div className="space-y-4">
         <Select value={selected} onValueChange={setSelected}>
-          <SelectTrigger className="w-full sm:w-80">
+          <SelectTrigger className="w-full sm:w-96" aria-label="Choose a submission">
             <SelectValue placeholder="Choose a submission" />
           </SelectTrigger>
           <SelectContent>
@@ -66,7 +66,7 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
           </SelectContent>
         </Select>
         {selected && (
-          <div className="rounded-lg border p-4">
+          <div className="rounded-[20px] border border-line bg-white p-4 shadow-card md:p-6">
             <CommentThread
               key={selected}
               projectId={projectId}

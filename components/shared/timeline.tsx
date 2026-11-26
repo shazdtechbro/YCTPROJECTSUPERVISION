@@ -1,62 +1,36 @@
-import {
-  FileText,
-  GitCommitHorizontal,
-  MessageSquare,
-  Ticket,
-} from "lucide-react";
+import Link from "next/link";
+import { FileText, GitCommitHorizontal, MessageSquare, Ticket } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import type { ActivityEvent } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const ICONS: Record<ActivityEvent["kind"], LucideIcon> = {
-  ticket: Ticket,
-  submission: FileText,
-  comment: MessageSquare,
-  status_change: GitCommitHorizontal,
+const ICONS: Record<ActivityEvent["kind"], { Icon: LucideIcon; cls: string }> = {
+  ticket: { Icon: Ticket, cls: "bg-brand-50 text-brand-700" },
+  submission: { Icon: FileText, cls: "bg-sun-100 text-ink" },
+  comment: { Icon: MessageSquare, cls: "bg-[#E6F1FA] text-[#1D5A86]" },
+  status_change: { Icon: GitCommitHorizontal, cls: "bg-cream-2 text-ink-2" },
 };
 
-/** Cross-role activity feed. Presentational — feed it `ActivityEvent[]`. */
-export function Timeline({
-  events,
-  className,
-}: {
-  events: ActivityEvent[];
-  className?: string;
-}) {
+/** Cross-role activity feed. Presentational: feed it `ActivityEvent[]`. */
+export function Timeline({ events, className }: { events: ActivityEvent[]; className?: string }) {
   return (
     <ol className={cn("relative", className)}>
       {events.map((event, i) => {
-        const Icon = ICONS[event.kind];
+        const { Icon, cls } = ICONS[event.kind];
         const isLast = i === events.length - 1;
         return (
           <li key={event.id} className="relative flex gap-3 pb-5 last:pb-0">
-            {!isLast && (
-              <span
-                aria-hidden
-                className="absolute left-[13px] top-7 h-full w-px bg-border"
-              />
-            )}
-            <span className="z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground">
-              <Icon className="h-3.5 w-3.5" />
-            </span>
-            <div className="min-w-0 flex-1 pt-1">
-              <p className="text-sm leading-tight">
-                {event.href ? (
-                  <a
-                    href={event.href}
-                    className="font-medium underline-offset-4 hover:underline"
-                  >
-                    {event.title}
-                  </a>
-                ) : (
-                  <span className="font-medium">{event.title}</span>
-                )}
-              </p>
-              <p className="mt-0.5 text-2xs text-muted-foreground">
-                {event.actorName} · {formatRelativeTime(event.at)}
-              </p>
+            {!isLast && <span aria-hidden className="absolute left-[15px] top-9 h-[calc(100%-28px)] w-px bg-line" />}
+            <span className={cn("z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full", cls)}><Icon className="h-4 w-4" /></span>
+            <div className="min-w-0 flex-1 pt-0.5">
+              {event.href ? (
+                <Link href={event.href} className="text-sm font-medium leading-snug hover:text-brand-700">{event.title}</Link>
+              ) : (
+                <span className="text-sm font-medium leading-snug">{event.title}</span>
+              )}
+              <p className="mt-0.5 text-xs text-ink-3">{event.actorName} · {formatRelativeTime(event.at)}</p>
             </div>
           </li>
         );

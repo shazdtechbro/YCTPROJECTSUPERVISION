@@ -63,7 +63,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <Plus className="h-4 w-4" />
           New project
         </Button>
@@ -83,7 +83,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
               placeholder="student@yabatech.edu.ng"
               autoFocus
             />
-            <p className="text-2xs text-muted-foreground">
+            <p className="text-xs text-ink-3">
               The student must already have an account in your department.
             </p>
           </div>
@@ -115,7 +115,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
               className="max-w-[200px]"
             />
           </div>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-2 pt-1 sm:flex sm:justify-end">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>

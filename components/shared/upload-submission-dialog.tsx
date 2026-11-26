@@ -99,7 +99,7 @@ export function UploadSubmissionDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <Upload className="h-4 w-4" />
           Upload
         </Button>
@@ -115,7 +115,7 @@ export function UploadSubmissionDialog({
               id="s-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Chapter 3 — Methodology"
+              placeholder="e.g. Chapter 3: Methodology"
               autoFocus
             />
           </div>
@@ -147,7 +147,7 @@ export function UploadSubmissionDialog({
               onClear={() => setFile(null)}
             />
           </div>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-2 pt-1 sm:flex sm:justify-end">
             <Button
               type="button"
               variant="ghost"

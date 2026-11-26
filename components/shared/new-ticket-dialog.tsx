@@ -80,7 +80,7 @@ export function NewTicketDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <Plus className="h-4 w-4" />
           New ticket
         </Button>
@@ -100,7 +100,7 @@ export function NewTicketDialog({
               autoFocus
             />
             {titleError && (
-              <p className="text-2xs text-[hsl(var(--status-stalled))]">
+              <p className="text-xs text-stalled">
                 {titleError}
               </p>
             )}
@@ -115,7 +115,7 @@ export function NewTicketDialog({
               placeholder="What needs to change, and why?"
             />
             {bodyError && (
-              <p className="text-2xs text-[hsl(var(--status-stalled))]">
+              <p className="text-xs text-stalled">
                 {bodyError}
               </p>
             )}
@@ -147,7 +147,7 @@ export function NewTicketDialog({
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-2 pt-1 sm:flex sm:justify-end">
             <Button
               type="button"
               variant="ghost"
