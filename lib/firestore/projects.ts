@@ -79,6 +79,7 @@ export async function getStudentProjectsPage(
   studentId: string,
   params?: PageParams,
 ): Promise<Page<ProjectDoc>> {
+  if (!studentId) return { items: [], hasMore: false, cursor: null };
   const profile = await getUser(studentId);
   if (profile?.projectId) {
     const project = await getProject(profile.projectId);

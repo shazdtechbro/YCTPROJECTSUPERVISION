@@ -25,6 +25,7 @@ export function createSessionSynchronizer(
       method: "DELETE",
       credentials: "same-origin",
       cache: "no-store",
+      signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) throw new Error("Could not complete sign-out. Please try again.");
     const data = await response.json().catch(() => ({}));
@@ -39,19 +40,22 @@ export function createSessionSynchronizer(
       const revision = generation;
       return enqueue(async () => revision !== generation || currentUid() ? false : clearCookie());
     },
-    sync(identity: SessionIdentity | null, forceRefresh = false): Promise<Role | null> {
+    async sync(identity: SessionIdentity | null, forceRefresh = false): Promise<Role | null> {
       const revision = generation;
-      return enqueue(async () => {
-        if (revision !== generation) return null;
-        if (!identity) {
-          if (!currentUid()) await clearCookie();
+      if (!identity) {
+        return enqueue(async () => {
+          if (revision === generation && !currentUid()) await clearCookie();
           return null;
-        }
-        if (signedOut || currentUid() !== identity.uid) return null;
-        const result = await identity.getIdTokenResult(forceRefresh);
+        });
+      }
+      if (signedOut || currentUid() !== identity.uid) return null;
+      // A slow token lookup must never block a queued sign-out.
+      const result = await identity.getIdTokenResult(forceRefresh);
+      return enqueue(async () => {
         if (revision !== generation || signedOut || currentUid() !== identity.uid) return null;
         const response = await request("/api/session", {
           method: "POST", credentials: "same-origin", cache: "no-store",
+          signal: AbortSignal.timeout(10000),
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken: result.token }),
         });

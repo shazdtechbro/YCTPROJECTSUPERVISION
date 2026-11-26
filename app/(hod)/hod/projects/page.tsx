@@ -20,7 +20,7 @@ const FILTERS: { value: MilestoneStatus | "all"; label: string; dot?: string }[]
   { value: "all", label: "All" },
   { value: "on_track", label: "On track", dot: "bg-brand-700" },
   { value: "behind", label: "Behind", dot: "bg-sun-400" },
-  { value: "stalled", label: "Overview", dot: "bg-stalled" },
+  { value: "stalled", label: "Overdue", dot: "bg-stalled" },
 ];
 
 export default function HodProjects() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { onSnapshot, collection, orderBy, query } from "firebase/firestore";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { formatRelativeTime } from "@/lib/format";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { CommentDoc } from "@/lib/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,7 +41,7 @@ export function CommentThread({
   const [phase, setPhase] = useState<"loading" | "error" | "ready">("loading");
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const commentId = useId();
 
   useEffect(() => {
     setPhase("loading");
@@ -61,10 +62,6 @@ export function CommentThread({
     );
     return () => unsub();
   }, [projectId, submissionId]);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "nearest" });
-  }, [items.length]);
 
   async function send() {
     if (!draft.trim() || sending) return;
@@ -140,17 +137,19 @@ export function CommentThread({
               </div>
             );
           })}
-        <div ref={endRef} />
       </div>
 
       <form
-        className="sticky bottom-[76px] mt-4 flex items-end gap-2 border-t border-line bg-card pt-4 lg:bottom-0"
+        className="mt-4 space-y-3 border-t border-line pt-4"
         onSubmit={(e) => {
           e.preventDefault();
           void send();
         }}
       >
+        <Label htmlFor={commentId}>Add a comment</Label>
         <Textarea
+          id={commentId}
+          maxLength={5000}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
@@ -160,11 +159,10 @@ export function CommentThread({
             }
           }}
           placeholder="Write a comment"
-          className="min-h-[48px] flex-1 resize-none"
-          rows={1}
+          rows={3}
         />
-        <Button type="submit" size="icon" aria-label="Send comment" loading={sending} disabled={!draft.trim()}>
-          <Send className="h-4 w-4" />
+        <Button type="submit" loading={sending} disabled={!draft.trim()}>
+          <Send className="h-4 w-4" /> Post comment
         </Button>
       </form>
     </div>

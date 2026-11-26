@@ -6,7 +6,7 @@ type AnyStatus = MilestoneStatus | ProjectStatus | SubmissionStatus | TicketStat
 const LABEL: Record<AnyStatus, string> = {
   on_track: "On track",
   behind: "Behind",
-  stalled: "Overview",
+  stalled: "Overdue",
   active: "Active",
   submitted: "Submitted",
   approved: "Approved",

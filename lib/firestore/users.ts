@@ -19,6 +19,7 @@ const usersCol = () =>
   collection(getDb(), paths.users).withConverter(userConverter);
 
 export async function getUser(uid: string): Promise<UserDoc | null> {
+  if (!uid) return null;
   const snap = await getDoc(
     doc(getDb(), paths.user(uid)).withConverter(userConverter)
   );

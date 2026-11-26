@@ -184,6 +184,7 @@ const routes = {
   patch: require("../app/api/projects/[projectId]/route.ts"),
   submit: require("../app/api/projects/[projectId]/submissions/route.ts"),
   review: require("../app/api/projects/[projectId]/submissions/[submissionId]/route.ts"),
+  comments: require("../app/api/projects/[projectId]/submissions/[submissionId]/comments/route.ts"),
   supervisors: require("../app/api/supervisors/route.ts"),
   activity: require("../app/api/projects/[projectId]/activity/route.ts"),
   login: require("../app/api/auth/student-login/route.ts"),
@@ -762,4 +763,22 @@ test("document links cannot sign a different project's file", async () => {
   db.data.set("projects/p/submissions/s", { storagePath: "projects/other/submissions/s/file.pdf" });
   user = supervisor();
   assert.equal((await route.GET(new NextRequest("http://localhost/file"), params)).status, 400);
+});
+
+test("project students, assigned supervisors and departmental HODs can post submission comments", async () => {
+  const submission = "projects/p/submissions/s";
+  db.data.set(submission, { kind: "proposal", commentCount: 0 });
+  const hod = { ...supervisor(), uid: "hod", role: "hod" };
+  for (const author of [student("partner"), supervisor(), hod]) {
+    user = author;
+    const response = await routes.comments.POST(req({ body: "Please review this draft." }), params);
+    assert.equal(response.status, 200);
+    const { commentId } = await response.json();
+    const comment = db.data.get(`${submission}/comments/${commentId}`);
+    assert.equal(comment.authorId, author.uid);
+    assert.equal(comment.authorRole, author.role);
+  }
+  user = { ...hod, department: "Other" };
+  assert.equal((await routes.comments.POST(req({ body: "Outside the department" }), params)).status, 403);
+  assert.equal(db.data.get(submission).commentCount, 3);
 });

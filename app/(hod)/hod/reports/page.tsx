@@ -108,7 +108,7 @@ export default function HodReports() {
           <div className="grid grid-cols-3 gap-3 text-center">
             <Legend label="On track" value={milestone.on_track} tone="on-track" />
             <Legend label="Behind" value={milestone.behind} tone="behind" />
-            <Legend label="Stalled" value={milestone.stalled} tone="stalled" />
+            <Legend label="Overdue" value={milestone.stalled} tone="stalled" />
           </div>
         </CardContent>
       </Card>

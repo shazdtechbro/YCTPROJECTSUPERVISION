@@ -8,7 +8,6 @@ import {
 import { getSessionUser, homePathForRole } from "@/lib/auth/session";
 import { Crest } from "@/components/app/crest";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/app/motion";
-import { HeroArt } from "@/components/app/hero-art";
 import defenseDay from "@/public/redesign/defense-day.webp";
 import roleHod from "@/public/redesign/role-hod.webp";
 import roleStudent from "@/public/redesign/role-student.webp";
@@ -62,28 +61,21 @@ export default async function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto grid max-w-[1240px] items-center gap-12 px-4 pb-10 pt-10 md:pt-20 lg:grid-cols-[1.05fr_1fr]">
+      <section className="mx-auto max-w-[900px] px-4 pb-10 pt-12 text-center md:pt-24">
         <Reveal>
           <h1 className="font-display text-[40px] font-extrabold leading-[1] tracking-[-0.035em] sm:text-[60px] lg:text-[72px]">
             Final-year projects, <span className="hl">supervised</span> without the chaos.
           </h1>
-          <p className="mt-6 max-w-[520px] text-[17px] leading-relaxed text-ink-2 md:text-[18px]">
+          <p className="mx-auto mt-6 max-w-[620px] text-[17px] leading-relaxed text-ink-2 md:text-[18px]">
             Students, supervisors and the HOD in one calm workspace. See every submission, every piece of feedback and every project at risk, long before defence day.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link href={primaryHref} className="press inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full bg-brand-700 px-6 font-semibold text-white shadow-float hover:bg-brand-800">
               {user ? "Go to dashboard" : "Start your project"} <ArrowRight className="h-5 w-5" />
             </Link>
             <a href="#how" className="press inline-flex min-h-[52px] items-center justify-center rounded-full border border-line bg-card px-6 font-semibold hover:border-ink">See how it works</a>
           </div>
-          <div className="mt-8 flex items-center gap-3 text-[13px] text-ink-3">
-            <div className="flex -space-x-2">
-              <span className="h-8 w-8 rounded-full border-2 border-cream bg-sun-300" /><span className="h-8 w-8 rounded-full border-2 border-cream bg-brand-200" /><span className="h-8 w-8 rounded-full border-2 border-cream bg-[#8EC5E8]" />
-            </div>
-            Built for the YABATECH HND project cycle
-          </div>
         </Reveal>
-        <HeroArt />
       </section>
 
       {/* Facts */}
@@ -188,11 +180,11 @@ export default async function LandingPage() {
             <div className="h-full rounded-[24px] border border-line bg-card p-6 shadow-card">
               <div className="flex items-center gap-2 text-[14px] font-semibold text-brand-700"><Activity className="h-5 w-5" />Project health</div>
               <h3 className="mt-2 font-display text-[24px] font-bold">Know who is behind before it becomes a problem.</h3>
-              <p className="mt-2 max-w-[520px] text-ink-2">Every project is checked for inactivity, missed work and defence timing, then marked On track, Behind or Overview with a plain-English reason.</p>
+              <p className="mt-2 max-w-[520px] text-ink-2">Every project is checked for inactivity, missed work and defence timing, then marked On track, Behind or Overdue with a plain-English reason.</p>
               <div className="mt-6 grid grid-cols-3 gap-3">
                 <div className="rounded-2xl bg-brand-50 p-4"><div className="text-xs font-semibold text-brand-700">On track</div><div className="font-display text-[26px] font-extrabold">Green</div></div>
                 <div className="rounded-2xl bg-sun-100 p-4"><div className="text-xs font-semibold text-behind">Behind</div><div className="font-display text-[26px] font-extrabold">Amber</div></div>
-                <div className="rounded-2xl bg-[#FDECEA] p-4"><div className="text-xs font-semibold text-stalled">Stalled</div><div className="font-display text-[26px] font-extrabold">Red</div></div>
+                <div className="rounded-2xl bg-[#FDECEA] p-4"><div className="text-xs font-semibold text-stalled">Overdue</div><div className="font-display text-[26px] font-extrabold">Red</div></div>
               </div>
             </div>
           </StaggerItem>

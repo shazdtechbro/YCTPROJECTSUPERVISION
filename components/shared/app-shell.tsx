@@ -120,6 +120,7 @@ function crumbFor(pathname: string, items: NavItem[]) {
  */
 export function AppShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user: authenticatedUser } = useAuth();
   const items = NAV_BY_ROLE[user.role];
   const [drawer, setDrawer] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -189,7 +190,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
         </header>
 
         <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 pb-28 pt-6 md:px-8 md:pt-8 lg:pb-12">
-          <PageTransition k={pathname}>{children}</PageTransition>
+          {authenticatedUser?.uid === user.uid && <PageTransition k={pathname}>{children}</PageTransition>}
         </main>
       </div>
 

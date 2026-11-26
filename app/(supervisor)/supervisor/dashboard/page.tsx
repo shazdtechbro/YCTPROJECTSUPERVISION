@@ -36,8 +36,8 @@ export default function SupervisorDashboard() {
   return (
     <div>
       <PageHeader
-        title={`${greeting()}${first ? `, ${first}` : ""}`}
-        description={stats.data ? (pending ? `You have ${pending} submission${pending === 1 ? "" : "s"} waiting for review.` : "No submissions are waiting for you.") : "Everything you supervise, at a glance."}
+        title="Supervisor workspace"
+        description={stats.data ? (pending ? `You have ${pending} submission${pending === 1 ? "" : "s"} waiting for review.` : "No submissions are waiting for you.") : `${greeting()}${first ? `, ${first}` : ""}. Review submissions and manage your assigned projects.`}
         actions={<><Button asChild variant="outline"><Link href="/supervisor/roster"><Users /> Students</Link></Button><NewProjectDialog onCreated={stats.retry} /></>}
       />
 
@@ -129,7 +129,7 @@ function HealthDonut({ stats }: { stats: Pick<DashboardStatsDoc, "byMilestoneSta
   const d = [
     { label: "On track", v: stats.byMilestoneStatus.on_track, c: "#006600", dot: "bg-brand-700" },
     { label: "Behind", v: stats.byMilestoneStatus.behind, c: "#FDC800", dot: "bg-sun-400" },
-    { label: "Stalled", v: stats.byMilestoneStatus.stalled, c: "#C8352A", dot: "bg-stalled" },
+    { label: "Overdue", v: stats.byMilestoneStatus.stalled, c: "#C8352A", dot: "bg-stalled" },
   ];
   const tot = d.reduce((a, x) => a + x.v, 0);
   const C = 2 * Math.PI * 42;

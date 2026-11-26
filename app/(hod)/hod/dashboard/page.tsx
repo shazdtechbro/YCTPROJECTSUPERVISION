@@ -41,11 +41,17 @@ export default function HodDashboard() {
 
   return (
     <div>
-      <PageHeader
-        title={`${dept || "Your"} department`}
-        description="Supervision across every HND final-year project."
-        actions={<Button asChild><Link href="/hod/reports"><BarChart3 /> View reports</Link></Button>}
-      />
+      <section className="mb-6 rounded-[24px] border border-line bg-card p-5 sm:p-7">
+        <PageHeader
+          title="Department oversight"
+          description={`${dept || "Your department"} · Monitor project health and supervisor workload across the department.`}
+          actions={<Button asChild><Link href="/hod/reports"><BarChart3 /> View reports</Link></Button>}
+        />
+        <nav aria-label="Department tools" className="flex flex-wrap gap-3">
+          <Button asChild variant="outline"><Link href="/hod/projects"><FolderKanban /> Department projects</Link></Button>
+          <Button asChild variant="outline"><Link href="/hod/supervisors"><Users /> Supervisor workload</Link></Button>
+        </nav>
+      </section>
 
       <QueryState
         phase={rollups.phase === "ready" && list.length === 0 ? "empty" : rollups.phase}
@@ -83,7 +89,7 @@ export default function HodDashboard() {
               error={attention.error}
               onRetry={attention.retry}
               skeleton={<ListSkeleton rows={3} />}
-              empty={<EmptyState className="min-h-[200px] border-0 bg-transparent p-0" art={<EmptyAllCaughtUp />} title="Everything is on track" description="No behind or stalled projects right now." />}
+              empty={<EmptyState className="min-h-[200px] border-0 bg-transparent p-0" art={<EmptyAllCaughtUp />} title="Everything is on track" description="No projects are behind or overdue right now." />}
             >
               <ul className="space-y-3">
                 {(attention.data ?? []).map((p) => (
@@ -101,7 +107,7 @@ export default function HodDashboard() {
       </div>
 
       <Reveal className="mt-5">
-        <SectionCard title="Supervisors" action={<Link href="/hod/supervisors" className="text-[13px] font-semibold text-brand-700">See all</Link>}>
+        <SectionCard title="Supervisor workload" action={<Link href="/hod/supervisors" className="text-[13px] font-semibold text-brand-700">See all</Link>}>
           {rollups.phase === "loading" ? <ListSkeleton rows={4} /> : list.length === 0 ? (
             <p className="text-sm text-ink-3">Supervisor accounts with projects show up here.</p>
           ) : (

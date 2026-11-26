@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { FileText, Download, Eye } from "lucide-react";
+import { FileText, Download, Eye, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { getSubmissionsPage } from "@/lib/firestore";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
@@ -16,6 +16,7 @@ import { formatDate, formatFileSize } from "@/lib/format";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CommentThread } from "./comment-thread";
 import { ReviewFeedback } from "./review-feedback";
 import type { SubmissionDoc, SubmissionStatus } from "@/lib/types";
 export function SubmissionList({
@@ -99,6 +100,7 @@ export function SubmissionRow({ projectId, projectTopic, submission: s, versions
   canReview: boolean; canUpload: boolean; allChaptersApproved: boolean; onChanged: () => void;
 }) {
   const [saving, setSaving] = useState(false);
+  const [discussionOpen, setDiscussionOpen] = useState(false);
   const [status, setStatus] = useState(s.status === "pending_review" ? "" : s.status);
   const [grade, setGrade] = useState(s.grade == null ? "" : String(s.grade));
   const [feedback, setFeedback] = useState(s.reviewFeedback ?? "");
@@ -162,5 +164,12 @@ export function SubmissionRow({ projectId, projectTopic, submission: s, versions
         <Button size="sm" loading={saving} disabled={!status || (canGrade && grade !== "" && (!Number.isFinite(Number(grade)) || Number(grade) < 0 || Number(grade) > 100))} onClick={save}>Save review</Button>
       </div>
     </details>}
+    <Button type="button" variant="outline" size="sm" aria-expanded={discussionOpen} onClick={() => setDiscussionOpen(!discussionOpen)}>
+      <MessageSquare /> {discussionOpen ? "Hide comments" : "Add or view comments"}
+    </Button>
+    {discussionOpen && <section className="rounded-lg border bg-card p-4">
+      <h3 className="mb-3 text-sm font-semibold">Submission comments</h3>
+      <CommentThread projectId={projectId} submissionId={s.id} />
+    </section>}
   </li>;
 }

@@ -22,15 +22,16 @@ test('logout clears the cookie after an already-started session POST finishes', 
   assert.deepEqual(calls, ['POST', 'DELETE']);
 });
 
-test('a stale token lookup cannot mint a session after logout starts', async () => {
+test('logout clears the cookie while a stale token lookup is pending', { timeout: 1000 }, async () => {
   const started = deferred(), finish = deferred(), calls = []; let uid = 'student';
   const sessions = createSessionSynchronizer(async (_, options) => { calls.push(options.method); return Response.json({}); }, () => uid);
   const refresh = sessions.sync({ uid, getIdTokenResult: async () => { started.resolve(); return finish.promise; } });
   await started.promise;
   sessions.invalidate(); uid = null;
   const logout = sessions.clear();
+  await logout;
   finish.resolve({ token: 'old-token', claims: { role: 'student' } });
-  await refresh; await logout;
+  await refresh;
   assert.deepEqual(calls, ['DELETE']);
 });
 

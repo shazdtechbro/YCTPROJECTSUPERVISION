@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const hadUser = previouslySignedIn.current;
       previouslySignedIn.current = !!nextUser;
       const revision = ++authRevision.current;
-      if (loggingOut.current && nextUser) return;
+      if (loggingOut.current) return;
       setUser(nextUser);
       try {
         if (nextUser) {
@@ -246,13 +246,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loggingOut.current = true;
     authRevision.current += 1;
     sessionSynchronizer.invalidate();
-    try {
-      await signOut(getFirebaseAuth());
-    } finally {
-      setUser(null);
-      setClaims({ role: null, department: null });
-      await sessionSynchronizer.clear();
-    }
+    const [client, server] = await Promise.allSettled([
+      Promise.resolve().then(() => signOut(getFirebaseAuth())),
+      sessionSynchronizer.clear(),
+    ]);
+    setUser(null);
+    setClaims({ role: null, department: null });
+    if (server.status === "rejected") throw server.reason;
+    if (client.status === "rejected") throw client.reason;
   }, []);
 
   const value = useMemo<AuthContextValue>(
