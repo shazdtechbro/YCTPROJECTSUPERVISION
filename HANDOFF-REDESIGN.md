@@ -9,12 +9,15 @@ Front-end only. No routes, API routes, Firestore schema, auth, storage, mileston
 4. **Shared**: `components/app/motion.tsx` (Reveal, Stagger, CountUp, PageTransition, reduced-motion aware), `components/app/stats.tsx` (StatCard, ProgressRing, ProgressBar, Initials, SectionCard), `components/app/stage-timeline.tsx` (review journey derived from real submissions + "next step").
 5. **Student dashboard** and **project workspace** (`project-tabs.tsx`), submissions with Approve / Request changes / Mark as pending buttons (same API), tickets, feedback, comments, dialogs, skeletons.
 
-## Remaining (in order)
-- Supervisor dashboard / projects / roster (tables to cards on phones, remove "(read from dashboard_stats)").
-- HOD dashboard, projects (filter chips, grid/list), supervisors, drill-down, reports; Recharts `type="monotone"`.
-- Auth layout + login/signup split screen.
-- Landing page per design reference.
-- `npx tsc --noEmit`, `npm run lint`, `npm run build`, then `vercel` preview deploy.
+6. **Supervisor** dashboard (stat cards, filtered queue, health donut), projects + roster (`components/app/project-list.tsx`: cards, table on desktop / stacked rows on phones).
+7. **HOD** overview (monotone Recharts line chart, needs attention, workload bars, "No replies yet"), projects (filter chips + grid/list toggle), supervisors cards, drill-down, reports.
+8. **Auth** split screen (`app/(auth)/layout.tsx`) and **landing** (`app/page.tsx`, `components/app/hero-art.tsx`).
+
+## Remaining
+- Run `npm run lint` and `npm run build` (only `tsc --noEmit` was run; it passes).
+- Visual QA at 360 / 768 / 1024 / 1440 in a browser (not done yet), before/after screenshots.
+- Optional: `app/not-found.tsx` using `NotFoundIllustration`; Lighthouse pass.
+- Deploy a Vercel preview (`vercel` CLI) once build passes.
 
 ## Notes
 - Repo has **no tests** (no Node test runner or Playwright files), so verification is typecheck/lint/build.
