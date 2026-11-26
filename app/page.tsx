@@ -64,8 +64,7 @@ export default async function LandingPage() {
       {/* Hero */}
       <section className="mx-auto grid max-w-[1240px] items-center gap-12 px-4 pb-10 pt-10 md:pt-20 lg:grid-cols-[1.05fr_1fr]">
         <Reveal>
-          <span className="chip border border-brand-100 bg-brand-50 text-brand-800"><span className="h-2 w-2 animate-pulse-dot rounded-full bg-sun-400" />YABATECH HND · Final-year projects</span>
-          <h1 className="mt-5 font-display text-[40px] font-extrabold leading-[1] tracking-[-0.035em] sm:text-[60px] lg:text-[72px]">
+          <h1 className="font-display text-[40px] font-extrabold leading-[1] tracking-[-0.035em] sm:text-[60px] lg:text-[72px]">
             Final-year projects, <span className="hl">supervised</span> without the chaos.
           </h1>
           <p className="mt-6 max-w-[520px] text-[17px] leading-relaxed text-ink-2 md:text-[18px]">
