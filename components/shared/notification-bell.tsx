@@ -9,7 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { EmptyNoNotifications } from "@/components/illustrations";
 import {
   subscribeNotifications,
   markNotificationsRead,
@@ -56,40 +56,35 @@ export function NotificationBell() {
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
+        <button
+          className="relative grid h-11 w-11 place-items-center rounded-xl border border-line bg-white hover:border-ink-3 md:h-10 md:w-10"
           aria-label={`Notifications${unread.length ? `, ${unread.length} unread` : ""}`}
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-5 w-5" strokeWidth={1.75} />
           {unread.length > 0 && (
-            <span className="absolute right-1.5 top-1.5 flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            </span>
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-stalled ring-2 ring-white" />
           )}
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[22rem] p-0">
-        <div className="flex items-center justify-between border-b px-3 py-2">
-          <span className="text-sm font-medium">Notifications</span>
+      <DropdownMenuContent align="end" className="w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl p-0">
+        <div className="flex items-center justify-between border-b border-line px-4 py-3">
+          <span className="font-display text-base font-bold">Notifications</span>
           {unread.length > 0 && (
-            <span className="text-2xs text-muted-foreground">
+            <span className="chip bg-sun-100 text-ink">
               {unread.length} new
             </span>
           )}
         </div>
         {items.length === 0 ? (
           <div className="px-3 py-10 text-center">
-            <Bell className="mx-auto h-5 w-5 text-muted-foreground" />
-            <p className="mt-2 text-sm font-medium">Nothing new right now</p>
-            <p className="text-xs text-muted-foreground">
+            <EmptyNoNotifications />
+            <p className="mt-2 font-semibold">You are all caught up</p>
+            <p className="text-sm text-ink-3">
               Tickets, submissions and comments on your projects land here.
             </p>
           </div>
         ) : (
-          <ul className="max-h-[24rem] divide-y overflow-y-auto scrollbar-thin">
+          <ul className="max-h-[24rem] divide-y divide-line overflow-y-auto scrollbar-thin">
             {items.map((n) => {
               const Icon = ICON[n.kind] ?? Bell;
               return (
@@ -98,19 +93,19 @@ export function NotificationBell() {
                     href={n.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex gap-2.5 px-3 py-2.5 text-sm hover:bg-accent",
-                      !n.read && "bg-primary/[0.03]"
+                      "flex min-h-[56px] gap-3 px-4 py-3 text-sm hover:bg-cream",
+                      !n.read && "bg-brand-50/60"
                     )}
                   >
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-cream-2"><Icon className="h-4 w-4 text-ink-2" /></span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">{n.title}</span>
-                      <span className="text-2xs text-muted-foreground">
+                      <span className="text-xs text-ink-3">
                         {formatRelativeTime(n.createdAt)}
                       </span>
                     </span>
                     {!n.read && (
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-stalled" />
                     )}
                   </Link>
                 </li>

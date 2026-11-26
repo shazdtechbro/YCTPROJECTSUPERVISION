@@ -2,139 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
- * Design language — minimalist neo-brutalism. Pure black & white, 2px black
- * borders, hard offset shadows (no blur), flat fills, bold type. The three
- * status colours (green / amber / red) are the only hues, used as flat chips.
- */
+/* YABATECH design system: green #006600 + yellow #FDC800 on warm cream. */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --surface: 0 0% 97%;
-    --foreground: 0 0% 0%;
-
+    --background: 44 60% 96%; /* cream #FBF8F0 */
+    --surface: 42 41% 92%; /* cream-2 #F4EFE3 */
+    --foreground: 120 13% 8%; /* ink */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 120 13% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-
-    --primary: 0 0% 0%;
+    --popover-foreground: 120 13% 8%;
+    --primary: 120 100% 20%; /* green-700 */
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 35%;
-    --accent: 0 0% 90%;
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 84% 55%;
+    --secondary: 42 41% 92%;
+    --secondary-foreground: 120 13% 8%;
+    --muted: 42 41% 92%;
+    --muted-foreground: 108 4% 43%;
+    --accent: 42 41% 92%;
+    --accent-foreground: 120 13% 8%;
+    --destructive: 4 66% 47%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 0%;
-    --input: 0 0% 0%;
-    --ring: 0 0% 0%;
-
-    --radius: 0.4rem;
-
-    --status-on-track: 145 63% 42%;
-    --status-behind: 40 96% 50%;
-    --status-stalled: 0 84% 55%;
-
-    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  }
-
-  :root.dark {
-    --background: 0 0% 7%;
-    --surface: 0 0% 11%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 16%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 0%;
-
-    --border: 0 0% 100%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 100%;
-
-    --status-on-track: 145 55% 50%;
-    --status-behind: 40 96% 55%;
-    --status-stalled: 0 84% 62%;
+    --border: 43 28% 87%; /* line */
+    --input: 43 28% 87%;
+    --ring: 140 64% 25%;
+    --radius: 12px;
+    --status-on-track: 120 100% 20%;
+    --status-behind: 36 100% 33%;
+    --status-stalled: 4 66% 47%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  html {
-    font-feature-settings: "cv11", "ss01";
-  }
+  * { @apply border-border; }
+  html { -webkit-tap-highlight-color: transparent; }
   body {
     @apply bg-background text-foreground antialiased;
-    text-rendering: optimizeLegibility;
+    font-size: 15px;
   }
-  h1,
-  h2,
-  h3 {
-    letter-spacing: -0.02em;
-  }
-  .tnum {
-    font-variant-numeric: tabular-nums;
-  }
-  ::selection {
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
-  }
+  h1, h2, h3 { font-family: var(--font-display), var(--font-sans), sans-serif; letter-spacing: -0.03em; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  ::selection { background: #fdc800; color: #111611; }
+  :focus-visible { outline: 2px solid #0e7a3a; outline-offset: 2px; }
+  /* 16px inputs stop iOS from zooming on focus */
+  input, select, textarea { font-size: 16px; }
+  @media (min-width: 768px) { input, select, textarea { font-size: 15px; } }
 }
 
 @layer components {
-  /* Hard offset shadow — the signature neo-brutalist move. */
-  .shadow-brutal {
-    box-shadow: 3px 3px 0 0 hsl(var(--foreground));
+  .grain::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: .03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .shadow-brutal-sm {
-    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
-  }
-  .shadow-brutal-lg {
-    box-shadow: 5px 5px 0 0 hsl(var(--foreground));
-  }
-  /* Pressable: shadow collapses and the element nudges into it. */
-  .press {
-    transition:
-      transform 80ms ease,
-      box-shadow 80ms ease;
-  }
-  .press:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 0 hsl(var(--foreground));
-  }
+  .hl { background: #fdc800; border-radius: 999px; padding: 0 .28em; display: inline-block; transform: rotate(-2deg); }
+  .chip { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold; }
+  .press { transition: transform 160ms cubic-bezier(.22,1,.36,1); }
+  .press:active { transform: scale(.98); }
+  .lift { transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1); }
+  .lift:hover { transform: translateY(-2px); box-shadow: 0 24px 60px -20px rgba(8,54,26,.25); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
 @layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-  }
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #e7e2d5 transparent; }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }

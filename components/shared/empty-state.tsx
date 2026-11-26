@@ -1,37 +1,27 @@
 import type { LucideIcon } from "lucide-react";
-import { Inbox } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { EmptyNoSubmissions } from "@/components/illustrations";
 
-/** Real empty-state copy — never a bare "no data". */
+/** Designed empty state: illustration, a human title, and what happens next. */
 export function EmptyState({
-  icon: Icon = Inbox,
-  title,
-  description,
-  action,
-  className,
+  icon: Icon, art, title, description, action, className,
 }: {
   icon?: LucideIcon;
+  art?: React.ReactNode;
   title: string;
   description: string;
   action?: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex min-h-[240px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-surface p-10 text-center",
-        className
-      )}
-    >
-      <div className="mb-3 flex h-9 w-9 items-center justify-center border-2 border-border bg-background text-foreground shadow-brutal-sm">
-        <Icon className="h-4 w-4" />
-      </div>
-      <h3 className="text-sm font-black uppercase tracking-wide">{title}</h3>
-      <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-        {description}
-      </p>
-      {action && <div className="mt-4">{action}</div>}
+    <div className={cn("flex min-h-[220px] flex-col items-center justify-center rounded-[20px] border border-dashed border-line bg-white/60 p-6 text-center md:p-10", className)}>
+      {art ?? (Icon ? (
+        <span className="mb-1 grid h-14 w-14 place-items-center rounded-2xl bg-sun-100 text-ink"><Icon className="h-6 w-6" strokeWidth={1.75} /></span>
+      ) : <EmptyNoSubmissions />)}
+      <h3 className="mt-3 font-display text-lg font-bold">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-ink-2">{description}</p>
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
