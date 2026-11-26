@@ -14,22 +14,10 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Initials } from "@/components/app/stats";
 import { PageTransition } from "@/components/app/motion";
+import { Crest } from "@/components/app/crest";
 import { NotificationBell } from "./notification-bell";
 import { CommandMenu } from "./command-menu";
 
-export function Crest({ compact }: { compact?: boolean }) {
-  return (
-    <span className="flex items-center gap-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-700 font-display text-base font-extrabold text-sun-400">Y</span>
-      {!compact && (
-        <span className="leading-tight">
-          <span className="block font-display text-[15px] font-extrabold">YABATECH</span>
-          <span className="block text-xs text-ink-3">Project Supervision</span>
-        </span>
-      )}
-    </span>
-  );
-}
 
 const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
 

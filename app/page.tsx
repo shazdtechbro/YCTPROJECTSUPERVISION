@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 import { getSessionUser, homePathForRole } from "@/lib/auth/session";
-import { Crest } from "@/components/shared/app-shell";
+import { Crest } from "@/components/app/crest";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/app/motion";
 import { HeroArt } from "@/components/app/hero-art";
 import { DefenseDayIllustration, RoleHod, RoleStudent, RoleSupervisor } from "@/components/illustrations";

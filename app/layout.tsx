@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth/auth-context";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -36,10 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jakarta.variable} ${mono.variable} grain font-sans antialiased`}>
         <ThemeProvider>
-          <AuthProvider>
-            {children}
-            <Toaster closeButton position="top-center" />
-          </AuthProvider>
+          {children}
+          <Toaster closeButton position="top-center" />
         </ThemeProvider>
       </body>
     </html>

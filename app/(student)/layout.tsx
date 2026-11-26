@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/session";
 import { AppShell } from "@/components/shared/app-shell";
+import { AuthProvider } from "@/lib/auth/auth-context";
 
 export default async function StudentLayout({
   children,
@@ -7,5 +8,9 @@ export default async function StudentLayout({
   children: React.ReactNode;
 }) {
   const user = await requireRole("student");
-  return <AppShell user={user}>{children}</AppShell>;
+  return (
+    <AuthProvider>
+      <AppShell user={user}>{children}</AppShell>
+    </AuthProvider>
+  );
 }

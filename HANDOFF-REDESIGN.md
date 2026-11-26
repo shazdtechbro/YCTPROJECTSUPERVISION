@@ -16,7 +16,7 @@ Front-end only. No routes, API routes, Firestore schema, auth, storage, mileston
 ## Remaining
 - Lint and production build pass (checked).
 - Landing, login checked at 375px and 1440px. Signed-in screens (dashboards, workspace) still need a visual check by someone who can sign in.
-- 404 page added. Lighthouse pass not run. Landing first-load JS is ~400kB because AuthProvider (Firebase) loads in the root layout; moving it into the authenticated layouts would speed up the landing page.
+- 404 page added. Lighthouse pass not run. AuthProvider moved from the root layout into the (auth) and role layouts, so the landing page no longer loads Firebase (first-load JS 401kB to 173kB). Please sanity-check sign in, sign up and sign out once.
 - Deploy a Vercel preview (`vercel` CLI) once build passes.
 
 ## Notes

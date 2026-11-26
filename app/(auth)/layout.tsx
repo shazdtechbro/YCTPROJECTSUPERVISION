@@ -1,14 +1,15 @@
 import Link from "next/link";
 
+import { AuthProvider } from "@/lib/auth/auth-context";
 import { AuthPanelIllustration } from "@/components/illustrations";
-import { Crest } from "@/components/shared/app-shell";
+import { Crest } from "@/components/app/crest";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-[100dvh] lg:grid-cols-2">
       <div className="flex flex-col px-5 py-6 sm:px-12 sm:py-8">
         <Link href="/" className="w-fit"><Crest /></Link>
-        <main className="mx-auto my-auto w-full max-w-[420px] py-10">{children}</main>
+        <main className="mx-auto my-auto w-full max-w-[420px] py-10"><AuthProvider>{children}</AuthProvider></main>
         <p className="text-xs text-ink-3">Yaba College of Technology · HND Digital Project Supervision</p>
       </div>
       <div className="relative hidden overflow-hidden bg-brand-900 p-8 lg:flex lg:flex-col">
