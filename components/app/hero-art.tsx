@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 
 import Image from "next/image";
-import hero from "@/public/redesign/hero-illustration.png";
+import hero from "@/public/redesign/hero-illustration.webp";
 import { EASE } from "./motion";
 
 /** Landing hero illustration with subtle scroll motion. */
@@ -24,7 +24,7 @@ export function HeroArt() {
       transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
     >
       <motion.div style={{ scale, y }} className="overflow-hidden rounded-[32px] shadow-float">
-        <Image src={hero} alt="" priority sizes="(min-width: 1024px) 50vw, 100vw" className="h-auto w-full" />
+        <Image src={hero} alt="" priority unoptimized className="h-auto w-full" />
       </motion.div>
     </motion.div>
   );

@@ -9,10 +9,10 @@ import { getSessionUser, homePathForRole } from "@/lib/auth/session";
 import { Crest } from "@/components/app/crest";
 import { CountUp, Reveal, Stagger, StaggerItem } from "@/components/app/motion";
 import { HeroArt } from "@/components/app/hero-art";
-import defenseDay from "@/public/redesign/defense-day.png";
-import roleHod from "@/public/redesign/role-hod.png";
-import roleStudent from "@/public/redesign/role-student.png";
-import roleSupervisor from "@/public/redesign/role-supervisor.png";
+import defenseDay from "@/public/redesign/defense-day.webp";
+import roleHod from "@/public/redesign/role-hod.webp";
+import roleStudent from "@/public/redesign/role-student.webp";
+import roleSupervisor from "@/public/redesign/role-supervisor.webp";
 
 const ROLES = [
   { art: roleStudent, who: "Students", head: "Always know what is next.", points: ["Live project health and progress", "Upload work and see every version", "Ask questions and track project activity"] },
@@ -145,7 +145,7 @@ export default async function LandingPage() {
           {ROLES.map(({ art, who, head, points }) => (
             <StaggerItem key={who}>
               <div className="lift h-full rounded-[24px] border border-line bg-card p-3 shadow-card">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[18px]"><Image src={art} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" /></div>
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[18px]"><Image src={art} alt="" fill unoptimized className="object-cover" /></div>
                 <div className="p-4">
                   <div className="text-[13px] font-semibold text-brand-700">{who}</div>
                   <h3 className="mt-1 font-display text-[22px] font-bold">{head}</h3>
@@ -213,7 +213,7 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-[1240px] px-4 pb-16 md:pb-20">
         <Reveal>
           <div className="relative overflow-hidden rounded-[32px] bg-sun-400">
-            <Image src={defenseDay} alt="" sizes="(min-width: 768px) 55vw, 100vw" className="h-auto w-full md:min-h-[340px] md:object-cover" />
+            <Image src={defenseDay} alt="" unoptimized className="h-auto w-full md:min-h-[340px] md:object-cover" />
             <div className="relative -mt-6 p-4 md:absolute md:bottom-10 md:left-10 md:mt-0 md:p-0">
               <div className="max-w-[460px] rounded-2xl bg-card/95 p-6 shadow-float backdrop-blur">
                 <h3 className="font-display text-[24px] font-extrabold leading-tight md:text-[28px]">Walk into defence day already knowing you are ready.</h3>
