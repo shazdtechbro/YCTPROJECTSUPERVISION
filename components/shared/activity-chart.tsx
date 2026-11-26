@@ -1,88 +1,45 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { ActivityPointDoc } from "@/lib/types";
 
-/** Supervision activity over time. Feed it `getDepartmentActivity()` output. */
+const SERIES = [
+  { key: "submissions", name: "Submissions", color: "#006600" },
+  { key: "comments", name: "Comments", color: "#E6B400" },
+  { key: "tickets", name: "Tickets", color: "#4E8FBF" },
+] as const;
+
+/** Supervision activity over time. Monotone lines, axis floored at zero. */
 export function ActivityChart({ data }: { data: ActivityPointDoc[] }) {
   const rows = data.map((d) => ({
     ...d,
-    label: d.day.slice(5), // mm-dd
+    label: new Date(`${d.day}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
   }));
-
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
-          <defs>
-            <linearGradient id="gSub" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(var(--border))"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="label"
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            tickLine={false}
-            axisLine={false}
-            minTickGap={24}
-          />
-          <YAxis
-            allowDecimals={false}
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-            tickLine={false}
-            axisLine={false}
-            width={32}
-          />
-          <Tooltip
-            contentStyle={{
-              background: "hsl(var(--popover))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-            labelStyle={{ color: "hsl(var(--muted-foreground))" }}
-          />
-          <Area
-            type="monotone"
-            dataKey="submissions"
-            name="Submissions"
-            stroke="hsl(var(--primary))"
-            fill="url(#gSub)"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="comments"
-            name="Comments"
-            stroke="hsl(var(--status-on-track))"
-            fill="transparent"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="tickets"
-            name="Tickets"
-            stroke="hsl(var(--status-behind))"
-            fill="transparent"
-            strokeWidth={2}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+    <div>
+      <div className="mb-3 flex flex-wrap gap-4 text-xs font-semibold">
+        {SERIES.map((s) => (
+          <span key={s.key} className="flex items-center gap-1.5"><span className="h-1 w-3 rounded" style={{ background: s.color }} />{s.name}</span>
+        ))}
+      </div>
+      <div className="h-60 w-full md:h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
+            <CartesianGrid stroke="#E7E2D5" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#6B7269" }} tickLine={false} axisLine={false} minTickGap={28} />
+            <YAxis allowDecimals={false} domain={[0, "auto"]} tick={{ fontSize: 12, fill: "#6B7269" }} tickLine={false} axisLine={false} width={36} />
+            <Tooltip
+              contentStyle={{ background: "#fff", border: "1px solid #E7E2D5", borderRadius: 12, fontSize: 13, boxShadow: "0 8px 24px -12px rgba(17,22,17,.2)" }}
+              labelStyle={{ color: "#4A5149", fontWeight: 600 }}
+            />
+            {SERIES.map((s) => (
+              <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2.5} dot={false}
+                activeDot={{ r: 4 }} animationDuration={1600} animationEasing="ease-out" />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
