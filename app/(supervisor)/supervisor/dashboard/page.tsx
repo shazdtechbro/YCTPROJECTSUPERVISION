@@ -38,7 +38,7 @@ export default function SupervisorDashboard() {
       <PageHeader
         title={`${greeting()}${first ? `, ${first}` : ""}`}
         description={stats.data ? (pending ? `You have ${pending} submission${pending === 1 ? "" : "s"} waiting for review.` : "No submissions are waiting for you.") : "Everything you supervise, at a glance."}
-        actions={<><Button asChild variant="outline"><Link href="/supervisor/roster"><Users /> Roster</Link></Button><NewProjectDialog onCreated={stats.retry} /></>}
+        actions={<><Button asChild variant="outline"><Link href="/supervisor/roster"><Users /> Students</Link></Button><NewProjectDialog onCreated={stats.retry} /></>}
       />
 
       <QueryState
@@ -90,7 +90,7 @@ function Queue({ uid }: { uid: string }) {
         <div role="tablist" aria-label="Filter queue" className="no-scrollbar -mx-1 mb-4 flex gap-1 overflow-x-auto rounded-full bg-cream-2 p-1">
           {SEGMENTS.map((s) => (
             <button key={s.key} role="tab" aria-selected={seg === s.key} onClick={() => setSeg(s.key)}
-              className={cn("min-h-[40px] flex-1 whitespace-nowrap rounded-full px-3 text-[13px] font-semibold transition", seg === s.key ? "bg-white text-ink shadow-card" : "text-ink-2")}>
+              className={cn("min-h-[40px] flex-1 whitespace-nowrap rounded-full px-3 text-[13px] font-semibold transition", seg === s.key ? "bg-card text-ink shadow-card" : "text-ink-2")}>
               {s.label}
             </button>
           ))}

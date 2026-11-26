@@ -57,7 +57,7 @@ export function NotificationBell() {
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative grid h-11 w-11 place-items-center rounded-xl border border-line bg-white hover:border-ink-3 md:h-10 md:w-10"
+          className="relative grid h-11 w-11 place-items-center rounded-xl border border-line bg-card hover:border-ink-3 md:h-10 md:w-10"
           aria-label={`Notifications${unread.length ? `, ${unread.length} unread` : ""}`}
         >
           <Bell className="h-5 w-5" strokeWidth={1.75} />

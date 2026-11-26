@@ -144,7 +144,7 @@ export function CommentThread({
       </div>
 
       <form
-        className="sticky bottom-[76px] mt-4 flex items-end gap-2 border-t border-line bg-white pt-4 lg:bottom-0"
+        className="sticky bottom-[76px] mt-4 flex items-end gap-2 border-t border-line bg-card pt-4 lg:bottom-0"
         onSubmit={(e) => {
           e.preventDefault();
           void send();

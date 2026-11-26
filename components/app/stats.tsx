@@ -11,10 +11,10 @@ export function StatCard({
   label, value, icon: Icon, sub, dark, suffix,
 }: { label: string; value: number | string; icon: LucideIcon; sub?: string; dark?: boolean; suffix?: string }) {
   return (
-    <div className={cn("rounded-[20px] p-4 shadow-card md:p-5", dark ? "bg-brand-900 text-white" : "border border-line bg-white")}>
+    <div className={cn("rounded-[20px] p-4 shadow-card md:p-5", dark ? "bg-brand-900 text-white" : "border border-line bg-card")}>
       <div className="flex items-start justify-between gap-2">
         <span className={cn("text-[13px] font-medium leading-snug", dark ? "text-white/75" : "text-ink-2")}>{label}</span>
-        <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", dark ? "bg-white/10 text-sun-400" : "bg-cream-2 text-ink-2")}>
+        <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", dark ? "bg-card/10 text-sun-400" : "bg-cream-2 text-ink-2")}>
           <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </span>
       </div>
@@ -88,7 +88,7 @@ export function Initials({ name, size = "md", className }: { name: string; size?
 
 export function SectionCard({ title, action, children, className }: { title?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-[20px] border border-line bg-white p-4 shadow-card md:p-6", className)}>
+    <section className={cn("rounded-[20px] border border-line bg-card p-4 shadow-card md:p-6", className)}>
       {(title || action) && (
         <div className="mb-4 flex items-center justify-between gap-3">
           {title && <h2 className="font-display text-lg font-bold">{title}</h2>}

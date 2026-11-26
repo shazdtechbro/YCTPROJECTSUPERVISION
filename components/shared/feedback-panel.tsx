@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EmptyNoNotifications } from "@/components/illustrations";
+import { MessagesSquare } from "lucide-react";
 
 import { getSubmissionsPage } from "@/lib/firestore";
 import { useAsyncData } from "@/hooks/use-async-data";
 import { QueryState } from "./query-state";
 import { EmptyState } from "./empty-state";
+import { ReviewFeedback } from "./review-feedback";
+import { Button } from "@/components/ui/button";
 import { CommentThread } from "./comment-thread";
 import {
   Select,
@@ -21,8 +23,14 @@ import type { SubmissionDoc } from "@/lib/types";
 /** Pick a submission, read/continue its comment thread. Shared student/supervisor. */
 export function FeedbackPanel({ projectId }: { projectId: string }) {
   const subs = useAsyncData<SubmissionDoc[]>(async () => {
-    const page = await getSubmissionsPage(projectId, { pageSize: 50 });
-    return page.items;
+    const items: SubmissionDoc[] = [];
+    let page = await getSubmissionsPage(projectId, { pageSize: 50 });
+    items.push(...page.items);
+    while (page.hasMore) {
+      page = await getSubmissionsPage(projectId, { pageSize: 50, cursor: page.cursor });
+      items.push(...page.items);
+    }
+    return items;
   }, [projectId]);
 
   const [selected, setSelected] = useState<string>("");
@@ -35,7 +43,7 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
 
   return (
     <QueryState
-      phase={subs.phase}
+      phase={subs.phase === "ready" && !subs.data?.length ? "empty" : subs.phase}
       error={subs.error}
       onRetry={subs.retry}
       skeleton={
@@ -46,15 +54,16 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
       }
       empty={
         <EmptyState
-          art={<EmptyNoNotifications />}
+          icon={MessagesSquare}
           title="No submissions to discuss"
-          description="A feedback thread opens for every uploaded file."
+          description="Feedback threads open up once a submission is uploaded."
         />
       }
     >
       <div className="space-y-4">
+        <Button size="sm" variant="outline" onClick={subs.retry}>Refresh feedback</Button>
         <Select value={selected} onValueChange={setSelected}>
-          <SelectTrigger className="w-full sm:w-96" aria-label="Choose a submission">
+          <SelectTrigger className="w-full sm:w-80">
             <SelectValue placeholder="Choose a submission" />
           </SelectTrigger>
           <SelectContent>
@@ -66,7 +75,9 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
           </SelectContent>
         </Select>
         {selected && (
-          <div className="rounded-[20px] border border-line bg-white p-4 shadow-card md:p-6">
+          <div className="rounded-lg border p-4">
+            {subs.data?.find(s => s.id === selected) && <ReviewFeedback submission={subs.data.find(s => s.id === selected)!} />}
+            <h3 className="mb-3 mt-4 text-sm font-medium">Discussion</h3>
             <CommentThread
               key={selected}
               projectId={projectId}

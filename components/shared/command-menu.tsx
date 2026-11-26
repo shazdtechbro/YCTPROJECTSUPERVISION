@@ -56,7 +56,7 @@ export function CommandMenu({ open, onOpenChange, role }: { open: boolean; onOpe
                 onSelect={async () => {
                   onOpenChange(false);
                   await signOutUser();
-                  router.replace("/login");
+                  window.location.replace("/");
                 }}
                 className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl px-3 text-[15px] data-[selected=true]:bg-[#FDECEA] data-[selected=true]:text-stalled"
               >

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogOut, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -42,14 +41,14 @@ export function UserMenu({
 }) {
   const { user, signOutUser } = useAuth();
   const { theme, setTheme } = useTheme();
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function signOut() {
     setBusy(true);
     try {
       await signOutUser();
-      router.replace("/login");
+      // A full navigation drops cached authenticated Next.js page payloads.
+      window.location.replace("/");
     } catch (err) {
       toast.error("Couldn't sign out", { description: (err as Error).message });
       setBusy(false);

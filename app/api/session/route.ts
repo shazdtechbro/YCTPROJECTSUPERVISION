@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { getAdminAuth } from "@/lib/firebase-admin";
+import { getAdminAuth, getAdminDb } from "@/lib/firebase-admin";
+import type { Role } from "@/lib/types";
 import { SESSION_COOKIE, SESSION_MAX_AGE_MS } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
@@ -22,19 +23,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const decoded = await getAdminAuth().verifyIdToken(idToken, true);
-    // Require provisioned custom claims before a session is granted.
-    if (!decoded.role || !decoded.department) {
+    const role = decoded.role as Role | undefined;
+    if (!role || !["student", "supervisor", "hod"].includes(role) || !decoded.department) {
       return NextResponse.json(
         { error: "Account is not provisioned with a role yet." },
         { status: 403 }
       );
     }
-
+    const profile = await getAdminDb().doc(`users/${decoded.uid}`).get();
+    if (!profile.exists || profile.get("role") !== role || profile.get("department") !== decoded.department) {
+      return NextResponse.json({ error: "Account access is not configured. Contact your department." }, { status: 403 });
+    }
     const sessionCookie = await getAdminAuth().createSessionCookie(idToken, {
       expiresIn: SESSION_MAX_AGE_MS,
     });
 
-    const res = NextResponse.json({ status: "ok" });
+    const res = NextResponse.json({ status: "ok" }, { headers: { "Cache-Control": "no-store" } });
     res.cookies.set(SESSION_COOKIE, sessionCookie, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -49,8 +53,9 @@ export async function POST(req: NextRequest) {
 }
 
 /** DELETE -> clears the session cookie (sign-out). */
-export async function DELETE() {
-  const res = NextResponse.json({ status: "ok" });
+export async function DELETE(req: NextRequest) {
+  const hadSession = Boolean(req.cookies.get(SESSION_COOKIE)?.value);
+  const res = NextResponse.json({ status: "ok", hadSession }, { headers: { "Cache-Control": "no-store" } });
   res.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

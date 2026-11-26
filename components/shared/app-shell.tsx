@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LogOut, Menu, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,14 +16,15 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Initials } from "@/components/app/stats";
 import { PageTransition } from "@/components/app/motion";
 import { NotificationBell } from "./notification-bell";
+import { UserMenu } from "./user-menu";
 import { CommandMenu } from "./command-menu";
 
 export function Crest({ compact }: { compact?: boolean }) {
   return (
     <span className="flex items-center gap-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-700 font-display text-base font-extrabold text-sun-400">Y</span>
+      <Image src="/yabatech-logo.png" alt="YABATECH Project Supervision" width={168} height={50} unoptimized className="h-7 w-auto shrink-0 rounded-sm object-contain sm:h-8" />
       {!compact && (
-        <span className="leading-tight">
+        <span aria-hidden="true" className="hidden leading-tight sm:block">
           <span className="block font-display text-[15px] font-extrabold">YABATECH</span>
           <span className="block text-xs text-ink-3">Project Supervision</span>
         </span>
@@ -35,7 +37,6 @@ const isActive = (pathname: string, href: string) => pathname === href || pathna
 
 function useSignOut() {
   const { signOutUser } = useAuth();
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   return {
     busy,
@@ -43,7 +44,7 @@ function useSignOut() {
       setBusy(true);
       try {
         await signOutUser();
-        router.replace("/login");
+        window.location.replace("/");
       } catch (err) {
         toast.error("Couldn't sign out", { description: (err as Error).message });
         setBusy(false);
@@ -55,12 +56,12 @@ function useSignOut() {
 function SidebarBody({ user, onNavigate }: { user: SessionUser; onNavigate?: () => void }) {
   const pathname = usePathname();
   const { signOut, busy } = useSignOut();
-  const name = user.name ?? user.email ?? "Account";
+  const name = user.name ?? (user.role === "student" ? null : user.email) ?? "Account";
   return (
     <div className="flex h-full flex-col p-4">
       <Link href={NAV_BY_ROLE[user.role][0].href} onClick={onNavigate} className="px-2"><Crest /></Link>
 
-      <div className="mt-5 rounded-xl border border-line bg-white px-3 py-2.5">
+      <div className="mt-5 rounded-xl border border-line bg-card px-3 py-2.5">
         <span className="block text-xs text-ink-3">Department</span>
         <span className="block truncate text-[13px] font-semibold">{user.department} · HND</span>
       </div>
@@ -152,7 +153,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
 
   return (
     <div className="flex min-h-[100dvh]">
-      <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 border-r border-line bg-white/70 backdrop-blur lg:block">
+      <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 border-r border-line bg-card/70 backdrop-blur lg:block">
         <SidebarBody user={user} />
       </aside>
 
@@ -188,7 +189,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
 
             <button
               onClick={() => setCmdOpen(true)}
-              className="ml-auto hidden h-10 w-[300px] items-center gap-2 rounded-xl border border-line bg-white px-3 text-sm text-ink-3 hover:border-ink-3 md:flex"
+              className="ml-auto hidden h-10 w-[300px] items-center gap-2 rounded-xl border border-line bg-card px-3 text-sm text-ink-3 hover:border-ink-3 md:flex"
             >
               <Search className="h-4 w-4" /> Search pages and actions
               <kbd className="ml-auto rounded border border-line px-1.5 py-0.5 font-mono text-xs">⌘K</kbd>
@@ -197,6 +198,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
               <Search className="h-5 w-5" />
             </button>
             <NotificationBell />
+            <UserMenu name={user.name} email={user.role === "student" ? "" : user.email} role={user.role} />
           </div>
         </header>
 
@@ -205,7 +207,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
         </main>
       </div>
 
-      <nav aria-label="Primary" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur lg:hidden">
+      <nav aria-label="Primary" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur lg:hidden">
         <div className="grid" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
           {tabs.map((t) => {
             const active = isActive(pathname, t.href);

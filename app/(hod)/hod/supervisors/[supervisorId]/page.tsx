@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AlertTriangle, Clock, FileClock, FolderKanban } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";

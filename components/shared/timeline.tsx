@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, GitCommitHorizontal, MessageSquare, Ticket } from "lucide-react";
+import { CalendarClock, ClipboardCheck, GraduationCap, FileText, GitCommitHorizontal, MessageSquare, Ticket } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import type { ActivityEvent } from "@/lib/types";
@@ -10,6 +10,9 @@ const ICONS: Record<ActivityEvent["kind"], { Icon: LucideIcon; cls: string }> = 
   ticket: { Icon: Ticket, cls: "bg-brand-50 text-brand-700" },
   submission: { Icon: FileText, cls: "bg-sun-100 text-ink" },
   comment: { Icon: MessageSquare, cls: "bg-[#E6F1FA] text-[#1D5A86]" },
+  review: { Icon: ClipboardCheck, cls: "bg-brand-50 text-brand-700" },
+  topic: { Icon: GraduationCap, cls: "bg-cream-2 text-ink-2" },
+  extension: { Icon: CalendarClock, cls: "bg-sun-100 text-ink" },
   status_change: { Icon: GitCommitHorizontal, cls: "bg-cream-2 text-ink-2" },
 };
 

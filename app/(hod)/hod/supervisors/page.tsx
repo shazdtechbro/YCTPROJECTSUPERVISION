@@ -33,7 +33,7 @@ export default function HodSupervisors() {
         <Stagger className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {(rollups.data ?? []).slice().sort((a, b) => b.overdueCount - a.overdueCount).map((r) => (
             <StaggerItem key={r.id}>
-              <Link href={`/hod/supervisors/${r.supervisorId}`} className="lift block h-full rounded-[20px] border border-line bg-white p-5 shadow-card">
+              <Link href={`/hod/supervisors/${r.supervisorId}`} className="lift block h-full rounded-[20px] border border-line bg-card p-5 shadow-card">
                 <div className="flex items-center gap-3">
                   <Initials name={r.supervisorName} size="lg" />
                   <div className="min-w-0 flex-1"><div className="truncate font-semibold">{r.supervisorName}</div><div className="text-xs text-ink-3">Supervisor · {r.department}</div></div>

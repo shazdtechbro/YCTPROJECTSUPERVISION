@@ -5,6 +5,9 @@
 /* YABATECH design system: green #006600 + yellow #FDC800 on warm cream. */
 @layer base {
   :root {
+    --ink: 120 13% 8%;
+    --ink-soft: 111 5% 30%;
+    --ink-muted: 107 4% 43%;
     --background: 44 60% 96%; /* cream #FBF8F0 */
     --surface: 42 41% 92%; /* cream-2 #F4EFE3 */
     --foreground: 120 13% 8%; /* ink */
@@ -29,6 +32,35 @@
     --status-on-track: 120 100% 20%;
     --status-behind: 36 100% 33%;
     --status-stalled: 4 66% 47%;
+  }
+  :root.dark {
+    --ink: 52 42% 95%;
+    --ink-soft: 145 18% 78%;
+    --ink-muted: 145 18% 69%;
+    --background: 157 38% 7%;
+    --surface: 157 32% 11%;
+    --foreground: 52 42% 95%;
+    --card: 157 30% 10%;
+    --card-foreground: 52 42% 95%;
+    --popover: 157 30% 10%;
+    --popover-foreground: 52 42% 95%;
+    --primary: 47 96% 57%;
+    --primary-foreground: 153 76% 12%;
+    --secondary: 157 25% 19%;
+    --secondary-foreground: 52 42% 93%;
+    --muted: 157 22% 17%;
+    --muted-foreground: 145 18% 69%;
+    --accent: 153 38% 22%;
+    --accent-foreground: 47 100% 78%;
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 153 22% 31%;
+    --input: 153 20% 37%;
+    --ring: 47 96% 57%;
+    --shadow-color: 47 96% 57%;
+    --status-on-track: 145 58% 49%;
+    --status-behind: 43 96% 56%;
+    --status-stalled: 0 72% 62%;
   }
 }
 

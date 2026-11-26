@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase-admin";
 import { DEPARTMENTS } from "@/lib/constants";
 import type { Role } from "@/lib/types";
+import { isMatricNumber, normalizeMatricNumber } from "@/lib/matric";
 
 export const runtime = "nodejs";
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
     role?: string;
     department?: string;
     displayName?: string;
+    matricNumber?: string;
   };
   try {
     body = await req.json();
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
   if (!idToken || !role || !department || !displayName) {
     return NextResponse.json(
       { error: "idToken, role, department and displayName are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (!ROLES.includes(role as Role)) {
@@ -54,19 +56,35 @@ export async function POST(req: NextRequest) {
 
   const auth = getAdminAuth();
   let uid: string;
-  let email: string | undefined;
+  let verifiedEmail: string | undefined;
   try {
     const decoded = await auth.verifyIdToken(idToken, true);
     uid = decoded.uid;
-    email = decoded.email;
+    verifiedEmail = decoded.email?.trim().toLowerCase();
     if (decoded.role) {
       return NextResponse.json(
         { error: "Account is already provisioned" },
-        { status: 409 }
+        { status: 409 },
       );
     }
   } catch {
     return NextResponse.json({ error: "Invalid ID token" }, { status: 401 });
+  }
+
+  const matricNumber = body.matricNumber
+    ? normalizeMatricNumber(body.matricNumber)
+    : undefined;
+  if (role === "student" && (!matricNumber || !isMatricNumber(matricNumber))) {
+    return NextResponse.json(
+      { error: "Enter a valid matric number, for example F/HD/24/3211001." },
+      { status: 400 },
+    );
+  }
+  if (role !== "student" && matricNumber) {
+    return NextResponse.json(
+      { error: "Staff accounts do not use student matric numbers." },
+      { status: 400 },
+    );
   }
 
   const db = getAdminDb();
@@ -74,22 +92,40 @@ export async function POST(req: NextRequest) {
   if ((await userRef.get()).exists) {
     return NextResponse.json(
       { error: "Account is already provisioned" },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
-  await auth.setCustomUserClaims(uid, { role, department });
+  const matricRef = matricNumber
+    ? db.doc(`matric_index/${matricNumber.replaceAll("/", "_")}`)
+    : null;
+  if (matricRef && (await matricRef.get()).exists) {
+    return NextResponse.json(
+      { error: "That matric number is already registered." },
+      { status: 409 },
+    );
+  }
 
   const batch = db.batch();
-  batch.set(userRef, {
+  batch.create(userRef, {
     uid,
     displayName: displayName.trim(),
-    email: (email ?? "").toLowerCase(),
+    email: verifiedEmail?.endsWith("@students.project-supervision.invalid") ? "" : (verifiedEmail ?? ""),
+    ...(verifiedEmail?.endsWith("@students.project-supervision.invalid") ? { authEmail: verifiedEmail } : {}),
     role,
     department,
+    ...(matricNumber ? { matricNumber } : {}),
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
+
+  if (matricRef && matricNumber) {
+    batch.create(matricRef, {
+      uid,
+      matricNumber,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  }
 
   if (role === "supervisor") {
     batch.set(db.doc(`dashboard_stats/${uid}`), {
@@ -108,7 +144,14 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  await batch.commit();
+  try {
+    await batch.commit();
+  } catch (error) {
+    // A concurrent signup may have claimed the same matric index. Do not leave
+    // claims on a partially provisioned account.
+    throw error;
+  }
+  await auth.setCustomUserClaims(uid, { role, department });
 
   return NextResponse.json({ status: "ok", uid, role });
 }

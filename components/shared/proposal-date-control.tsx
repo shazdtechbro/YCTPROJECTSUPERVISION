@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 
-export function DefenseDateControl({
+export function ProposalDateControl({
   projectId,
   current,
   onSaved,
@@ -25,10 +25,10 @@ export function DefenseDateControl({
     setBusy(true);
     try {
       const res = await api.updateProject(projectId, {
-        defenseDate: value || null,
+        proposalDate: value || null,
       });
-      toast.success("Defence date saved", {
-        description: res.milestone.reason,
+      toast.success("Proposal date saved", {
+        description: `Milestone: ${res.milestone.reason}`,
       });
       onSaved?.();
     } catch (err) {
@@ -39,20 +39,19 @@ export function DefenseDateControl({
   }
 
   return (
-    <div className="rounded-[20px] border border-line bg-white p-4 shadow-card md:p-5">
-      <Label htmlFor="defense" className="font-display text-lg font-bold">
-        Defence date
+    <div className="rounded-md border bg-surface/50 p-3">
+      <Label htmlFor="proposal-date" className="text-2xs uppercase tracking-wide text-muted-foreground">
+        Set proposal date
       </Label>
-      <p className="mt-1 text-sm text-ink-2">Students see this on their dashboard straight away.</p>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-1.5 flex gap-2">
         <Input
-          id="defense"
+          id="proposal-date"
           type="date"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="sm:max-w-[220px]"
+          className="max-w-[200px]"
         />
-        <Button onClick={save} loading={busy} disabled={!dirty}>
+        <Button size="sm" onClick={save} loading={busy} disabled={!dirty}>
           Save
         </Button>
       </div>

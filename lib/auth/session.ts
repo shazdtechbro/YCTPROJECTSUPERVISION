@@ -27,7 +27,8 @@ export interface SessionUser {
 function toSessionUser(decoded: DecodedIdToken): SessionUser | null {
   const role = decoded.role as Role | undefined;
   const department = decoded.department as string | undefined;
-  if (!role || !department) return null;
+  if (!role || !["student", "supervisor", "hod"].includes(role) || !department)
+    return null;
   return {
     uid: decoded.uid,
     email: decoded.email ?? null,
@@ -57,9 +58,7 @@ export async function requireSession(): Promise<SessionUser> {
 }
 
 /** Guard: redirect unless the user holds one of `roles`. */
-export async function requireRole(
-  roles: Role | Role[]
-): Promise<SessionUser> {
+export async function requireRole(roles: Role | Role[]): Promise<SessionUser> {
   const allowed = Array.isArray(roles) ? roles : [roles];
   const user = await requireSession();
   if (!allowed.includes(user.role)) redirect(homePathForRole(user.role));

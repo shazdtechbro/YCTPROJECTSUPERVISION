@@ -12,8 +12,8 @@ const buttonVariants = cva(
       variant: {
         default: "bg-brand-700 text-white hover:bg-brand-800",
         destructive: "bg-stalled text-white hover:bg-stalled/90",
-        outline: "border border-line bg-white text-ink hover:border-ink",
-        secondary: "bg-ink text-white hover:bg-ink/90",
+        outline: "border border-line bg-card text-ink hover:border-ink",
+        secondary: "bg-[#111611] text-white hover:bg-ink/90",
         sun: "bg-sun-400 text-ink hover:bg-sun-300",
         ghost: "text-ink-2 hover:bg-cream-2 hover:text-ink",
         link: "text-brand-700 underline-offset-4 hover:underline",

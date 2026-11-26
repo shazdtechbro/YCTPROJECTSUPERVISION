@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +19,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { DEPARTMENTS, ROLE_OPTIONS } from "@/lib/constants";
 import { homePathForRole } from "@/lib/routes";
-import { cn } from "@/lib/utils";
+import { isMatricNumber, normalizeMatricNumber } from "@/lib/matric";
 import type { Role } from "@/lib/types";
 
 export default function SignUpPage() {
@@ -28,14 +29,16 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [matricNumber, setMatricNumber] = useState("");
   const [role, setRole] = useState<Role>("student");
   const [department, setDepartment] = useState<string>("");
   const [pending, setPending] = useState(false);
 
   const canSubmit =
     name.trim().length >= 2 &&
-    /\S+@\S+\.\S+/.test(email) &&
+    (role === "student" || /\S+@\S+\.\S+/.test(email)) &&
     password.length >= 6 &&
+    (role !== "student" || isMatricNumber(matricNumber)) &&
     department.length > 0;
 
   async function onSubmit(e: React.FormEvent) {
@@ -45,10 +48,11 @@ export default function SignUpPage() {
     try {
       const assigned = await signUp({
         displayName: name,
-        email,
+        ...(role !== "student" ? { email } : {}),
         password,
         role,
         department,
+        ...(role === "student" ? { matricNumber: normalizeMatricNumber(matricNumber) } : {}),
       });
       toast.success("Account created");
       router.replace(homePathForRole(assigned));
@@ -58,7 +62,7 @@ export default function SignUpPage() {
       toast.error("Could not create account", {
         description:
           code === "auth/email-already-in-use"
-            ? "That email is already registered. Sign in instead."
+            ? role === "student" ? "That matriculation number is already registered — sign in instead." : "That email is already registered — sign in instead."
             : code === "auth/weak-password"
               ? "Choose a stronger password (6+ characters)."
               : (err as Error).message,
@@ -69,11 +73,21 @@ export default function SignUpPage() {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="font-display text-[32px] font-extrabold tracking-[-0.03em] sm:text-[36px]">Create your account</h1>
-      <p className="mt-2 text-ink-2">Pick your role and department to get started.</p>
+      <h1 className="text-xl font-semibold tracking-tight">Create account</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Set up your supervision workspace.
+      </p>
 
-      <form className="mt-8 space-y-5" onSubmit={onSubmit}>
-        <div className="space-y-2">
+      <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+        <div className="space-y-1.5">
+          <Label htmlFor="role">Role</Label>
+          <Select value={role} onValueChange={(value) => setRole(value as Role)}>
+            <SelectTrigger id="role"><SelectValue placeholder="Select your role" /></SelectTrigger>
+            <SelectContent>{ROLE_OPTIONS.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">{ROLE_OPTIONS.find(option => option.value === role)?.hint}</p>
+        </div>
+        <div className="space-y-1.5">
           <Label htmlFor="name">Full name</Label>
           <Input
             id="name"
@@ -85,7 +99,23 @@ export default function SignUpPage() {
           />
         </div>
 
-        <div className="space-y-2">
+        {role === "student" && <div className="space-y-1.5">
+          <Label htmlFor="matric">Matriculation number</Label>
+          <Input
+            id="matric"
+            required
+            autoComplete="off"
+            value={matricNumber}
+            onChange={(e) => setMatricNumber(e.target.value)}
+            placeholder="F/HD/24/3211001"
+            aria-describedby="matric-help"
+          />
+          <p id="matric-help" className="text-xs text-muted-foreground">
+            Format: F, D or P / ND or HD / year / 7-digit number.
+          </p>
+        </div>}
+
+        {role !== "student" && <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -96,13 +126,12 @@ export default function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@yabatech.edu.ng"
           />
-        </div>
+        </div>}
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             required
             autoComplete="new-password"
             value={password}
@@ -111,31 +140,7 @@ export default function SignUpPage() {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Role</Label>
-          <div role="radiogroup" aria-label="Role" className="grid grid-cols-3 gap-1 rounded-full bg-cream-2 p-1">
-            {ROLE_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                role="radio"
-                aria-checked={role === opt.value}
-                onClick={() => setRole(opt.value)}
-                className={cn(
-                  "min-h-[44px] rounded-full px-2 text-sm font-semibold transition",
-                  role === opt.value ? "bg-white text-ink shadow-card" : "text-ink-2"
-                )}
-              >
-                {opt.value === "hod" ? "HOD" : opt.label}
-              </button>
-            ))}
-          </div>
-          <p className="text-sm text-ink-3">
-            {ROLE_OPTIONS.find((o) => o.value === role)?.hint}
-          </p>
-        </div>
-
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label>Department</Label>
           <Select value={department} onValueChange={setDepartment}>
             <SelectTrigger>
@@ -153,7 +158,6 @@ export default function SignUpPage() {
 
         <Button
           type="submit"
-          size="lg"
           className="w-full"
           loading={pending}
           disabled={!canSubmit}
@@ -162,11 +166,11 @@ export default function SignUpPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-sm text-ink-2">
+      <p className="mt-6 text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-brand-700 hover:underline"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Sign in
         </Link>

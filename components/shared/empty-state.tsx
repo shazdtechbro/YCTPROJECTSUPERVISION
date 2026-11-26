@@ -15,7 +15,7 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-h-[220px] flex-col items-center justify-center rounded-[20px] border border-dashed border-line bg-white/60 p-6 text-center md:p-10", className)}>
+    <div className={cn("flex min-h-[220px] flex-col items-center justify-center rounded-[20px] border border-dashed border-line bg-card/60 p-6 text-center md:p-10", className)}>
       {art ?? (Icon ? (
         <span className="mb-1 grid h-14 w-14 place-items-center rounded-2xl bg-sun-100 text-ink"><Icon className="h-6 w-6" strokeWidth={1.75} /></span>
       ) : <EmptyNoSubmissions />)}

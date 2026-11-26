@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "./file-upload";
 import { api } from "@/lib/api";
@@ -37,22 +36,32 @@ const KINDS: { value: SubmissionKind; label: string }[] = [
 export function UploadSubmissionDialog({
   projectId,
   onCreated,
+  projectTopic,
+  initialKind = "chapter",
+  initialChapter = 1,
+  triggerLabel = "Upload",
+  chapterWorkAllowed = true,
 }: {
   projectId: string;
+  projectTopic: string;
+  initialKind?: SubmissionKind;
+  initialChapter?: number;
+  triggerLabel?: string;
+  chapterWorkAllowed?: boolean;
   onCreated?: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [kind, setKind] = useState<SubmissionKind>("chapter");
+  const [kind, setKind] = useState<SubmissionKind>(initialKind);
+  const [chapterNumber, setChapterNumber] = useState(String(initialChapter));
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  const canSubmit = title.trim().length >= 3 && !!file && !busy;
+  const canSubmit = !!file && !busy;
 
   function reset() {
-    setTitle("");
-    setKind("chapter");
+    setKind(initialKind);
+    setChapterNumber(String(initialChapter));
     setFile(null);
     setProgress(0);
   }
@@ -74,11 +83,12 @@ export function UploadSubmissionDialog({
       });
       // 3. record the submission (batches stats + milestone server-side)
       await api.createSubmission(projectId, {
-        title: title.trim(),
+        title: projectTopic,
         kind,
         storagePath: uploaded.storagePath,
         fileName: uploaded.fileName,
         fileSize: uploaded.fileSize,
+        ...(kind === "chapter" || kind === "revision" ? { chapterNumber: Number(chapterNumber) } : {}),
       });
       toast.success("Submission uploaded");
       reset();
@@ -99,9 +109,9 @@ export function UploadSubmissionDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button size="sm">
           <Upload className="h-4 w-4" />
-          Upload
+          {triggerLabel}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -109,27 +119,18 @@ export function UploadSubmissionDialog({
           <DialogTitle>Upload submission</DialogTitle>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
+          <div className="rounded-md bg-secondary p-3 text-sm"><p className="font-medium">Project topic</p><p className="mt-1 break-words">{projectTopic}</p></div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-title">Title</Label>
-            <Input
-              id="s-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Chapter 3: Methodology"
-              autoFocus
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Type</Label>
+            <Label htmlFor="document-category">Document category</Label>
             <Select
               value={kind}
               onValueChange={(v) => setKind(v as SubmissionKind)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="document-category">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {KINDS.map((k) => (
+                {KINDS.filter(k => chapterWorkAllowed || k.value === "proposal").map((k) => (
                   <SelectItem key={k.value} value={k.value}>
                     {k.label}
                   </SelectItem>
@@ -137,6 +138,19 @@ export function UploadSubmissionDialog({
               </SelectContent>
             </Select>
           </div>
+          {(kind === "chapter" || kind === "revision") && <div className="space-y-1.5">
+            <Label htmlFor="s-chapter">Chapter stage</Label>
+            <Select value={chapterNumber} onValueChange={setChapterNumber}>
+              <SelectTrigger id="s-chapter"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Chapter One: Introduction</SelectItem>
+                <SelectItem value="2">Chapter Two: Literature Review</SelectItem>
+                <SelectItem value="3">Chapter Three: Methodology</SelectItem>
+                <SelectItem value="4">Chapter Four: System Design and Implementation</SelectItem>
+                <SelectItem value="5">Chapter Five: Summary and Conclusion</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>}
           <div className="space-y-1.5">
             <Label>File</Label>
             <FileUpload
@@ -147,7 +161,7 @@ export function UploadSubmissionDialog({
               onClear={() => setFile(null)}
             />
           </div>
-          <div className="grid grid-cols-2 gap-2 pt-1 sm:flex sm:justify-end">
+          <div className="flex justify-end gap-2 pt-1">
             <Button
               type="button"
               variant="ghost"

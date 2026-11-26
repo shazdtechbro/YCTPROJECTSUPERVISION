@@ -19,14 +19,14 @@ import { api } from "@/lib/api";
 
 export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
   const [open, setOpen] = useState(false);
-  const [studentEmail, setStudentEmail] = useState("");
+  const [studentMatricNumber, setStudentMatricNumber] = useState("");
   const [title, setTitle] = useState("");
   const [abstract, setAbstract] = useState("");
-  const [defenseDate, setDefenseDate] = useState("");
+  const [proposalDate, setProposalDate] = useState("");
   const [busy, setBusy] = useState(false);
 
   const canSubmit =
-    /\S+@\S+\.\S+/.test(studentEmail) &&
+    /^[FDP]\/(?:ND|HD)\/\d{2}\/\d{7}$/i.test(studentMatricNumber.trim()) &&
     title.trim().length >= 4 &&
     abstract.trim().length >= 20 &&
     !busy;
@@ -37,18 +37,18 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
     setBusy(true);
     try {
       await api.createProject({
-        studentEmail: studentEmail.trim(),
+        studentMatricNumber: studentMatricNumber.trim().toUpperCase(),
         title: title.trim(),
         abstract: abstract.trim(),
-        defenseDate: defenseDate || null,
+        proposalDate: proposalDate || null,
       });
       toast.success("Project created", {
-        description: `${studentEmail.trim()} has been notified.`,
+        description: `${studentMatricNumber.trim().toUpperCase()} has been notified.`,
       });
-      setStudentEmail("");
+      setStudentMatricNumber("");
       setTitle("");
       setAbstract("");
-      setDefenseDate("");
+      setProposalDate("");
       setOpen(false);
       onCreated?.();
     } catch (err) {
@@ -74,13 +74,13 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="space-y-1.5">
-            <Label htmlFor="p-email">Student email</Label>
+            <Label htmlFor="p-matric">Student matriculation number</Label>
             <Input
-              id="p-email"
-              type="email"
-              value={studentEmail}
-              onChange={(e) => setStudentEmail(e.target.value)}
-              placeholder="student@yabatech.edu.ng"
+              id="p-matric"
+              type="text"
+              value={studentMatricNumber}
+              onChange={(e) => setStudentMatricNumber(e.target.value)}
+              placeholder="F/HD/24/3211001"
               autoFocus
             />
             <p className="text-xs text-ink-3">
@@ -96,7 +96,7 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-abstract">Abstract</Label>
+            <Label htmlFor="p-abstract">Project description</Label>
             <Textarea
               id="p-abstract"
               rows={4}
@@ -106,12 +106,12 @@ export function NewProjectDialog({ onCreated }: { onCreated?: () => void }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-defense">Defense date (optional)</Label>
+            <Label htmlFor="p-proposal">Proposal date (optional)</Label>
             <Input
-              id="p-defense"
+              id="p-proposal"
               type="date"
-              value={defenseDate}
-              onChange={(e) => setDefenseDate(e.target.value)}
+              value={proposalDate}
+              onChange={(e) => setProposalDate(e.target.value)}
               className="max-w-[200px]"
             />
           </div>

@@ -41,7 +41,7 @@ export const NAV_GROUPS: Record<Role, NavGroup[]> = {
     },
     {
       label: "Review",
-      items: [{ label: "Student roster", short: "Roster", href: "/supervisor/roster", icon: Users }],
+      items: [{ label: "Students", short: "Students", href: "/supervisor/roster", icon: Users }],
     },
   ],
   hod: [

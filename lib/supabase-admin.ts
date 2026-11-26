@@ -52,11 +52,12 @@ export async function createSubmissionUploadUrl(
 /** Signed download URL for a submission object. Default TTL: 5 minutes. */
 export async function createSubmissionSignedUrl(
   storagePath: string,
-  expiresInSeconds = 300
+  expiresInSeconds = 300,
+  downloadName?: string,
 ): Promise<string> {
   const { data, error } = await getSupabaseAdmin()
     .storage.from(SUBMISSIONS_BUCKET)
-    .createSignedUrl(storagePath, expiresInSeconds);
+    .createSignedUrl(storagePath, expiresInSeconds, downloadName ? { download: downloadName } : {});
   if (error || !data) {
     throw new Error(`Failed to sign ${storagePath}: ${error?.message}`);
   }

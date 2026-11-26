@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { FolderKanban } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
@@ -18,9 +17,9 @@ import { ProjectTable } from "@/components/app/project-list";
 import type { ProjectStatus } from "@/lib/types";
 
 const STATUS_TABS: { value: ProjectStatus; label: string }[] = [
-  { value: "active", label: "Active" },
-  { value: "submitted", label: "Submitted" },
   { value: "approved", label: "Approved" },
+  { value: "submitted", label: "Submitted" },
+  { value: "active", label: "Active" },
   { value: "archived", label: "Archived" },
 ];
 

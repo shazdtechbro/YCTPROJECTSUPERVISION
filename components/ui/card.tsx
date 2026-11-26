@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-[20px] border border-line bg-white text-ink",
+      "rounded-[20px] border border-line bg-card text-ink",
       !flat && "shadow-card",
       interactive && "lift cursor-pointer",
       className

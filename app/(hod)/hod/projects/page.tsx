@@ -20,14 +20,14 @@ const FILTERS: { value: MilestoneStatus | "all"; label: string; dot?: string }[]
   { value: "all", label: "All" },
   { value: "on_track", label: "On track", dot: "bg-brand-700" },
   { value: "behind", label: "Behind", dot: "bg-sun-400" },
-  { value: "stalled", label: "Stalled", dot: "bg-stalled" },
+  { value: "stalled", label: "Overview", dot: "bg-stalled" },
 ];
 
 export default function HodProjects() {
   const { claims } = useAuth();
   const dept = claims.department ?? "";
   const [filter, setFilter] = useState<MilestoneStatus | "all">("all");
-  const [view, setView] = useState<"cards" | "table">("cards");
+  const [view, setView] = useState<"cards" | "table">("table");
 
   const query = usePaginatedQuery((params) => getDepartmentProjectsPage(dept, filter, params), [dept, filter]);
   const href = (p: { id: string }) => `/hod/projects/${p.id}`;
@@ -45,7 +45,7 @@ export default function HodProjects() {
               aria-selected={filter === f.value}
               onClick={() => setFilter(f.value)}
               className={cn("flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold transition",
-                filter === f.value ? "bg-ink text-white" : "border border-line bg-white text-ink-2 hover:border-ink-3")}
+                filter === f.value ? "bg-[#111611] text-white" : "border border-line bg-card text-ink-2 hover:border-ink-3")}
             >
               {f.dot && <span className={cn("h-2 w-2 rounded-full", f.dot)} />}
               {f.label}
@@ -56,7 +56,7 @@ export default function HodProjects() {
         <div className="flex shrink-0 rounded-xl bg-cream-2 p-1">
           {(["cards", "table"] as const).map((v) => (
             <button key={v} onClick={() => setView(v)} aria-label={v === "cards" ? "Grid view" : "List view"} aria-pressed={view === v}
-              className={cn("grid h-10 w-10 place-items-center rounded-lg text-ink-3", view === v && "bg-white text-ink shadow-card")}>
+              className={cn("grid h-10 w-10 place-items-center rounded-lg text-ink-3", view === v && "bg-card text-ink shadow-card")}>
               {v === "table" ? <Rows3 className="h-[18px] w-[18px]" /> : <LayoutGrid className="h-[18px] w-[18px]" />}
             </button>
           ))}
@@ -70,7 +70,7 @@ export default function HodProjects() {
         skeleton={view === "table" ? <ListSkeleton rows={6} /> : <CardGridSkeleton count={6} />}
         empty={<EmptyState art={<EmptySearch />} title="No matching projects" description="Nothing in the department matches this filter yet." />}
       >
-        {view === "table" ? <ProjectTable items={query.items} hrefFor={href} /> : <ProjectGrid items={query.items} hrefFor={href} />}
+        {view === "table" ? <ProjectTable items={query.items} hrefFor={href} showStage /> : <ProjectGrid items={query.items} hrefFor={href} showStage />}
         {query.hasMore && (
           <div className="mt-5 flex justify-center">
             <Button variant="outline" onClick={query.loadMore} disabled={query.loadingMore}>{query.loadingMore ? "Loading..." : "Load more"}</Button>

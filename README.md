@@ -1,6 +1,6 @@
 # Digital Project Supervision & Progress Tracking System
 
-YABATECH ND project. Supervisors run final-year projects, students submit work and
+YABATECH HND project. Supervisors run final-year projects, students submit work and
 track milestones, the HOD sees the whole department.
 
 **Stack:** Next.js 14 (App Router) · TypeScript (strict) · Tailwind + shadcn/ui ·
@@ -88,7 +88,17 @@ direct `anon`/`authenticated` access); the service-role key used by
 
 ## Auth & roles
 
-- Sign-in is email/password or Google (`lib/auth/auth-context.tsx`, client).
+- Students register and sign in with matric number and password, without an
+  email inbox or username. Name and department identify their project profile.
+  Supervisors and HODs use email/password and select their role from a dropdown.
+  Existing email-based student accounts remain compatible with matric login.
+- New students use an internal Firebase authentication identifier in `authEmail`;
+  it is not a contact address and is not shown in account menus. Legacy accounts
+  continue to authenticate using their existing profile email.
+- Supervisors schedule proposal presentations with `proposalDate`. Existing
+  `defenseDate` values remain historical data; they are not relabelled as proposal
+  dates. Proposal dates appear consistently across student, supervisor and HOD
+  views and are validated by the server.
 - On every ID-token change the client POSTs the token to
   `app/api/session/route.ts`, which **verifies it server-side** and mints an
   `HttpOnly` session cookie. The browser never sets an auth cookie itself.
@@ -100,6 +110,35 @@ direct `anon`/`authenticated` access); the service-role key used by
   route).
 
 Roles: `student` · `supervisor` · `hod`.
+
+Public sign-up provides a Role dropdown for Student, Supervisor or HOD. Role and
+department are recorded at provisioning and checked on each session. This
+self-selected role does not verify that a registrant is employed by the school;
+an institutional verification process would be needed to prevent impersonation.
+Student matric numbers follow `F/HD/24/3211001` (`F`, `D` or `P`; `ND` or
+`HD`; two-digit year; seven-digit identifier).
+
+Students submit a topic to a supervisor in their department and may add up to
+four project partners by matric number. Topic decisions, chapter stages,
+final-project grades and written feedback, deadline extension decisions and
+project activity are stored and served through authenticated API routes.
+
+
+Submission uploads use the existing project topic and a document category rather
+than a second title. Pending review is assigned automatically. Supervisors choose
+Changes requested or Approved and save a comment followed by an optional revision
+due date. Numeric grades are accepted only for final submissions after all five
+chapters are approved. Saved reviews appear in both Submissions and Feedback.
+The Activity log combines recorded supervision tasks with automatic workflow events.
+
+Files and version history provides individual View file and Download links for
+each loaded version. These links navigate to an authenticated server redirect,
+avoiding iPhone popup blocking while retaining private, short-lived storage URLs.
+
+Additional component regression checks can be run with
+`YCT_ESBUILD=/path/to/esbuild node tests/submission-feedback-browser.cjs` using
+esbuild 0.25.12 as an external test tool. This exercises real components with
+controlled service data and the production CSS; it does not write to live accounts.
 
 ---
 
@@ -207,3 +246,35 @@ Stitch HTML is a design reference, not code to paste. For each screen: create th
 route under the matching role group and rebuild it with `components/ui` +
 `components/shared` + the `lib/firestore` query functions and the three
 loading/error/empty states. The scaffolded pages already follow this pattern.
+
+
+## Verification
+
+```bash
+npm ci
+npm test
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run start -- --hostname 127.0.0.1 --port 3002
+# In a separate terminal:
+npm run test:browser
+```
+
+The API regression suite executes actual handlers with simulated Firebase services.
+The Chromium smoke suite checks public pages at 320, 375, 390, 430, 768 and 1440px; it
+requires Chromium at `/usr/bin/chromium` (or `YCT_CHROMIUM_PATH`). Set
+`YCT_TEST_BASE_URL` for another target. Screenshots are saved under
+`/tmp/yct-browser-results` (or `YCT_TEST_OUTPUT`). Where Chromium lacks an
+environment proxy CA, `YCT_BROWSER_VERIFY_WITH_CURL=1` uses the system-trusted
+curl bridge without disabling HTTPS certificate validation. These checks do not
+replace live authenticated testing.
+
+Use [the full Cowork product-testing prompt](docs/COWORK-FULL-PRODUCT-TEST.md)
+for deployment, account, project, storage, role, grading, extension and defense
+verification. Vercel builds do not publish Firestore rules or indexes: deploy
+the repository's `firestore.rules` and `firestore.indexes.json` separately to
+the matching Firebase project. Projects and submission mutations are server-only
+so client SDK writes cannot bypass approval and grading checks.
+
+Logout waits for Firebase sign-out and verified server-cookie deletion before a full navigation to the landing page. Cookie writes are serialized so delayed token refreshes cannot restore a logged-out session. Browser checks include phone header overlap, signed-out landing actions, cookie deletion and protected-route redirects.
