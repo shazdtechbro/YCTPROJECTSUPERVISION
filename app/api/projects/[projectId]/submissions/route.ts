@@ -195,6 +195,7 @@ export async function POST(
       createdAt: FieldValue.serverTimestamp(),
     });
 
+    const progressPct = chapterStatuses.filter((status) => status === "approved").length * 20;
     batch.set(
       projectRef,
       {
@@ -207,15 +208,15 @@ export async function POST(
         ...(chapterNumber
           ? { latestChapterSubmissionIds: { [chapterNumber]: subRef.id } }
           : {}),
-        progressPct:
-          chapterStatuses.filter((status) => status === "approved").length * 20,
+        progressPct,
       },
       { merge: true },
     );
 
     const before = project.milestoneStatus;
-    const verdict = applyMilestone(batch, projectRef, {
+    const verdict = await applyMilestone(batch, projectRef, {
       ...project,
+      progressPct,
       lastSubmissionAt: FieldValue.serverTimestamp() as never,
       lastActivityAt: FieldValue.serverTimestamp() as never,
     });

@@ -8,6 +8,8 @@ import { getAdminDb } from "@/lib/firebase-admin";
 import { getSessionUser } from "@/lib/auth/session";
 import { canReadProject } from "@/lib/server/project-access";
 import { applyMilestone, loadProjectAdmin } from "@/lib/server/project-writes";
+import { defenceInstant } from "@/lib/defence-schedule";
+import { loadDepartmentDefence } from "@/lib/server/department-defence";
 import { computeMilestoneStatus } from "@/lib/milestone";
 import { Timestamp } from "firebase-admin/firestore";
 
@@ -28,8 +30,12 @@ export async function GET(
   if (!p)
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
+  const schedule = await loadDepartmentDefence(p.department);
   const verdict = computeMilestoneStatus({
     defenseDate: p.defenseDate ?? null,
+    officialDefenceAt: schedule ? defenceInstant(schedule) : undefined,
+    projectStartedAt: p.createdAt instanceof Timestamp ? p.createdAt.toDate() : null,
+    chapterProgress: p.progressPct,
     lastSubmissionDate:
       p.lastSubmissionAt instanceof Timestamp
         ? p.lastSubmissionAt.toDate()
@@ -455,7 +461,7 @@ export async function PATCH(
     batch.set(projectRef, patch, { merge: true });
 
     const before = project.milestoneStatus;
-    const verdict = applyMilestone(batch, projectRef, {
+    const verdict = await applyMilestone(batch, projectRef, {
       ...project,
       defenseDate: (patch.defenseDate as string | null) ?? project.defenseDate,
     });

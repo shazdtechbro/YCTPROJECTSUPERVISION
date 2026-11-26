@@ -1,5 +1,7 @@
 "use client";
 
+import { OfficialDefence } from "@/components/shared/official-defence";
+
 import { BarChart3, FileText, MessageSquare, Ticket } from "lucide-react";
 import { StatCard } from "@/components/app/stats";
 
@@ -56,10 +58,12 @@ export default function HodReports() {
         description={`Supervision analytics for ${dept || "your department"}.`}
       />
 
+      <OfficialDefence canEdit />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
         <StatCard dark label="Submissions · 60 days" value={totalActivity.submissions} icon={FileText} />
         <StatCard label="Comments · 60 days" value={totalActivity.comments} icon={MessageSquare} />
-        <StatCard label="Tickets · 60 days" value={totalActivity.tickets} icon={Ticket} />
+        <StatCard label="Tasks · 60 days" value={totalActivity.tickets} icon={Ticket} />
       </div>
 
       <Card>

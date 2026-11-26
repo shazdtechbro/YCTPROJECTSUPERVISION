@@ -5,12 +5,16 @@
  *  - batch, from `GET/POST /api/cron/update-status` (Vercel Cron, daily)
  *  - on the fly, from a dashboard for a single project (`computeMilestoneStatus`)
  */
+import { expectedChapterProgress } from "@/lib/defence-schedule";
 import { MILESTONE_THRESHOLDS as T } from "@/lib/constants";
 import type { MilestoneStatus } from "@/lib/types";
 
 export interface MilestoneInputs {
   /** yyyy-mm-dd, or null if no defense scheduled yet. */
   defenseDate: string | null;
+  officialDefenceAt?: Date;
+  projectStartedAt?: Date | null;
+  chapterProgress?: number;
   /** Most recent submission upload. */
   lastSubmissionDate: Date | null;
   /** Most recent activity of any kind (submission, ticket, comment). */
@@ -62,8 +66,8 @@ export function computeMilestoneStatus(
   }
 
   // 2. Behind — defense pressure without matching progress.
-  if (defenseDate) {
-    const defense = new Date(`${defenseDate}T23:59:59`);
+  const defense = input.officialDefenceAt ?? (defenseDate ? new Date(`${defenseDate}T23:59:59`) : null);
+  if (defense) {
     const daysToDefense = daysBetween(defense, now);
 
     if (daysToDefense < 0 && !finalApproved) {
@@ -83,6 +87,12 @@ export function computeMilestoneStatus(
           daysToDefense
         )} days, final not approved`,
       };
+    }
+    if (input.officialDefenceAt && input.projectStartedAt && input.chapterProgress !== undefined && !finalApproved) {
+      const expected = expectedChapterProgress(input.projectStartedAt, input.officialDefenceAt, now);
+      if (input.chapterProgress < expected) {
+        return { status: "behind", reason: `Chapter progress is ${input.chapterProgress}%. Aim for ${expected}% by today to stay on track for defence.` };
+      }
     }
     if (
       daysToDefense <= T.behindDaysToDefense &&

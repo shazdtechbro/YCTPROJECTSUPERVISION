@@ -61,7 +61,7 @@ function LoginForm() {
     <div className="animate-fade-in">
       <h1 className="text-xl font-black tracking-tight">Sign in</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Continue to your supervision workspace.
+        Choose your role. Students use a matriculation number. Supervisors and HODs use their email address.
       </p>
 
       <form

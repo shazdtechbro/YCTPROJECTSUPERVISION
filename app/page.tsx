@@ -106,7 +106,7 @@ export default async function LandingPage() {
               <div className="grid gap-4 p-3 md:grid-cols-[1.4fr_1fr] md:p-5">
                 <div className="rounded-2xl border border-line bg-card p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <div><div className="text-xs text-ink-3">Your project</div><div className="mt-1 font-display text-[17px] font-bold md:text-[18px]">AI-based medical diagnostics and appointment booking</div></div>
+                    <div><div className="text-xs text-ink-3">Example project</div><div className="mt-1 font-display text-[17px] font-bold md:text-[18px]">Campus shuttle booking system</div></div>
                     <span className="chip bg-brand-50 text-brand-700"><span className="h-1.5 w-1.5 rounded-full bg-current" />On track</span>
                   </div>
                   <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -118,8 +118,8 @@ export default async function LandingPage() {
                 <div className="rounded-2xl bg-sun-400 p-5">
                   <div className="text-xs font-semibold">Your next step</div>
                   <div className="mt-1 font-display text-[18px] font-bold">Your revisions are with your supervisor.</div>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-card/50"><div className="h-full w-[55%] rounded-full bg-[#111611]" /></div>
-                  <div className="mt-2 text-xs text-ink/75">55% complete · Defence 24 Feb 2027</div>
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-card/50"><div className="h-full w-[40%] rounded-full bg-[#111611]" /></div>
+                  <div className="mt-2 text-xs text-ink/75">40% complete · Defence 24 Feb 2027</div>
                 </div>
               </div>
             </div>
@@ -195,7 +195,7 @@ export default async function LandingPage() {
               <p className="mt-2 text-[14px] text-ink/80">Approve or request changes per file, with a comment thread on each submission.</p>
             </div>
           </StaggerItem>
-          <StaggerItem className="md:col-span-2"><div className="h-full rounded-[24px] border border-line bg-card p-6 shadow-card"><Ticket className="h-7 w-7 text-brand-700" /><h3 className="mt-6 font-display text-[20px] font-bold">Project activities</h3><p className="mt-2 text-[14px] text-ink-2">Priorities, due dates and status, in both directions.</p></div></StaggerItem>
+          <StaggerItem className="md:col-span-2"><div className="h-full rounded-[24px] border border-line bg-card p-6 shadow-card"><Ticket className="h-7 w-7 text-brand-700" /><h3 className="mt-6 font-display text-[20px] font-bold">Project tasks</h3><p className="mt-2 text-[14px] text-ink-2">Record work to do, set a due date, and mark it done when it’s finished.</p></div></StaggerItem>
           <StaggerItem className="md:col-span-2"><div className="h-full rounded-[24px] border border-line bg-card p-6 shadow-card"><CalendarClock className="h-7 w-7 text-brand-700" /><h3 className="mt-6 font-display text-[20px] font-bold">Deadlines that are visible</h3><p className="mt-2 text-[14px] text-ink-2">Defence dates and next deadlines on every dashboard.</p></div></StaggerItem>
           <StaggerItem className="md:col-span-2"><div className="h-full rounded-[24px] bg-[#111611] p-6 text-white shadow-card"><BarChart3 className="h-7 w-7 text-sun-400" /><h3 className="mt-6 font-display text-[20px] font-bold">Department analytics</h3><p className="mt-2 text-[14px] text-white/75">Workload and response time per supervisor, for the HOD.</p></div></StaggerItem>
         </Stagger>

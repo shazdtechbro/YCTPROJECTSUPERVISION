@@ -1,5 +1,7 @@
 "use client";
 
+import { OfficialDefence } from "@/components/shared/official-defence";
+
 import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Clock, FileClock, FolderKanban, Ticket, Users } from "lucide-react";
@@ -41,6 +43,8 @@ export default function SupervisorDashboard() {
         actions={<><Button asChild variant="outline"><Link href="/supervisor/roster"><Users /> Students</Link></Button><NewProjectDialog onCreated={stats.retry} /></>}
       />
 
+      <div className="mb-5"><OfficialDefence /></div>
+
       <QueryState
         phase={stats.phase}
         error={stats.error}
@@ -64,7 +68,7 @@ function Stats({ stats }: { stats: DashboardStatsDoc }) {
     <Stagger className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
       <StaggerItem><StatCard dark label="Active projects" value={stats.activeProjects} icon={FolderKanban} sub="You are supervising" /></StaggerItem>
       <StaggerItem><StatCard label="Pending reviews" value={stats.pendingSubmissions} icon={FileClock} sub="Waiting for your decision" /></StaggerItem>
-      <StaggerItem><StatCard label="Overdue" value={stats.overdueCount} icon={AlertTriangle} sub={`${stats.openTickets} open tickets`} /></StaggerItem>
+      <StaggerItem><StatCard label="Overdue" value={stats.overdueCount} icon={AlertTriangle} sub={`${stats.openTickets} open tasks`} /></StaggerItem>
       <StaggerItem><StatCard label="Avg. response" value={stats.avgResponseHours == null ? "No replies yet" : `${stats.avgResponseHours}h`} icon={Clock} sub="Time to first reply" /></StaggerItem>
     </Stagger>
   );
@@ -72,7 +76,7 @@ function Stats({ stats }: { stats: DashboardStatsDoc }) {
 
 const SEGMENTS = [
   { key: "attention", label: "Needs attention" },
-  { key: "tickets", label: "Open tickets" },
+  { key: "tickets", label: "Open tasks" },
   { key: "recent", label: "Recent" },
 ] as const;
 
@@ -100,7 +104,7 @@ function Queue({ uid }: { uid: string }) {
           error={data.error}
           onRetry={data.retry}
           skeleton={<ListSkeleton rows={4} />}
-          empty={<EmptyState className="min-h-[200px] border-0 bg-transparent" art={<EmptyAllCaughtUp />} title="All caught up" description="Nothing needs you in this view right now." />}
+          empty={<EmptyState className="min-h-[200px] border-0 bg-transparent" art={<EmptyAllCaughtUp />} title="All caught up" description="Choose another filter to see more projects, or open Projects to review all your assigned students." />}
         >
           <ul className="-mx-2 divide-y divide-line">
             {items.map((p) => (

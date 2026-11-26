@@ -49,7 +49,7 @@ export function TicketList({
           <NewTicketDialog projectId={projectId} />
         </div>
       )}
-      <ProjectActivityLog projectId={projectId} refreshKey={items} />
+      <h3 className="text-sm font-semibold">Project tasks</h3>
       {phase === "loading" && <TimelineSkeleton rows={4} />}
       {phase === "error" && (
         <ErrorState description={error?.message} />
@@ -57,8 +57,8 @@ export function TicketList({
       {phase === "empty" && (
         <EmptyState
           icon={TicketIcon}
-          title="No activities"
-          description="Record supervision tasks, questions and updates. New activities appear here in real time."
+          title="No tasks yet"
+          description="Tasks show what needs to be done. Use Add task to record work for the project team."
         />
       )}
       {phase === "ready" && (
@@ -73,6 +73,7 @@ export function TicketList({
           ))}
         </ul>
       )}
+      <ProjectActivityLog projectId={projectId} refreshKey={items} />
     </div>
   );
 }
@@ -93,7 +94,7 @@ function TicketRow({
     try {
       await api.setTicketStatus(projectId, t.id, status);
     } catch (err) {
-      toast.error("Couldn't update activity", {
+      toast.error("Couldn't update task", {
         description: (err as Error).message,
       });
     } finally {
@@ -129,7 +130,7 @@ function TicketRow({
           onValueChange={(v) => setStatus(v as TicketStatus)}
           disabled={saving}
         >
-          <SelectTrigger className="h-8 w-[140px]">
+          <SelectTrigger aria-label={`Status for ${t.title}`} className="h-8 w-[140px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

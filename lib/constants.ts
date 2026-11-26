@@ -24,7 +24,7 @@ export const ROLE_OPTIONS: { value: Role; label: string; hint: string }[] = [
   {
     value: "student",
     label: "Student",
-    hint: "Submit work, track milestones, raise tickets",
+    hint: "Upload your work, check deadlines, and manage project tasks",
   },
   {
     value: "supervisor",

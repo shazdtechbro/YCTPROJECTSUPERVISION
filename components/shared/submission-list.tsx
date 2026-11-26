@@ -46,8 +46,18 @@ export function SubmissionList({
   return (
     <div className="space-y-3">
       {canUpload && (
-        <div className="flex justify-end">
-          <UploadSubmissionDialog projectId={projectId} projectTopic={projectTopic} initialKind={chapterWorkAllowed ? "chapter" : "proposal"} chapterWorkAllowed={chapterWorkAllowed} onCreated={refresh} />
+        <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border bg-card p-4">
+          <div className="max-w-prose space-y-1">
+            <h3 className="text-sm font-semibold">What you can upload</h3>
+            <p className="text-sm text-muted-foreground">
+              {!chapterWorkAllowed
+                ? "You can upload your proposal. Ask your supervisor to approve your project topic to unlock chapter uploads."
+                : allChaptersApproved
+                  ? "All five chapters are approved. You can upload your final project for review."
+                  : "You can upload a proposal, chapter draft, or revision. Your supervisor must approve all five chapters before you can upload the final project."}
+            </p>
+          </div>
+          <UploadSubmissionDialog projectId={projectId} projectTopic={projectTopic} initialKind={chapterWorkAllowed ? "chapter" : "proposal"} chapterWorkAllowed={chapterWorkAllowed} finalUploadAllowed={allChaptersApproved} onCreated={refresh} />
         </div>
       )}
       <QueryState
@@ -75,7 +85,7 @@ export function SubmissionList({
           }, {})).map(versions => (
             <SubmissionRow key={versions[0].id} projectId={projectId} projectTopic={projectTopic}
               submission={versions[0]} versions={versions} canReview={canReview} canUpload={canUpload && (chapterWorkAllowed || versions[0].kind === "proposal")}
-              allChaptersApproved={allChaptersApproved} onChanged={refresh} />
+              allChaptersApproved={allChaptersApproved} chapterWorkAllowed={chapterWorkAllowed} onChanged={refresh} />
           ))}
         </ul>
         {query.hasMore && (
@@ -95,9 +105,9 @@ export function SubmissionList({
   );
 }
 
-export function SubmissionRow({ projectId, projectTopic, submission: s, versions, canReview, canUpload, allChaptersApproved, onChanged }: {
+export function SubmissionRow({ projectId, projectTopic, submission: s, versions, canReview, canUpload, allChaptersApproved, chapterWorkAllowed = true, onChanged }: {
   projectId: string; projectTopic: string; submission: SubmissionDoc; versions: SubmissionDoc[];
-  canReview: boolean; canUpload: boolean; allChaptersApproved: boolean; onChanged: () => void;
+  canReview: boolean; canUpload: boolean; allChaptersApproved: boolean; chapterWorkAllowed?: boolean; onChanged: () => void;
 }) {
   const [saving, setSaving] = useState(false);
   const [discussionOpen, setDiscussionOpen] = useState(false);
@@ -127,8 +137,16 @@ export function SubmissionRow({ projectId, projectTopic, submission: s, versions
         <p className="break-all text-xs text-muted-foreground">{s.fileName} · {formatFileSize(s.fileSize)}</p>
       </div><StatusBadge status={s.status} />
       {canUpload && s.status === "changes_requested" && <UploadSubmissionDialog projectId={projectId} projectTopic={projectTopic}
-        initialKind={s.chapterNumber ? "revision" : s.kind} initialChapter={s.chapterNumber ?? 1} triggerLabel="Upload revision" onCreated={onChanged} />}
+        initialKind={s.chapterNumber ? "revision" : s.kind} initialChapter={s.chapterNumber ?? 1} finalUploadAllowed={allChaptersApproved} chapterWorkAllowed={chapterWorkAllowed} triggerLabel="Upload revision" onCreated={onChanged} />}
     </div>
+    {s.status === "pending_review" && (
+      <p className="text-sm text-muted-foreground">
+        {canReview ? "This file is waiting for your decision. Open Review and feedback to approve it or request changes." : "The assigned supervisor needs to review this file. Check Feedback for their decision."}
+      </p>
+    )}
+    {canUpload && s.status === "changes_requested" && (
+      <p className="text-sm text-muted-foreground">Read your supervisor’s feedback, make the requested changes, then select Upload revision.</p>
+    )}
     <details className="rounded-md border p-3"><summary className="cursor-pointer text-sm font-medium">Files and version history ({versions.length})</summary>
       <p className="mt-2 text-xs text-muted-foreground">Choose the document version you want to view or download. Load more submissions below to include older history.</p>
       <ul className="mt-2 space-y-3">{versions.map(version => {
@@ -146,6 +164,8 @@ export function SubmissionRow({ projectId, projectTopic, submission: s, versions
     {canReview && <details className="rounded-md border bg-background p-3">
       <summary className="cursor-pointer text-sm font-medium">{canGrade ? "Final review and grading" : "Review and feedback"}</summary>
       <div className="mt-3 space-y-3">
+        <p className="text-sm text-muted-foreground">Read the file, add any feedback, then choose and save your decision. The student will see it with this submission.</p>
+        {s.kind === "final" && !canGrade && <p className="text-sm text-muted-foreground">Approve all five chapters before giving a final grade.</p>}
         <div className="space-y-1.5"><Label htmlFor={`feedback-${s.id}`}>Comment / feedback</Label>
           <Textarea id={`feedback-${s.id}`} value={feedback} onChange={e => setFeedback(e.target.value)} rows={3} maxLength={5000} placeholder="Comments and requested changes for the student" />
         </div>

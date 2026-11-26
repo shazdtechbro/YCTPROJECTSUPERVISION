@@ -52,8 +52,7 @@ export function ProjectRequestForm({ onCreated }: { onCreated: () => void }) {
       <div>
         <h2 className="text-lg font-semibold">Start your project</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Select a supervisor in your department, propose your topic and add
-          registered project partners.
+          Choose a supervisor, enter your project topic, and add partners if you have any. Your supervisor receives the topic when you submit this form.
         </p>
       </div>
       <div className="space-y-2">
@@ -87,7 +86,7 @@ export function ProjectRequestForm({ onCreated }: { onCreated: () => void }) {
         )}
         {supervisors.data?.length === 0 && (
           <p className="text-sm">
-            No supervisors are registered in your department yet.
+            Ask a supervisor in your department to create an account. Then refresh this page to choose them.
           </p>
         )}
       </div>
@@ -114,8 +113,9 @@ export function ProjectRequestForm({ onCreated }: { onCreated: () => void }) {
       </div>
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">
-          Project partners (up to four)
+          Project partners (optional, up to four)
         </legend>
+        <p className="text-sm text-muted-foreground">Use each partner’s matriculation number. They need an account in your department.</p>
         {partners.map((p, i) => (
           <div key={i} className="flex flex-wrap gap-2">
             <Label className="sr-only" htmlFor={`partner-${i}`}>

@@ -49,6 +49,7 @@ export function FeedbackPanel({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">Choose a project stage to read the supervisor’s feedback or leave a comment on an uploaded file.</p>
       <div className="flex flex-wrap items-end gap-3">
         <div className="min-w-0 flex-1 space-y-1.5 sm:max-w-sm">
           <Label htmlFor={stageId}>Project stage</Label>

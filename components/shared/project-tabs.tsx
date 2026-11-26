@@ -116,7 +116,7 @@ function Inner({
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
                 <TabsTrigger value="feedback">Feedback</TabsTrigger>
-                <TabsTrigger value="tickets">Activity log</TabsTrigger>
+                <TabsTrigger value="tickets">Tasks and activity</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="mt-4">
@@ -184,6 +184,9 @@ function Inner({
               </TabsContent>
 
               <TabsContent value="submissions" className="mt-4">
+                {role === "student" && project.data.finalApproved && (
+                  <p className="mb-3 rounded-md bg-secondary p-3 text-sm">Your supervisor approved the final project. You can still open your submitted files and read comments here.</p>
+                )}
                 <SubmissionList
                   projectId={projectId}
                   projectTopic={project.data.title}
@@ -193,7 +196,6 @@ function Inner({
                   onProjectChanged={() => setNonce(n => n + 1)}
                   canReview={role === "supervisor"}
                 />
-                {role === "student" && project.data.topicStatus === "pending" && <p className="mt-3 rounded-md bg-secondary p-3 text-sm">Your supervisor must approve the project topic before chapter submissions can be uploaded.</p>}
               </TabsContent>
 
               <TabsContent value="feedback" className="mt-4">

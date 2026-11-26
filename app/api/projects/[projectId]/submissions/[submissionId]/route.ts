@@ -241,8 +241,9 @@ export async function PATCH(
       });
 
     const before = project.milestoneStatus;
-    const verdict = applyMilestone(batch, projectRef, {
+    const verdict = await applyMilestone(batch, projectRef, {
       ...project,
+      progressPct,
       finalApproved,
       lastActivityAt: FieldValue.serverTimestamp() as never,
     });

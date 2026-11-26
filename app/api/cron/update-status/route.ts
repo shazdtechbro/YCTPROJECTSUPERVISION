@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { getAdminDb } from "@/lib/firebase-admin";
+import { defenceInstant, type DefenceSchedule } from "@/lib/defence-schedule";
+import { loadDepartmentDefence } from "@/lib/server/department-defence";
 import { computeMilestoneStatus } from "@/lib/milestone";
 import { recomputeSupervisorStats } from "@/lib/server/stats";
 
@@ -33,6 +35,7 @@ export async function GET(req: NextRequest) {
 
   let changed = 0;
   const supervisors = new Set<string>();
+  const schedules = new Map<string, DefenceSchedule | null>();
 
   for (const doc of projects.docs) {
     const p = doc.data();
@@ -42,8 +45,13 @@ export async function GET(req: NextRequest) {
       await doc.ref.collection("tickets").where("createdAt", ">=", cutoff).count().get()
     ).data().count;
 
+    if (!schedules.has(p.department)) schedules.set(p.department, await loadDepartmentDefence(p.department));
+    const schedule = schedules.get(p.department);
     const verdict = computeMilestoneStatus({
       defenseDate: p.defenseDate ?? null,
+      officialDefenceAt: schedule ? defenceInstant(schedule) : undefined,
+      projectStartedAt: p.createdAt instanceof Timestamp ? p.createdAt.toDate() : null,
+      chapterProgress: p.progressPct,
       lastSubmissionDate:
         p.lastSubmissionAt instanceof Timestamp ? p.lastSubmissionAt.toDate() : null,
       lastActivityDate:

@@ -76,7 +76,7 @@ export default function HodDashboard() {
               error={activity.error}
               onRetry={activity.retry}
               skeleton={<Skeleton className="h-64" />}
-              empty={<EmptyState className="min-h-[200px] border-0 bg-transparent" title="No activity recorded yet" description="Submissions, comments and tickets will chart here as they happen." />}
+              empty={<EmptyState className="min-h-[200px] border-0 bg-transparent" title="No activity recorded yet" description="The chart fills in as students upload files, people post comments, and project teams add tasks." />}
             >
               <ActivityChart data={activity.data ?? []} />
             </QueryState>

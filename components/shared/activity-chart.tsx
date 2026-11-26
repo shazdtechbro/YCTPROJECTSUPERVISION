@@ -7,7 +7,7 @@ import type { ActivityPointDoc } from "@/lib/types";
 const SERIES = [
   { key: "submissions", name: "Submissions", color: "#006600" },
   { key: "comments", name: "Comments", color: "#E6B400" },
-  { key: "tickets", name: "Tickets", color: "#4E8FBF" },
+  { key: "tickets", name: "Tasks", color: "#4E8FBF" },
 ] as const;
 
 /** Supervision activity over time. Monotone lines, axis floored at zero. */

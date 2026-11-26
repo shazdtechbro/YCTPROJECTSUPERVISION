@@ -39,7 +39,7 @@ export async function PATCH(
     `projects/${params.projectId}/tickets/${params.ticketId}`
   );
   const snap = await ticketRef.get();
-  if (!snap.exists) return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+  if (!snap.exists) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
   const wasOpen = snap.data()?.status !== "done";
   const nowDone = body.status === "done";

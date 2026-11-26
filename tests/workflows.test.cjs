@@ -63,6 +63,11 @@ class Store {
       path: p,
       id: p.split("/").at(-1),
       get: async () => store.snapshot(p),
+      set: async (data, options) => {
+        const batch = store.batch();
+        batch.set(store.doc(p), data, options);
+        await batch.commit();
+      },
       collection: (name) => store.collection(`${p}/${name}`),
     };
   }
@@ -184,6 +189,7 @@ const routes = {
   patch: require("../app/api/projects/[projectId]/route.ts"),
   submit: require("../app/api/projects/[projectId]/submissions/route.ts"),
   review: require("../app/api/projects/[projectId]/submissions/[submissionId]/route.ts"),
+  defence: require("../app/api/department/defence/route.ts"),
   comments: require("../app/api/projects/[projectId]/submissions/[submissionId]/comments/route.ts"),
   supervisors: require("../app/api/supervisors/route.ts"),
   activity: require("../app/api/projects/[projectId]/activity/route.ts"),
@@ -781,4 +787,35 @@ test("project students, assigned supervisors and departmental HODs can post subm
   user = { ...hod, department: "Other" };
   assert.equal((await routes.comments.POST(req({ body: "Outside the department" }), params)).status, 403);
   assert.equal(db.data.get(submission).commentCount, 3);
+});
+
+test("only an HOD can save the official defence schedule and members see only their own department", async () => {
+  const schedule = { date: "2027-02-15", time: "09:30" };
+  assert.equal((await routes.defence.PUT(req(schedule))).status, 403);
+  user = { ...supervisor(), uid: "hod", role: "hod" };
+  assert.equal((await routes.defence.PUT(req({ ...schedule, time: "25:00" }))).status, 400);
+  assert.equal((await routes.defence.PUT(req({ ...schedule, department: "Other" }))).status, 200);
+  user = student();
+  assert.deepEqual(await (await routes.defence.GET()).json(), { schedule });
+  user = { ...student(), department: "Other" };
+  assert.deepEqual(await (await routes.defence.GET()).json(), { schedule: null });
+  user = null;
+  assert.equal((await routes.defence.GET()).status, 401);
+});
+
+test("official defence uses Lagos time and recalculates chapter targets when the HOD changes the date", () => {
+  const { defenceInstant, expectedChapterProgress } = require("../lib/defence-schedule.ts");
+  const { computeMilestoneStatus } = require("../lib/milestone.ts");
+  const start = new Date("2027-01-01T08:30:00Z");
+  const now = new Date("2027-01-21T08:30:00Z");
+  const soon = defenceInstant({ date: "2027-02-10", time: "09:30" });
+  const later = defenceInstant({ date: "2027-03-12", time: "09:30" });
+  assert.equal(soon.toISOString(), "2027-02-10T08:30:00.000Z");
+  assert.equal(expectedChapterProgress(start, soon, now), 40);
+  assert.equal(expectedChapterProgress(start, later, now), 20);
+  const input = { defenseDate: null, projectStartedAt: start, chapterProgress: 20,
+    lastSubmissionDate: now, lastActivityDate: now, ticketsLast30Days: 1,
+    finalApproved: false, now };
+  assert.equal(computeMilestoneStatus({ ...input, officialDefenceAt: soon }).status, "behind");
+  assert.equal(computeMilestoneStatus({ ...input, officialDefenceAt: later }).status, "on_track");
 });

@@ -68,9 +68,21 @@ export function ProjectWorkflowPanel({
             <p className="mt-1 text-sm text-muted-foreground">
               Current status:{" "}
               <span className="font-medium capitalize text-foreground">
-                {topicStatus}
+                {topicStatus === "pending" ? "Waiting for supervisor approval" : topicStatus === "declined" ? "Needs a revised topic" : "Approved"}
               </span>
             </p>
+            {topicStatus === "pending" && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {role === "supervisor"
+                  ? "Review the topic below. Approving it lets the student upload chapters."
+                  : role === "student"
+                    ? "Ask your supervisor to approve your topic. You can upload your proposal while you wait. Chapter uploads open after approval."
+                    : "The assigned supervisor must approve the topic before the student can upload chapters."}
+              </p>
+            )}
+            {topicStatus === "declined" && role === "student" && (
+              <p className="mt-2 text-sm text-muted-foreground">Read the feedback below, then enter and resubmit a revised topic.</p>
+            )}
           </div>
           {role === "supervisor" && (
             <div className="flex flex-wrap gap-2">
@@ -229,9 +241,9 @@ export function ProjectWorkflowPanel({
         <p className="mt-3 text-sm font-medium">
           {project.finalApproved
             ? "Final project approval granted"
-            : stages.every((status) => status === "approved")
-              ? "All chapters approved. Final submission and approval are now available."
-              : "Final approval becomes available after every chapter is approved."}
+            : stages.length === 5 && stages.every((status) => status === "approved")
+              ? "All five chapters are approved. The student can now upload the final project for the supervisor’s review."
+              : "The supervisor must approve all five chapters before the student can upload the final project."}
         </p>
       </section>
 
@@ -246,7 +258,7 @@ export function ProjectWorkflowPanel({
                 : "No extension request is pending."}
           </p>
           {project.extensionReason && <p className="mt-2 whitespace-pre-wrap break-words text-sm">{project.extensionReason}</p>}
-          <p className="text-sm text-muted-foreground">{role === "student" && !availableStages.length ? "Your supervisor must set a stage deadline before you can request an extension." : ""}
+          <p className="text-sm text-muted-foreground">{role === "student" && !availableStages.length ? "Ask your supervisor to set a deadline for the stage you need more time for. You can request an extension once the date appears." : ""}
           </p>
         </div>
         {role === "student" &&
@@ -265,9 +277,9 @@ export function ProjectWorkflowPanel({
             >
               <div className="space-y-1.5">
                 <Label htmlFor="extension-stage">Stage to extend</Label>
-                <select id="extension-stage" className="h-10 w-full rounded-md border bg-background px-2 text-sm" value={extensionStage} disabled={!availableStages.length} onChange={(event) => setExtensionStage(event.target.value as ProjectStage | "")} required>
+                <select id="extension-stage" className="h-10 w-full rounded-md border bg-background px-2 text-sm" value={extensionStage} onChange={(event) => setExtensionStage(event.target.value as ProjectStage | "")} required>
                   <option value="">Choose a stage</option>
-                  {availableStages.map((stage) => <option key={stage} value={stage}>{stageLabel(stage)}</option>)}
+                  {PROJECT_STAGES.map((stage) => <option key={stage} value={stage} disabled={!stageDeadline(project, stage)}>{stageLabel(stage)}{!stageDeadline(project, stage) && " · Deadline not set"}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
@@ -276,6 +288,7 @@ export function ProjectWorkflowPanel({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="extension-date">Requested new deadline</Label>
+                {selectedDeadline && <p className="text-sm text-muted-foreground">Current deadline is {selectedDeadline}. Choose a later date.</p>}
                 <Input
                   id="extension-date"
                   type="date"

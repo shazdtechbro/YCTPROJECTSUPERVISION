@@ -80,7 +80,7 @@ export function NotificationBell() {
             <EmptyNoNotifications />
             <p className="mt-2 font-semibold">You are all caught up</p>
             <p className="text-sm text-ink-3">
-              Tickets, submissions and comments on your projects land here.
+              You’ll see new tasks, submitted files, and comments on your projects here.
             </p>
           </div>
         ) : (

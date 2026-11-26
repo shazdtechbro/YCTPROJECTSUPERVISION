@@ -87,7 +87,7 @@ export async function POST(
   );
 
   const before = project.milestoneStatus;
-  const verdict = applyMilestone(batch, projectRef, {
+  const verdict = await applyMilestone(batch, projectRef, {
     ...project,
     ticketsLast30Days: (project.ticketsLast30Days ?? 0) + 1,
     lastActivityAt: FieldValue.serverTimestamp() as never,
@@ -102,7 +102,7 @@ export async function POST(
     recipientIsStudent ? project.studentId : project.supervisorId,
     {
       kind: "ticket",
-      title: `New activity: ${body.title.trim()}`,
+      title: `New task: ${body.title.trim()}`,
       href: projectHref(
         recipientIsStudent ? "student" : "supervisor",
         params.projectId,

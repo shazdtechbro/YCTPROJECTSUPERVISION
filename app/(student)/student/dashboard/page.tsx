@@ -1,5 +1,7 @@
 "use client";
 
+import { OfficialDefence } from "@/components/shared/official-defence";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProgressRing } from "@/components/app/stats";
@@ -35,6 +37,7 @@ export default function StudentDashboardPage() {
         description="Alerts, deadlines and recent updates."
       />
       <MatricNumberSetup />
+      <div className="mb-5"><OfficialDefence startedAt={project.data?.createdAt?.toMillis?.()} actualProgress={project.data?.progressPct} /></div>
 
       <QueryState
         phase={project.phase}
@@ -92,7 +95,11 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
       <Card>
         <CardHeader><CardTitle>Needs your attention</CardTitle></CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <p>{project.milestoneReason}</p>
+          {project.topicStatus === "pending" ? (
+            <p><strong>Waiting for {project.supervisorName || "your supervisor"}.</strong> Ask your supervisor to approve your topic. You can upload your proposal now, and chapter uploads open after approval.</p>
+          ) : project.topicStatus === "declined" ? (
+            <p><strong>Your topic needs changes.</strong> Open My project, read your supervisor’s feedback, and send a revised topic.</p>
+          ) : <p>{project.milestoneReason}</p>}
           {project.extensionStatus === "pending" && <p>Your extension request is awaiting a decision.</p>}
           {project.topicStatus === "declined" && <Link className="text-primary underline" href={href}>Revise your project topic</Link>}
           {feedback.error && <button type="button" className="text-primary underline" onClick={feedback.retry}>Retry loading revision alerts</button>}
@@ -111,7 +118,7 @@ function DashboardBody({ project }: { project: ProjectDoc }) {
             <ul className="space-y-2">
               {deadlines.map(({ key, date, title }) => <li className="flex flex-wrap justify-between gap-2" key={key}><span>{title}</span><time dateTime={date}>{formatDate(date)}</time></li>)}
             </ul>
-          ) : <p className="text-muted-foreground">Your supervisor hasn’t set any stage deadlines yet.</p>}
+          ) : <p className="text-muted-foreground">Ask your supervisor to set deadlines for your proposal and chapters. The dates will appear here.</p>}
         </CardContent>
       </Card>
       <div className="lg:col-span-2"><ProjectActivityLog projectId={project.id} title="Recent activity" limit={5} /></div>

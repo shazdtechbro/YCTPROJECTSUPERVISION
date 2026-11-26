@@ -8,6 +8,8 @@ import {
 } from "firebase-admin/firestore";
 
 import { getAdminDb } from "@/lib/firebase-admin";
+import { defenceInstant } from "@/lib/defence-schedule";
+import { loadDepartmentDefence } from "@/lib/server/department-defence";
 import { computeMilestoneStatus } from "@/lib/milestone";
 import type { ProjectDoc } from "@/lib/types";
 
@@ -33,12 +35,15 @@ function tsToDate(v: unknown): Date | null {
  * fields and queue the result onto `batch`. Returns the verdict so callers can
  * also fold `overdueCount` deltas into `dashboard_stats`.
  */
-export function applyMilestone(
+export async function applyMilestone(
   batch: WriteBatch,
   ref: DocumentReference,
   project: Pick<
     ProjectDoc,
     | "defenseDate"
+    | "department"
+    | "createdAt"
+    | "progressPct"
     | "lastSubmissionAt"
     | "lastActivityAt"
     | "ticketsLast30Days"
@@ -47,8 +52,12 @@ export function applyMilestone(
   >,
   now = new Date()
 ) {
+  const schedule = await loadDepartmentDefence(project.department);
   const verdict = computeMilestoneStatus({
     defenseDate: project.defenseDate ?? null,
+    officialDefenceAt: schedule ? defenceInstant(schedule) : undefined,
+    projectStartedAt: tsToDate(project.createdAt),
+    chapterProgress: project.progressPct,
     lastSubmissionDate: tsToDate(project.lastSubmissionAt),
     lastActivityDate: tsToDate(project.lastActivityAt) ?? now,
     ticketsLast30Days: project.ticketsLast30Days ?? 0,

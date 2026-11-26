@@ -64,12 +64,12 @@ export function NewTicketDialog({
         priority,
         dueDate: dueDate || null,
       });
-      toast.success("Activity recorded");
+      toast.success("Task added");
       reset();
       setOpen(false);
       onCreated?.();
     } catch (err) {
-      toast.error("Couldn't record activity", {
+      toast.error("Couldn't add task", {
         description: (err as Error).message,
       });
     } finally {
@@ -82,21 +82,22 @@ export function NewTicketDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4" />
-          New activity
+          Add task
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New activity</DialogTitle>
+          <DialogTitle>Add task</DialogTitle>
+          <p className="text-sm text-muted-foreground">Describe work the project team needs to do. Add a due date if there is one.</p>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="space-y-1.5">
-            <Label htmlFor="t-title">Activity</Label>
+            <Label htmlFor="t-title">Task name</Label>
             <Input
               id="t-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Rework the methodology section"
+              placeholder="Example: Update Chapter Two"
               autoFocus
             />
             {titleError && (
@@ -106,13 +107,13 @@ export function NewTicketDialog({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-body">Details</Label>
+            <Label htmlFor="t-body">What needs to be done?</Label>
             <Textarea
               id="t-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={4}
-              placeholder="What needs to change, and why?"
+              placeholder="Example: Add three recent studies to the literature review."
             />
             {bodyError && (
               <p className="text-xs text-stalled">
@@ -156,7 +157,7 @@ export function NewTicketDialog({
               Cancel
             </Button>
             <Button type="submit" loading={busy} disabled={!canSubmit}>
-              Create activity
+              Save task
             </Button>
           </div>
         </form>

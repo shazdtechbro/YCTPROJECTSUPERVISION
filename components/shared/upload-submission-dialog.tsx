@@ -29,7 +29,7 @@ const KINDS: { value: SubmissionKind; label: string }[] = [
   { value: "proposal", label: "Proposal" },
   { value: "chapter", label: "Chapter draft" },
   { value: "revision", label: "Revision" },
-  { value: "final", label: "Final" },
+  { value: "final", label: "Final project" },
   { value: "other", label: "Other" },
 ];
 
@@ -39,8 +39,9 @@ export function UploadSubmissionDialog({
   projectTopic,
   initialKind = "chapter",
   initialChapter = 1,
-  triggerLabel = "Upload",
+  triggerLabel = "Upload a document",
   chapterWorkAllowed = true,
+  finalUploadAllowed = false,
 }: {
   projectId: string;
   projectTopic: string;
@@ -48,6 +49,7 @@ export function UploadSubmissionDialog({
   initialChapter?: number;
   triggerLabel?: string;
   chapterWorkAllowed?: boolean;
+  finalUploadAllowed?: boolean;
   onCreated?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +59,12 @@ export function UploadSubmissionDialog({
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  const canSubmit = !!file && !busy;
+  function categoryBlocked(category: SubmissionKind) {
+    return (!chapterWorkAllowed && category !== "proposal") ||
+      (category === "final" && !finalUploadAllowed);
+  }
+
+  const canSubmit = !!file && !busy && !categoryBlocked(kind);
 
   function reset() {
     setKind(initialKind);
@@ -90,7 +97,7 @@ export function UploadSubmissionDialog({
         fileSize: uploaded.fileSize,
         ...(kind === "chapter" || kind === "revision" ? { chapterNumber: Number(chapterNumber) } : {}),
       });
-      toast.success("Submission uploaded");
+      toast.success("File sent to your supervisor for review");
       reset();
       setOpen(false);
       onCreated?.();
@@ -130,13 +137,18 @@ export function UploadSubmissionDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {KINDS.filter(k => chapterWorkAllowed || k.value === "proposal").map((k) => (
-                  <SelectItem key={k.value} value={k.value}>
+                {KINDS.map((k) => (
+                  <SelectItem key={k.value} value={k.value} disabled={categoryBlocked(k.value)}>
                     {k.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-sm text-muted-foreground">
+              {!chapterWorkAllowed
+                ? "Only proposals can be uploaded until your supervisor approves your topic."
+                : !finalUploadAllowed ? "Final project opens after your supervisor approves all five chapters." : "Choose the type of file you want your supervisor to review."}
+            </p>
           </div>
           {(kind === "chapter" || kind === "revision") && <div className="space-y-1.5">
             <Label htmlFor="s-chapter">Chapter stage</Label>

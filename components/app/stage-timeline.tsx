@@ -97,5 +97,5 @@ export function nextStep(project: ProjectDoc, stages: Stage[]): { title: string;
   if (project.finalApproved) return { title: "Final approved. Prepare for defence.", body: project.defenseDate ? `Defence on ${formatDate(project.defenseDate)}.` : "Ask your supervisor to set the defence date." };
   const todo = stages.find((s) => s.state === "todo" && s.key !== "defence");
   if (todo) return { title: `Upload your ${todo.label.toLowerCase().replace(/s$/, "")}.`, body: "Open your project and use Upload to send it for review." };
-  return { title: "Keep the momentum going.", body: "Check your tickets and feedback threads." };
+  return { title: "Keep the momentum going.", body: "Check your project tasks and read the latest feedback." };
 }
