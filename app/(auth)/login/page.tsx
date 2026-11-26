@@ -58,19 +58,17 @@ function LoginForm() {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-xl font-black tracking-tight">Sign in</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Continue to your supervision workspace.
-      </p>
+      <h1 className="font-display text-[32px] font-extrabold tracking-[-0.03em] sm:text-[36px]">Welcome back</h1>
+      <p className="mt-2 text-ink-2">Sign in to your supervision workspace.</p>
 
       <form
-        className="mt-6 space-y-4"
+        className="mt-8 space-y-5"
         onSubmit={(e) => {
           e.preventDefault();
           void run("password", () => signInWithPassword(email.trim(), password));
         }}
       >
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -82,7 +80,7 @@ function LoginForm() {
             placeholder="you@yabatech.edu.ng"
           />
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
@@ -93,35 +91,35 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full" loading={pending === "password"}>
+        <Button type="submit" size="lg" className="w-full" loading={pending === "password"} disabled={pending !== null}>
           Sign in
         </Button>
       </form>
 
       <div className="my-5 flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-2xs font-bold uppercase tracking-wider text-muted-foreground">
-          or
-        </span>
+        <span className="text-sm text-ink-3">or</span>
         <Separator className="flex-1" />
       </div>
 
       <Button
         variant="outline"
+        size="lg"
         className="w-full"
+        disabled={pending !== null}
         loading={pending === "google"}
         onClick={() => void run("google", signInWithGoogle)}
       >
         Continue with Google
       </Button>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        No account?{" "}
+      <p className="mt-6 text-sm text-ink-2">
+        New here?{" "}
         <Link
           href="/signup"
-          className="font-bold text-foreground underline underline-offset-4"
+          className="font-semibold text-brand-700 hover:underline"
         >
-          Create one
+          Create an account
         </Link>
       </p>
     </div>

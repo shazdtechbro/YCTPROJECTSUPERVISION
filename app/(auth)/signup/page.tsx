@@ -58,7 +58,7 @@ export default function SignUpPage() {
       toast.error("Could not create account", {
         description:
           code === "auth/email-already-in-use"
-            ? "That email is already registered — sign in instead."
+            ? "That email is already registered. Sign in instead."
             : code === "auth/weak-password"
               ? "Choose a stronger password (6+ characters)."
               : (err as Error).message,
@@ -69,13 +69,11 @@ export default function SignUpPage() {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-xl font-semibold tracking-tight">Create account</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Set up your supervision workspace.
-      </p>
+      <h1 className="font-display text-[32px] font-extrabold tracking-[-0.03em] sm:text-[36px]">Create your account</h1>
+      <p className="mt-2 text-ink-2">Pick your role and department to get started.</p>
 
-      <form className="mt-6 space-y-4" onSubmit={onSubmit}>
-        <div className="space-y-1.5">
+      <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+        <div className="space-y-2">
           <Label htmlFor="name">Full name</Label>
           <Input
             id="name"
@@ -87,7 +85,7 @@ export default function SignUpPage() {
           />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -100,7 +98,7 @@ export default function SignUpPage() {
           />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
@@ -113,33 +111,31 @@ export default function SignUpPage() {
           />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label>Role</Label>
-          <div className="grid grid-cols-3 gap-2">
+          <div role="radiogroup" aria-label="Role" className="grid grid-cols-3 gap-1 rounded-full bg-cream-2 p-1">
             {ROLE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
+                role="radio"
+                aria-checked={role === opt.value}
                 onClick={() => setRole(opt.value)}
                 className={cn(
-                  "rounded-md border px-2 py-2 text-left text-xs transition-colors",
-                  role === opt.value
-                    ? "border-primary bg-primary/5 text-foreground"
-                    : "border-border text-muted-foreground hover:border-foreground/20"
+                  "min-h-[44px] rounded-full px-2 text-sm font-semibold transition",
+                  role === opt.value ? "bg-white text-ink shadow-card" : "text-ink-2"
                 )}
               >
-                <span className="block font-medium text-foreground">
-                  {opt.label}
-                </span>
+                {opt.value === "hod" ? "HOD" : opt.label}
               </button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-ink-3">
             {ROLE_OPTIONS.find((o) => o.value === role)?.hint}
           </p>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label>Department</Label>
           <Select value={department} onValueChange={setDepartment}>
             <SelectTrigger>
@@ -157,6 +153,7 @@ export default function SignUpPage() {
 
         <Button
           type="submit"
+          size="lg"
           className="w-full"
           loading={pending}
           disabled={!canSubmit}
@@ -165,11 +162,11 @@ export default function SignUpPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-sm text-muted-foreground">
+      <p className="mt-6 text-sm text-ink-2">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-foreground underline-offset-4 hover:underline"
+          className="font-semibold text-brand-700 hover:underline"
         >
           Sign in
         </Link>

@@ -1,32 +1,24 @@
 import Link from "next/link";
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { AuthPanelIllustration } from "@/components/illustrations";
+import { Crest } from "@/components/shared/app-shell";
+
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-surface">
-      <header className="mx-auto flex w-full max-w-md items-center justify-between px-6 pt-10">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center border-2 border-border bg-foreground text-background shadow-brutal-sm">
-            <span className="text-xs font-black">P</span>
-          </div>
-          <span className="text-sm font-black uppercase tracking-tight">
-            Project Supervision
-          </span>
-        </Link>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-12">
-        <div className="border-2 border-border bg-background p-6 shadow-brutal">
-          {children}
+    <div className="grid min-h-[100dvh] lg:grid-cols-2">
+      <div className="flex flex-col px-5 py-6 sm:px-12 sm:py-8">
+        <Link href="/" className="w-fit"><Crest /></Link>
+        <main className="mx-auto my-auto w-full max-w-[420px] py-10">{children}</main>
+        <p className="text-xs text-ink-3">Yaba College of Technology · HND Digital Project Supervision</p>
+      </div>
+      <div className="relative hidden overflow-hidden bg-brand-900 p-8 lg:flex lg:flex-col">
+        <AuthPanelIllustration className="mx-auto max-h-[62vh] w-auto" />
+        <div className="relative mt-auto max-w-[440px] rounded-2xl bg-white/95 p-6 shadow-float">
+          <div className="text-[13px] font-bold text-behind">Why students like it</div>
+          <p className="mt-2 font-display text-[22px] font-bold leading-snug">Always know which chapter is next and exactly what your supervisor wants changed.</p>
+          <p className="mt-3 text-[13px] text-ink-3">Feedback, deadlines and approvals in one place, on any phone.</p>
         </div>
-      </main>
-
-      <footer className="mx-auto w-full max-w-md px-6 pb-10 text-2xs text-muted-foreground">
-        YABATECH ND · Digital Project Supervision &amp; Progress Tracking
-      </footer>
+      </div>
     </div>
   );
 }
