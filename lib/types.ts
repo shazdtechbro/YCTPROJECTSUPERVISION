@@ -147,6 +147,7 @@ export interface SubmissionDoc extends DocBase {
 }
 
 export interface CommentDoc extends DocBase {
+  mark?: import('./pdf-mark').PdfMark;
   projectId: string;
   submissionId: string;
   authorId: string;

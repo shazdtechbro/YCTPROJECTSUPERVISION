@@ -125,12 +125,15 @@ export const api = {
   decideExtension: (projectId: string, status: "approved" | "declined", note = "") =>
     req(`/api/projects/${projectId}`, "PATCH", { extensionStatus: status, extensionDecisionNote: note }),
 
-  postComment: (projectId: string, submissionId: string, body: string) =>
+  postComment: (projectId: string, submissionId: string, body: string, mark?: import("./pdf-mark").PdfMark) =>
     req<{ commentId: string }>(
       `/api/projects/${projectId}/submissions/${submissionId}/comments`,
       "POST",
-      { body }
+      { body, mark }
     ),
+
+  editPdfComment: (projectId: string, submissionId: string, commentId: string, body: string, colour: import("./pdf-mark").PdfColour) =>
+    req(`/api/projects/${projectId}/submissions/${submissionId}/comments`, "PATCH", { commentId, body, colour }),
 
   provisionAccount: (input: {
     idToken: string;

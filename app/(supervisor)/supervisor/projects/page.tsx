@@ -73,7 +73,7 @@ export default function SupervisorProjects() {
           />
         }
       >
-        <ProjectTable items={query.items} hrefFor={(p) => `/supervisor/projects/${p.id}`} showSupervisor={false} />
+        <ProjectTable items={query.items} hrefFor={(p) => `/supervisor/projects/${p.id}?tab=submissions`} showSupervisor={false} />
         {query.hasMore && (
           <div className="mt-5 flex justify-center">
             <Button

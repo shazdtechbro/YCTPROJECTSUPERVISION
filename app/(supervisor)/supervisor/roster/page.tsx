@@ -42,7 +42,7 @@ export default function SupervisorRoster() {
           />
         }
       >
-        <ProjectGrid items={query.items} hrefFor={(p) => `/supervisor/projects/${p.id}`} showSupervisor={false} />
+        <ProjectGrid items={query.items} hrefFor={(p) => `/supervisor/projects/${p.id}?tab=submissions`} showSupervisor={false} />
         {query.hasMore && (
           <div className="mt-3 flex justify-center">
             <Button

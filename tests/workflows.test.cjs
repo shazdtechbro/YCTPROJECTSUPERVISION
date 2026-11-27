@@ -819,3 +819,22 @@ test("official defence uses Lagos time and recalculates chapter targets when the
   assert.equal(computeMilestoneStatus({ ...input, officialDefenceAt: soon }).status, "behind");
   assert.equal(computeMilestoneStatus({ ...input, officialDefenceAt: later }).status, "on_track");
 });
+test("PDF highlights are validated, tied to the version and editable only by their author", async () => {
+  const version = "projects/p/submissions/s";
+  db.data.set(version, { fileName: "chapter.pdf", commentCount: 0 });
+  const mark = { page: 1, x: .2, y: .3, width: .4, height: .1, colour: "yellow" };
+  user = supervisor();
+  assert.equal((await routes.comments.POST(req({ body: "Clarify this section.", mark: { ...mark, x: .95 } }), params)).status, 400);
+  const posted = await routes.comments.POST(req({ body: "Clarify this section.", mark }), params);
+  assert.equal(posted.status, 200);
+  const { commentId } = await posted.json();
+  const ref = `${version}/comments/${commentId}`;
+  assert.deepEqual(db.data.get(ref).mark, mark);
+  const patch = { commentId, body: "Add one example.", colour: "blue" };
+  user = student();
+  assert.equal((await routes.comments.PATCH(req(patch), params)).status, 403);
+  user = supervisor();
+  assert.equal((await routes.comments.PATCH(req(patch), params)).status, 200);
+  assert.deepEqual(db.data.get(ref).mark, { ...mark, colour: "blue" });
+  assert.equal(db.data.get(ref).body, "Add one example.");
+});

@@ -47,3 +47,5 @@ next-env.d.ts
 
 .vercel
 .env*
+
+/public/pdf.worker.min.mjs

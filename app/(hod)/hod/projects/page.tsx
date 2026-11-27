@@ -39,7 +39,7 @@ function DepartmentProjects() {
   const [view, setView] = useState<"cards" | "table">("table");
 
   const query = usePaginatedQuery((params) => getDepartmentProjectsPage(dept, filter, params), [dept, filter]);
-  const href = (p: { id: string }) => `/hod/projects/${p.id}${tab ? `?tab=${tab}` : ""}`;
+  const href = (p: { id: string }) => `/hod/projects/${p.id}?tab=${tab ?? "submissions"}`;
 
   return (
     <div>

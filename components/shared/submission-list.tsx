@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { FileText, Download, Eye, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
@@ -147,14 +148,25 @@ export function SubmissionRow({ projectId, projectTopic, submission: s, versions
     {canUpload && s.status === "changes_requested" && (
       <p className="text-sm text-muted-foreground">Read your supervisor’s feedback, make the requested changes, then select Upload revision.</p>
     )}
-    <details className="rounded-md border p-3"><summary className="cursor-pointer text-sm font-medium">Files and version history ({versions.length})</summary>
+    <div className="flex flex-wrap gap-2">
+      {/\.pdf$/i.test(s.fileName) ? (
+        <Button asChild size="sm"><Link href={`/documents/${projectId}/${s.id}`}><Eye /> Open PDF review</Link></Button>
+      ) : (
+        <Button asChild variant="outline" size="sm"><a href={`/api/projects/${projectId}/submissions/${s.id}/file?download=1`}><Download /> Download this version</a></Button>
+      )}
+    </div>
+    <details className="rounded-md border p-3"><summary className="cursor-pointer text-sm font-semibold text-primary underline underline-offset-4">Files and version history ({versions.length})</summary>
       <p className="mt-2 text-xs text-muted-foreground">Choose the document version you want to view or download. Load more submissions below to include older history.</p>
       <ul className="mt-2 space-y-3">{versions.map(version => {
         const href = `/api/projects/${encodeURIComponent(projectId)}/submissions/${encodeURIComponent(version.id)}/file`;
         return <li key={version.id} className="min-w-0 border-t pt-2 text-sm">
           <p className="break-all">v{version.version} · {version.fileName}</p><p className="text-xs text-muted-foreground">{formatDate(version.createdAt)}</p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline"><Eye className="h-4 w-4" />View file</a>
+            {/\.pdf$/i.test(version.fileName) ? (
+              <Link href={`/documents/${projectId}/${version.id}`} className="inline-flex items-center gap-1 font-medium text-primary underline"><Eye className="h-4 w-4" />Review PDF version {version.version}</Link>
+            ) : (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline"><Eye className="h-4 w-4" />View file</a>
+            )}
             <a href={`${href}?download=1`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline"><Download className="h-4 w-4" />Download</a>
           </div>
         </li>;
