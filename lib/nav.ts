@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  CalendarClock,
   FolderKanban,
   LayoutDashboard,
   Users,
@@ -28,6 +29,7 @@ export const NAV_GROUPS: Record<Role, NavGroup[]> = {
       items: [
         { label: "Dashboard", short: "Home", href: "/student/dashboard", icon: LayoutDashboard },
         { label: "My project", short: "Project", href: "/student/project", icon: FolderKanban },
+        { label: "Defence", href: "/student/defence", icon: CalendarClock },
       ],
     },
   ],
@@ -41,7 +43,7 @@ export const NAV_GROUPS: Record<Role, NavGroup[]> = {
     },
     {
       label: "Review",
-      items: [{ label: "Students", short: "Students", href: "/supervisor/roster", icon: Users }],
+      items: [{ label: "Students", short: "Students", href: "/supervisor/roster", icon: Users }, { label: "Defence", href: "/supervisor/defence", icon: CalendarClock }],
     },
   ],
   hod: [
@@ -52,6 +54,7 @@ export const NAV_GROUPS: Record<Role, NavGroup[]> = {
         { label: "Projects", href: "/hod/projects", icon: FolderKanban },
         { label: "Supervisors", href: "/hod/supervisors", icon: Users },
         { label: "Reports", href: "/hod/reports", icon: BarChart3 },
+        { label: "Defence", href: "/hod/defence", icon: CalendarClock },
       ],
     },
   ],

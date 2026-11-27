@@ -1,8 +1,9 @@
 "use client";
 
-import { OfficialDefence } from "@/components/shared/official-defence";
+import Link from "next/link";
 
 import { BarChart3, FileText, MessageSquare, Ticket } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/app/stats";
 
 import { useAuth } from "@/lib/auth/auth-context";
@@ -58,12 +59,15 @@ export default function HodReports() {
         description={`Supervision analytics for ${dept || "your department"}.`}
       />
 
-      <OfficialDefence canEdit />
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline"><Link href="/hod/projects">View department projects</Link></Button>
+        <Button asChild variant="outline"><Link href="/hod/supervisors">View supervisor workload</Link></Button>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
-        <StatCard dark label="Submissions · 60 days" value={totalActivity.submissions} icon={FileText} />
-        <StatCard label="Comments · 60 days" value={totalActivity.comments} icon={MessageSquare} />
-        <StatCard label="Tasks · 60 days" value={totalActivity.tickets} icon={Ticket} />
+        <Link href="/hod/projects?tab=submissions" aria-label="Browse project submissions" className="rounded-xl focus-visible:ring-2"><StatCard dark label="Submissions · 60 days" value={totalActivity.submissions} icon={FileText} sub="Browse submissions" /></Link>
+        <Link href="/hod/projects?tab=feedback" aria-label="Open submission comments" className="rounded-xl focus-visible:ring-2"><StatCard label="Comments · 60 days" value={totalActivity.comments} icon={MessageSquare} sub="Open submission comments" /></Link>
+        <Link href="/hod/projects?tab=tickets" aria-label="Browse project tasks" className="rounded-xl focus-visible:ring-2"><StatCard label="Tasks · 60 days" value={totalActivity.tickets} icon={Ticket} sub="Browse tasks" /></Link>
       </div>
 
       <Card>
@@ -110,9 +114,9 @@ export default function HodReports() {
             />
           </div>
           <div className="grid grid-cols-3 gap-3 text-center">
-            <Legend label="On track" value={milestone.on_track} tone="on-track" />
-            <Legend label="Behind" value={milestone.behind} tone="behind" />
-            <Legend label="Overdue" value={milestone.stalled} tone="stalled" />
+            <Legend label="On track" value={milestone.on_track} tone="on-track" health="on_track" />
+            <Legend label="Behind" value={milestone.behind} tone="behind" health="behind" />
+            <Legend label="Overdue" value={milestone.stalled} tone="stalled" health="stalled" />
           </div>
         </CardContent>
       </Card>
@@ -124,19 +128,21 @@ function Legend({
   label,
   value,
   tone,
+  health,
 }: {
   label: string;
   value: number;
   tone: "on-track" | "behind" | "stalled";
+  health: "on_track" | "behind" | "stalled";
 }) {
   return (
-    <div>
+    <Link href={`/hod/projects?health=${health}`} className="rounded-lg p-2 hover:bg-cream-2 focus-visible:ring-2">
       <p className={`font-display text-2xl font-extrabold tnum text-[hsl(var(--status-${tone}))]`}>
         {value}
       </p>
       <p className="text-xs text-ink-3">
-        {label}
+        {label} projects
       </p>
-    </div>
+    </Link>
   );
 }

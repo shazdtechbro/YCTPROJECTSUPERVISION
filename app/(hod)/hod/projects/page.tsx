@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { LayoutGrid, Rows3 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth/auth-context";
@@ -24,17 +25,25 @@ const FILTERS: { value: MilestoneStatus | "all"; label: string; dot?: string }[]
 ];
 
 export default function HodProjects() {
+  return <Suspense fallback={<ListSkeleton rows={6} />}><DepartmentProjects /></Suspense>;
+}
+
+function DepartmentProjects() {
   const { claims } = useAuth();
+  const params = useSearchParams();
+  const entry = params.get("tab");
+  const tab = entry === "feedback" || entry === "submissions" || entry === "tickets" ? entry : null;
+  const initialFilter = FILTERS.find((item) => item.value === params.get("health"))?.value ?? "all";
   const dept = claims.department ?? "";
-  const [filter, setFilter] = useState<MilestoneStatus | "all">("all");
+  const [filter, setFilter] = useState<MilestoneStatus | "all">(initialFilter);
   const [view, setView] = useState<"cards" | "table">("table");
 
   const query = usePaginatedQuery((params) => getDepartmentProjectsPage(dept, filter, params), [dept, filter]);
-  const href = (p: { id: string }) => `/hod/projects/${p.id}`;
+  const href = (p: { id: string }) => `/hod/projects/${p.id}${tab ? `?tab=${tab}` : ""}`;
 
   return (
     <div>
-      <PageHeader title="Department projects" description={`Read-only view of every project in ${dept || "your department"}.`} />
+      <PageHeader title="Department projects" description={tab === "feedback" ? "Choose a project, then select a stage with an uploaded file to read or post a comment." : tab === "submissions" ? "Choose a project to see its uploaded files." : tab === "tickets" ? "Choose a project to see its tasks and activity." : `Monitor projects in ${dept || "your department"}. Open a project to see its stage or comment on a submission.`} />
 
       <div className="mb-5 flex items-center gap-2">
         <div role="tablist" aria-label="Filter by health" className="no-scrollbar -mx-4 flex flex-1 gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">

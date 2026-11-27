@@ -22,6 +22,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -109,13 +110,14 @@ function Inner({
                 </span>
               }
               description={project.data.milestoneReason}
+              actions={role === "hod" && tab !== "feedback" ? <Button onClick={() => changeTab("feedback")}>Open submission comments</Button> : undefined}
             />
 
             <Tabs value={tab} onValueChange={changeTab}>
               <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
-                <TabsTrigger value="feedback">Feedback</TabsTrigger>
+                <TabsTrigger value="feedback">{role === "hod" ? "Submission comments" : "Feedback"}</TabsTrigger>
                 <TabsTrigger value="tickets">Tasks and activity</TabsTrigger>
               </TabsList>
 

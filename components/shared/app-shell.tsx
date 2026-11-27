@@ -125,7 +125,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
   const [drawer, setDrawer] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const crumb = crumbFor(pathname, items);
-  const tabs = items.slice(0, 4);
+  const tabs = items;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

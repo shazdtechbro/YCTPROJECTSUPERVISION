@@ -75,10 +75,10 @@ export function OfficialDefence({
   return (
     <Card>
       <CardHeader><CardTitle>Official defence</CardTitle></CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className="space-y-3 text-sm leading-relaxed">
         {schedule.phase === "loading" && !scheduled && <p role="status">Loading the official defence date…</p>}
         {schedule.error && <p role="alert">{schedule.error.message} <button type="button" className="underline" onClick={retry}>Try again</button></p>}
-        {schedule.phase === "empty" && <p>The HOD has not set the official defence date yet.</p>}
+        {!canEdit && schedule.phase === "empty" && <p>No defence date set yet.</p>}
         {scheduled && (
           <>
             <p className="font-semibold"><time dateTime={scheduled.toISOString()}>{dateFormat.format(scheduled)} WAT</time></p>
@@ -92,8 +92,8 @@ export function OfficialDefence({
           <form onSubmit={save} className="space-y-3">
             <p>Set one official date and time for everyone in your department. Students and supervisors will see it on their dashboards.</p>
             <div className="grid max-w-2xl gap-3 sm:grid-cols-2">
-              <div className="space-y-1"><Label htmlFor="official-defence-date">Defence date</Label><Input id="official-defence-date" type="date" required value={input.date} onChange={(event) => setDraft({ ...input, date: event.target.value })} /></div>
-              <div className="space-y-1"><Label htmlFor="official-defence-time">Defence time (WAT)</Label><Input id="official-defence-time" type="time" required value={input.time} onChange={(event) => setDraft({ ...input, time: event.target.value })} /></div>
+              <div className="min-w-0 space-y-1"><Label htmlFor="official-defence-date">Defence date</Label><Input id="official-defence-date" type="date" className="min-w-0 max-w-full" required value={input.date} onChange={(event) => setDraft({ ...input, date: event.target.value })} /></div>
+              <div className="min-w-0 space-y-1"><Label htmlFor="official-defence-time">Defence time (WAT)</Label><Input id="official-defence-time" type="time" className="min-w-0 max-w-full" required value={input.time} onChange={(event) => setDraft({ ...input, time: event.target.value })} /></div>
             </div>
             <Button loading={saving} disabled={saving || schedule.phase === "loading"}>Save official defence</Button>
           </form>
